@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 from functools import reduce
 import config
+from utils import gather_axis
 
 
 epsilon = 1e-7
@@ -345,9 +346,9 @@ def create_conv3d_caps(inputs, channels, kernel_size, strides, name, padding='VA
     d_out, h_out, w_out = len(d_offsets), len(h_offsets), len(w_offsets)
 
     # gathers the capsules into shape (N, D2, H2, W2, KD, KH, KW, Ch_in, 17)
-    d_gathered = tf.gather(u_padded, d_offsets, axis=1)
-    h_gathered = tf.gather(d_gathered, h_offsets, axis=3)
-    w_gathered = tf.gather(h_gathered, w_offsets, axis=5)
+    d_gathered = gather_axis(u_padded, d_offsets, axis=1)
+    h_gathered = gather_axis(d_gathered, h_offsets, axis=3)
+    w_gathered = gather_axis(h_gathered, w_offsets, axis=5)
     w_gathered = tf.transpose(w_gathered, [0, 1, 3, 5, 2, 4, 6, 7, 8])
 
     # obtains the next layer of capsules
