@@ -5,6 +5,7 @@ from threading import Thread
 import h5py
 from scipy.misc import imread
 from PIL import Image, ImageDraw
+import cv2
 
 
 dataset_dir = '../../data/SyntheticVideos/'
@@ -22,8 +23,9 @@ def get_det_annotations():
             label_grp = hf.get(label)
             for file in label_grp.keys():
                 file_grp = label_grp.get(file)
+                # print(file)
                 k = label + '/' + file
-                v = {'label': label,
+                v = {'label': int(label),
                     #'char_ann': file_grp.get('char_ann')[()],
                     #'word_ann': file_grp.get('word_ann')[()],
                     #'line_ann': file_grp.get('line_ann')[()],
@@ -35,13 +37,17 @@ def get_det_annotations():
 
 def create_mask(shape, pts):
     im = np.zeros(shape)
-    # im = Image.fromarray(im)
+    im = Image.fromarray(im, 'L')
     draw = ImageDraw.Draw(im)
     draw.polygon(pts.tolist(), outline=1, fill=1)
     del draw
+    #print(pts.tolist())
+    #input()
     im = np.asarray(im).copy()
-    np.set_printoptions(threshold=np.inf)
-    print(im)
+    #np.set_printoptions(threshold=np.inf)
+    #print(im)
+    #input()
+    # cv2.imsave('temp.jpg', im)
     return np.reshape(im, im.shape + (1,))
 
 
