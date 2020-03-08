@@ -36,18 +36,16 @@ def get_det_annotations():
 
 
 def create_mask(shape, pts):
-    im = np.zeros(shape)
+    im = np.zeros(shape, dtype=np.uint8)
     im = Image.fromarray(im, 'L')
     draw = ImageDraw.Draw(im)
-    draw.polygon(pts.tolist(), outline=1, fill=1)
+    draw.polygon(pts.tolist(), fill=255)
     del draw
-    #print(pts.tolist())
+    # print(pts.tolist())
     #input()
     im = np.asarray(im).copy()
-    #np.set_printoptions(threshold=np.inf)
-    #print(im)
-    #input()
-    # cv2.imsave('temp.jpg', im)
+    cv2.imwrite('temp2.jpg', im)
+    input()
     return np.reshape(im, im.shape + (1,))
 
 
