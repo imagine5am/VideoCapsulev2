@@ -23,7 +23,7 @@ def get_det_annotations():
             label_grp = hf.get(label)
             for file in label_grp.keys():
                 file_grp = label_grp.get(file)
-                # print(file)
+                print(file)
                 k = label + '/' + file
                 v = {'label': int(label),
                     #'char_ann': file_grp.get('char_ann')[()],
@@ -37,17 +37,19 @@ def get_det_annotations():
 
 def create_mask(shape, pts):
     im = np.zeros(shape)
-    im = Image.fromarray(im, 'L')
+    im = Image.fromarray(im, 1)
     draw = ImageDraw.Draw(im)
     draw.polygon(pts.tolist(), outline=1, fill=1)
     del draw
-    #print(pts.tolist())
-    #input()
     im = np.asarray(im).copy()
+    print(pts.tolist())
+    #input()
+    
     #np.set_printoptions(threshold=np.inf)
     #print(im)
     #input()
-    # cv2.imsave('temp.jpg', im)
+    cv2.imwrite('temp.jpg', im)
+    input()
     return np.reshape(im, im.shape + (1,))
 
 
