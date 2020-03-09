@@ -2,11 +2,13 @@ import numpy as np
 import tensorflow as tf
 from caps_network import Caps3d
 import config
+from cv2 import imread
+import os
 from skvideo.io import vread, vwrite
 from scipy.misc import imresize
 
 
-def inference(video_name):
+def inference(video, dir=False):
     gpu_config = tf.ConfigProto()
     gpu_config.gpu_options.allow_growth = True
 
@@ -14,9 +16,18 @@ def inference(video_name):
     with tf.Session(graph=capsnet.graph, config=gpu_config) as sess:
         tf.global_variables_initializer().run()
         capsnet.load(sess, config.save_file_name)
-
-        video = vread(video_name)
-
+        if not dir:
+            video = vread(video)
+        else:
+            video_dir = video
+            n_frames = len(os.listdir(video_dir))
+            frame_start = 0
+            im0 = imread(video_dir + ('frame_%d.jpg' % frame_start))
+            h, w, ch = im0.shape
+            video = np.zeros((n_frames, h, w, ch), dtype=np.uint8)
+            for idx in range(n_frames):
+                video[idx] = imread(video_dir + ('frame_%d.jpg' % idx))
+                
         n_frames = video.shape[0]
         crop_size = (112, 112)
 
@@ -84,5 +95,5 @@ def inference(video_name):
 
 
 # inference('../../data/UCF-101/Biking/v_Biking_g01_c03.avi')
-inference('/mnt/data/Rohit/VideoCapsNet/code/SynthVideo/MayurTest2/7200_tr_b_t_MZ.52 831.avi')
-
+# inference('/mnt/data/Rohit/VideoCapsNet/code/SynthVideo/MayurTest2/7200_tr_b_t_MZ.52 831.avi')
+inference('/mnt/data/Rohit/VideoCapsNet/data/SyntheticVideos/Frames/1/7207_tr_r_l_/', dir=True)
