@@ -1,8 +1,26 @@
-CL: 5.4129. SL: 62.5716. Acc: 0.0000
-CL: 5.5769. SL: 58.5389. Acc: 0.0625
-Validation	CL: 25.3784. SL: 29.3656. Acc: 0.1111.
+CL: 4.9443. SL: 69.5288. Acc: 0.0625
+CL: 5.2156. SL: 70.0806. Acc: 0.0625
+CL: 4.5611. SL: 61.6861. Acc: 0.0625
+CL: 2.9707. SL: 74.8281. Acc: 0.0625
+CL: 3.1628. SL: 60.3515. Acc: 0.0625
+CL: 4.7795. SL: 54.7489. Acc: 0.0625
+CL: 5.0831. SL: 33.0783. Acc: 0.1250
+CL: 5.0596. SL: 46.2686. Acc: 0.1250
+CL: 5.8687. SL: 33.8451. Acc: 0.1250
+CL: 5.7227. SL: 45.0857. Acc: 0.0625
+CL: 10.1551. SL: 35.1689. Acc: 0.0000
+CL: 9.2483. SL: 22.2204. Acc: 0.0000
+CL: 8.8736. SL: 60.4661. Acc: 0.0000
+CL: 10.4310. SL: 48.9365. Acc: 0.0625
+CL: 9.6042. SL: 27.8382. Acc: 0.0000
+CL: 13.2672. SL: 86.0244. Acc: 0.0000
+CL: 13.1262. SL: 61.9501. Acc: 0.1250
+CL: 11.2718. SL: 60.5111. Acc: 0.1250
+CL: 10.5614. SL: 47.0187. Acc: 0.1250
+CL: 9.7034. SL: 41.0808. Acc: 0.1250
+Validation	CL: 46.5794. SL: 62.5042. Acc: 0.1000.
 Saved Network
-Test Accuracy: 0.0000
+Test Accuracy: 0.1250
 IoU f-mAP:
 0.0000	nan
 0.0500	nan
@@ -24,7 +42,7 @@ IoU f-mAP:
 0.8500	nan
 0.9000	nan
 0.9500	nan
-[nan nan  0.  0.  0. nan nan nan nan nan nan nan]
+[ 0.  0. nan  0.  0. nan nan nan  0.  0. nan nan]
 IoU v-mAP:
 0.0000	nan
 0.0500	nan
@@ -46,4 +64,4 @@ IoU v-mAP:
 0.8500	nan
 0.9000	nan
 0.9500	nan
-[nan nan  0.  0.  0. nan nan nan nan nan nan nan]
+[ 0.  0. nan  0.  0. nan nan nan  0.  0. nan nan]
