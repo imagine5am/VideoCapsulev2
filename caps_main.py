@@ -1,5 +1,5 @@
-import tensorflow as tf
 import config
+import tensorflow as tf
 from caps_network import Caps3d
 from get_iou import iou
 from load_synth_data import SynthTrainDataGenDet as TrainDataGen, SynthTestDataGenDet as TestDataGen
@@ -71,6 +71,7 @@ def train_network(gpu_config):
 
 def main():
     gpu_config = tf.ConfigProto(allow_soft_placement=True)
+    gpu_config.gpu_options.visible_device_list= '0'
     gpu_config.gpu_options.allow_growth = True
 
     # trains the network with the given gpu configuration
