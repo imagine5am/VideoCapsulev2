@@ -1,6 +1,7 @@
 import os
 import time
 import numpy as np
+import random
 from threading import Thread
 import h5py
 from scipy.misc import imread
@@ -31,7 +32,9 @@ def get_det_annotations():
                     #'line_ann': file_grp.get('line_ann')[()],
                     'para_ann': file_grp.get('para_ann')[()]
                     }
+                #print(label)
                 polygon_ann.append((k, v))
+    random.shuffle(polygon_ann) 
     return polygon_ann
 
 
@@ -44,8 +47,8 @@ def create_mask(shape, pts):
     # print(pts.tolist())
     #input()
     im = np.asarray(im).copy()
-    cv2.imwrite('temp2.jpg', im)
-    input()
+    #cv2.imwrite('temp2.jpg', im)
+    #input()
     return np.reshape(im, im.shape + (1,))
 
 
@@ -172,7 +175,7 @@ class SynthTrainDataGenDet(object):
             vid_name, anns = self.train_files.pop()
             clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', anns, skip_frames=self.frame_skip, start_rand=True)
             clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
-            clip, bbox_clip = crop_clip_det(clip, bbox_clip, shuffle=True)
+            # clip, bbox_clip = crop_clip_det(clip, bbox_clip, shuffle=True)
             self.data_queue.append((clip, bbox_clip, label))
         print('Loading data thread finished')
 
@@ -220,7 +223,7 @@ class SynthTestDataGenDet(object):
                 time.sleep(1)
             vid_name, anns = self.test_files.pop(0)
             clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', anns, skip_frames=self.skip_frame, start_rand=False)
-            clip, bbox_clip = crop_clip_det(clip, bbox_clip, shuffle=False)
+            # clip, bbox_clip = crop_clip_det(clip, bbox_clip, shuffle=False)
             self.data_queue.append((clip, bbox_clip, label))
         print('Loading data thread finished')
 

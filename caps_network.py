@@ -6,8 +6,14 @@ import numpy as np
 from caps_layers import create_prim_conv3d_caps, create_dense_caps, layer_shape, create_conv3d_caps
 
 
-def create_skip_connection(in_caps_layer, n_units, kernel_size, strides=(1, 1, 1), padding='VALID', name='skip',
-                           activation=tf.nn.relu):
+def create_skip_connection(in_caps_layer, n_units, kernel_size, strides=(1, 1, 1), 
+                            padding='VALID', name='skip', activation=tf.nn.relu):
+    '''
+    skip_connection1 = create_skip_connection(sec_caps, 128, kernel_size=[1, 3, 3], 
+                                                    strides=[1, 1, 1], padding='SAME', 
+                                                    name='skip_1')
+    '''
+
     in_caps_layer = in_caps_layer[0]
     batch_size = tf.shape(in_caps_layer)[0]
     _, d, h, w, ch, _ = in_caps_layer.get_shape()
@@ -15,12 +21,13 @@ def create_skip_connection(in_caps_layer, n_units, kernel_size, strides=(1, 1, 1
 
     in_caps_res = tf.reshape(in_caps_layer, [batch_size, d, h, w, ch * 16])
 
-    return tf.layers.conv3d_transpose(in_caps_res, n_units, kernel_size=kernel_size, strides=strides, padding=padding,
-                                      use_bias=False, activation=activation, name=name)
+    return tf.layers.conv3d_transpose(in_caps_res, n_units, kernel_size=kernel_size, 
+                                        strides=strides, padding=padding, use_bias=False, 
+                                        activation=activation, name=name)
 
 
 class Caps3d(object):
-    def __init__(self,  input_shape=(None, 8, 112, 112, 3)):
+    def __init__(self,  input_shape=(None, 8, 260, 480, 3)):
         self.input_shape = input_shape
         self.graph = tf.Graph()
         with self.graph.as_default():
@@ -29,7 +36,7 @@ class Caps3d(object):
             # inputs to the network
             self.x_input = tf.placeholder(dtype=tf.float32, shape=self.input_shape)
             self.y_input = tf.placeholder(dtype=tf.int32, shape=[None])
-            self.y_bbox = tf.placeholder(dtype=tf.float32, shape=(None, 8, 112, 112, 1))
+            self.y_bbox = tf.placeholder(dtype=tf.float32, shape=(None, 8, 260, 480, 1))
             self.is_train = tf.placeholder(tf.bool)
             self.m = tf.placeholder(tf.float32, shape=())
 
@@ -121,8 +128,7 @@ class Caps3d(object):
             print('Conv6:', conv6.get_shape())
 
         # creates the primary capsule layer: conv caps1
-        prim_caps = create_prim_conv3d_caps(conv6, 32, kernel_size=[3, 9, 9], strides=[1, 1, 1], padding='VALID',
-                                            name='prim_caps')
+        prim_caps = create_prim_conv3d_caps(conv6, 32, kernel_size=[3, 9, 9], strides=[1, 1, 1],                                   padding='VALID', name='prim_caps')
 
         # creates the secondary capsule layer: conv caps2
         sec_caps = create_conv3d_caps(prim_caps, 32, kernel_size=[3, 5, 5], strides=[1, 2, 2],
@@ -153,21 +159,29 @@ class Caps3d(object):
         masked_caps = tf.reshape(masked_caps, (batch_size, n_classes * dim))
 
         # creates the decoder network
-        recon_fc1 = tf.layers.dense(masked_caps, 4 * 8 * 8 * 1, activation=tf.nn.relu, name='recon_fc1')
-        recon_fc1 = tf.reshape(recon_fc1, (batch_size, 4, 8, 8, 1))
+        recon_fc1 = tf.layers.dense(masked_caps, 4 * 27 * 54 * 1, activation=tf.nn.relu, name='recon_fc1')
+        recon_fc1 = tf.reshape(recon_fc1, (batch_size, 4, 27, 54, 1))
 
-        deconv1 = tf.layers.conv3d_transpose(recon_fc1, 128, kernel_size=[1, 3, 3], strides=[1, 1, 1],
-                                             padding='SAME', use_bias=False, activation=tf.nn.relu, name='deconv1')
+        deconv1 = tf.layers.conv3d_transpose(recon_fc1, 128, kernel_size=[1, 3, 3], 
+                                            strides=[1, 1, 1], padding='SAME', 
+                                            use_bias=False, activation=tf.nn.relu, 
+                                            name='deconv1')
 
-        skip_connection1 = create_skip_connection(sec_caps, 128, kernel_size=[1, 3, 3], strides=[1, 1, 1],
-                                                  padding='SAME', name='skip_1')
+        skip_connection1 = create_skip_connection(sec_caps, 128, kernel_size=[1, 3, 3], 
+                                                    strides=[1, 1, 1], padding='SAME', 
+                                                    name='skip_1')
+
         deconv1 = tf.concat([deconv1, skip_connection1], axis=-1)
 
-        deconv2 = tf.layers.conv3d_transpose(deconv1, 128, kernel_size=[3, 6, 6], strides=[1, 2, 2],
+        deconv2 = tf.layers.conv3d_transpose(deconv1, 128, kernel_size=[3, 5, 6], strides=[1, 2, 2],
                                              padding='VALID', use_bias=False, activation=tf.nn.relu, name='deconv2')
 
         skip_connection2 = create_skip_connection(prim_caps, 128, kernel_size=[1, 3, 3], strides=[1, 1, 1],
                                                   padding='SAME', name='skip_2')
+
+        print('deconv1:', deconv1.get_shape())                                          
+        print('deconv2:', deconv2.get_shape())
+        print('skip_connection2:', skip_connection2.get_shape())
         deconv2 = tf.concat([deconv2, skip_connection2], axis=-1)
 
         deconv3 = tf.layers.conv3d_transpose(deconv2, 256, kernel_size=[3, 9, 9], strides=[1, 1, 1],

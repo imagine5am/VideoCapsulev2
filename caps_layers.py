@@ -18,12 +18,14 @@ def create_prim_conv3d_caps(inputs, channels, kernel_size, strides, name, paddin
     :param kernel_size: Size of kernel which is applied to the feature maps. Should be 3 dimensional (K_t, K_h, K_w).
     :param strides: The striding which the kernel uses. Should be 3 dimensional (S_t, S_h, S_w)
     :param name: Name given to the layer
-    :param padding: Whether or not padding should be applied. Should be either 'VALID' or 'SAME', for no padding and
-    padding respectively.
+    :param padding: Whether or not padding should be applied. Should be either 'VALID' or 'SAME', for no padding and padding respectively.
     :param activation: The activation function used for the pose matrices.
     :return: Returns capsules of the form (poses, activations). Poses have shape (N, D_out, H_out, W_out, C_out, M)
     where M is the height*width of the pose matrix. Activations have shape (N, D_out, H_out, W_out, C_out, 1).
     """
+    '''
+    prim_caps = create_prim_conv3d_caps(conv6, 32, kernel_size=[3, 9, 9], strides=[1, 1, 1],                                   padding='VALID', name='prim_caps')
+    '''
     batch_size = tf.shape(inputs)[0]
     poses = tf.layers.conv3d(inputs=inputs, filters=channels * mdim2, kernel_size=kernel_size,
                              strides=strides, padding=padding, activation=activation, name=name+'_pose')
@@ -244,6 +246,10 @@ def create_dense_caps(inputs, n_caps_j, name, subset_routing=-1, route_min=0.0, 
     weights.
     :return: Returns a layer of capsules. Shape ((N, n_caps_j, M), (N, n_caps_j, 1))
     """
+    '''
+    pred_caps = create_dense_caps(sec_caps, config.n_classes, subset_routing=-1, route_min=0.0,
+                                      name='pred_caps', coord_add=True, ch_same_w=True)
+    '''
     pose, activation = inputs
     batch_size = tf.shape(pose)[0]
     shape_list = [int(x) for x in pose.get_shape().as_list()[1:]]
@@ -323,6 +329,10 @@ def create_conv3d_caps(inputs, channels, kernel_size, strides, name, padding='VA
     :return: Returns a layer of capsules.
     Shape ((N, D_out, H_out, W_out, n_caps_j, M), (N, D_out, H_out, W_out, n_caps_j, 1))
     """
+    '''
+    sec_caps = create_conv3d_caps(prim_caps, 32, kernel_size=[3, 5, 5], strides=[1, 2, 2],
+                                      padding='VALID', name='sec_caps', route_mean=True)
+    '''
     inputs = tf.concat(inputs, axis=-1)
 
     # pads the input

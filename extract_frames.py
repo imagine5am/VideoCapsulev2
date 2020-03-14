@@ -1,6 +1,10 @@
 import cv2
 import os
 
+'''
+To extract frames from videos
+'''
+
 dataset_dir = '../../data/UCF-101'
 dest = '../../data/UCF101_Frames'
 h_out, w_out = 120, 160
