@@ -18,6 +18,7 @@ def get_num_params():
 
 
 def train_network(gpu_config):
+    #with tf.device("/gpu:3"):
     capsnet = Caps3d()
 
     with tf.Session(graph=capsnet.graph, config=gpu_config) as sess:

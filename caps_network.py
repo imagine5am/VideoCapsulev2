@@ -128,7 +128,8 @@ class Caps3d(object):
             print('Conv6:', conv6.get_shape())
 
         # creates the primary capsule layer: conv caps1
-        prim_caps = create_prim_conv3d_caps(conv6, 32, kernel_size=[3, 9, 9], strides=[1, 1, 1],                                   padding='VALID', name='prim_caps')
+        prim_caps = create_prim_conv3d_caps(conv6, 32, kernel_size=[3, 9, 9], strides=[1, 1, 1],                         
+                                            padding='VALID', name='prim_caps')
 
         # creates the secondary capsule layer: conv caps2
         sec_caps = create_conv3d_caps(prim_caps, 32, kernel_size=[3, 5, 5], strides=[1, 2, 2],
