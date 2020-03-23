@@ -70,9 +70,13 @@ def train_network(gpu_config):
 
 
 def main():
-    gpu_config = tf.ConfigProto(allow_soft_placement=True)
-    gpu_config.gpu_options.visible_device_list= '0'
+    gpu_config = tf.ConfigProto()
+    gpu_config.gpu_options.visible_device_list= '1,2,0,3'
     gpu_config.gpu_options.allow_growth = True
+    #gpu_config.gpu_options.per_process_gpu_memory_fraction = 1.0
+    #gpu_config.gpu_options.allocator_type = 'BFC'
+    gpu_config.log_device_placement = True
+    #gpu_config.allow_soft_placement = True
 
     # trains the network with the given gpu configuration
     train_network(gpu_config)
