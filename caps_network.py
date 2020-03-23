@@ -27,7 +27,7 @@ def create_skip_connection(in_caps_layer, n_units, kernel_size, strides=(1, 1, 1
 
 
 class Caps3d(object):
-    def __init__(self,  input_shape=(None, 8, 260, 480, 3)):
+    def __init__(self,  input_shape=(None, 8, 130, 240, 3)):
         self.input_shape = input_shape
         self.graph = tf.Graph()
         with self.graph.as_default():
@@ -37,7 +37,7 @@ class Caps3d(object):
             #with tf.device('/gpu:0'):
             self.x_input = tf.placeholder(dtype=tf.float32, shape=self.input_shape)
             self.y_input = tf.placeholder(dtype=tf.int32, shape=[None])
-            self.y_bbox = tf.placeholder(dtype=tf.float32, shape=(None, 8, 260, 480, 1))
+            self.y_bbox = tf.placeholder(dtype=tf.float32, shape=(None, 8, 130, 240, 1))
             self.is_train = tf.placeholder(tf.bool)
             self.m = tf.placeholder(tf.float32, shape=())
 
