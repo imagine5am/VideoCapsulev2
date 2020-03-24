@@ -10,32 +10,36 @@ import cv2
 
 
 dataset_dir = '../../data/SyntheticVideos/'
+# dataset_dir = '../SynthVideo/MayurTest2/'
 
-def get_det_annotations():
+def get_det_annotations(split='train'):
     """
     Loads in all annotations for training and testing splits. This is assuming the data has been loaded in with resized frames (half in each dimension).
     :return: returns two lists (one for training and one for testing) with the file names and annotations. The lists
     contain tuples with the following content (file name, annotations), where annotations is a list of tuples with the
     form (start frame, end frame, label, bounding boxes).
     """
-    polygon_ann = []
-    with h5py.File(dataset_dir + 'Annotations/synthvid_ann.hdf5', 'r') as hf:
-        for label in hf.keys():
-            label_grp = hf.get(label)
-            for file in label_grp.keys():
-                file_grp = label_grp.get(file)
-                # print(file)
-                k = label + '/' + file
-                v = {'label': int(label),
-                    #'char_ann': file_grp.get('char_ann')[()],
-                    #'word_ann': file_grp.get('word_ann')[()],
-                    #'line_ann': file_grp.get('line_ann')[()],
-                    'para_ann': file_grp.get('para_ann')[()]
-                    }
-                #print(label)
-                polygon_ann.append((k, v))
-    random.shuffle(polygon_ann) 
-    return polygon_ann
+    if split == 'train':
+        polygon_ann = []
+        with h5py.File(dataset_dir + 'Annotations/synthvid_ann.hdf5', 'r') as hf:
+        # with h5py.File('../SynthVideo/synthvid_ann.hdf5', 'r') as hf:
+            for label in hf.keys():
+                label_grp = hf.get(label)
+                for file in label_grp.keys():
+                    file_grp = label_grp.get(file)
+                    # print(file)
+                    k = label + '/' + file
+                    v = {'label': int(label),
+                        #'char_ann': file_grp.get('char_ann')[()],
+                        #'word_ann': file_grp.get('word_ann')[()],
+                        #'line_ann': file_grp.get('line_ann')[()],
+                        'para_ann': file_grp.get('para_ann')[()]
+                        }
+                    #print(label)
+                    polygon_ann.append((k, v))
+        random.shuffle(polygon_ann) 
+        return polygon_ann
+    
 
 
 def create_mask(shape, pts):
@@ -47,6 +51,10 @@ def create_mask(shape, pts):
     # print(pts.tolist())
     #input()
     im = np.asarray(im).copy()
+    im = im // 255
+    #print('np.min(im)', np.min(im))
+    #print('np.max(im)', np.max(im))
+    #print(im.dtype)
     #cv2.imwrite('temp2.jpg', im)
     #input()
     return np.reshape(im, im.shape + (1,))
@@ -223,6 +231,7 @@ class SynthTestDataGenDet(object):
                 time.sleep(1)
             vid_name, anns = self.test_files.pop(0)
             clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', anns, skip_frames=self.skip_frame, start_rand=False)
+            clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
             clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(128, 240), shuffle=False)
             self.data_queue.append((clip, bbox_clip, label))
         print('Loading data thread finished')
