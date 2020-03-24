@@ -37,8 +37,8 @@ def iou():
                     for k in range(8):
                         ind = i + j + k*f_skip
                         if ind >= n_frames:
-                            b_vid.append(np.zeros((1, 112, 112, 3), dtype=np.float32))
-                            b_bbox.append(np.zeros((1, 112, 112, 1), dtype=np.float32))
+                            b_vid.append(np.zeros((1, config.vid_h, config.vid_w, 3), dtype=np.float32))
+                            b_bbox.append(np.zeros((1, config.vid_h, config.vid_w, 1), dtype=np.float32))
                         else:
                             b_vid.append(video[ind:ind+1, :, :, :])
                             b_bbox.append(bbox[ind:ind+1, :, :, :])
@@ -63,7 +63,7 @@ def iou():
                 gt_segmentations.append(np.stack(bb_batch))
 
             gt_segmentations = np.concatenate(gt_segmentations, axis=0)
-            gt_segmentations = gt_segmentations.reshape((-1, 112, 112, 1))  # Shape N_FRAMES, 112, 112, 1
+            gt_segmentations = gt_segmentations.reshape((-1, config.vid_h, config.vid_w, 1))  # Shape N_FRAMES, 112, 112, 1
 
             segmentations, predictions = [], []
             for x_batch, bb_batch, y_batch in batches:
@@ -82,7 +82,7 @@ def iou():
                 n_correct += 1
 
             pred_segmentations = np.concatenate(segmentations, axis=0)
-            pred_segmentations = pred_segmentations.reshape((-1, 112, 112, 1))
+            pred_segmentations = pred_segmentations.reshape((-1, config.vid_h, config.vid_w, 1))
 
             pred_segmentations = (pred_segmentations >= 0.5).astype(np.int32)
             seg_plus_gt = pred_segmentations + gt_segmentations

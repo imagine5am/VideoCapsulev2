@@ -27,7 +27,7 @@ def create_skip_connection(in_caps_layer, n_units, kernel_size, strides=(1, 1, 1
 
 
 class Caps3d(object):
-    def __init__(self,  input_shape=(None, 8, 128, 240, 3)):
+    def __init__(self,  input_shape=(None, 8, config.vid_h, config.vid_w, 3)):
         self.input_shape = input_shape
         self.graph = tf.Graph()
         with self.graph.as_default():
@@ -37,7 +37,7 @@ class Caps3d(object):
             #with tf.device('/gpu:0'):
             self.x_input = tf.placeholder(dtype=tf.float32, shape=self.input_shape)
             self.y_input = tf.placeholder(dtype=tf.int32, shape=[None])
-            self.y_bbox = tf.placeholder(dtype=tf.float32, shape=(None, 8, 128, 240, 1))
+            self.y_bbox = tf.placeholder(dtype=tf.float32, shape=(None, 8, config.vid_h, config.vid_w, 1))
             self.is_train = tf.placeholder(tf.bool)
             self.m = tf.placeholder(tf.float32, shape=())
 
@@ -321,8 +321,8 @@ class Caps3d(object):
                 for k in range(8):
                     ind = i + j + k * f_skip
                     if ind >= n_frames:
-                        b_vid.append(np.zeros((1, 128, 240, 3), dtype=np.float32))
-                        b_bbox.append(np.zeros((1, 128, 240, 1), dtype=np.float32))
+                        b_vid.append(np.zeros((1, config.vid_h, config.vid_w, 3), dtype=np.float32))
+                        b_bbox.append(np.zeros((1, config.vid_h, config.vid_w, 1), dtype=np.float32))
                     else:
                         b_vid.append(video[ind:ind + 1, :, :, :])
                         b_bbox.append(bbox[ind:ind + 1, :, :, :])
