@@ -1,3 +1,0 @@
-CL: 1.7202. SL: 83.1974. Acc: 0.1667
-Validation	CL: 14.9428. SL: 40.2401. Acc: 0.0000.
-Saved Network

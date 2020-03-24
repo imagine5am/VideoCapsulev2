@@ -9,8 +9,8 @@ from PIL import Image, ImageDraw
 import cv2
 
 
-dataset_dir = '../../data/SyntheticVideos/'
-# dataset_dir = '../SynthVideo/MayurTest2/'
+# dataset_dir = '../../data/SyntheticVideos/'
+dataset_dir = '../SynthVideo/MayurTest2/'
 
 def get_det_annotations(split='train'):
     """
@@ -20,8 +20,8 @@ def get_det_annotations(split='train'):
     form (start frame, end frame, label, bounding boxes).
     """
     polygon_ann = []
-    with h5py.File(dataset_dir + 'Annotations/synthvid_ann.hdf5', 'r') as hf:
-    # with h5py.File('../SynthVideo/synthvid_ann.hdf5', 'r') as hf:
+    # with h5py.File(dataset_dir + 'Annotations/synthvid_ann.hdf5', 'r') as hf:
+    with h5py.File('../SynthVideo/synthvid_ann.hdf5', 'r') as hf:
         for label in hf.keys():
             label_grp = hf.get(label)
             for file in label_grp.keys():
@@ -210,7 +210,7 @@ class SynthTrainDataGenDet(object):
 # The data generator for testing. Outputs clips, bounding boxes, and labels for the testing split.
 class SynthTestDataGenDet(object):
     def __init__(self, sec_to_wait=5, frame_skip=1):
-        self.test_files = get_det_annotations()
+        self.test_files = get_det_annotations(split='test')
         self.n_videos = len(self.test_files)
         self.sec_to_wait = sec_to_wait
         self.skip_frame = frame_skip
