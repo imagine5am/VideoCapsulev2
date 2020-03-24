@@ -49,7 +49,7 @@ def train_network(gpu_config):
 
             # validates the network
             if (acc >= config.acc_for_eval and n_eps_after_acc % config.n_eps_for_eval == 0) or ep == config.n_epochs:
-                data_gen = TestDataGen(config.wait_for_data, frame_skip=frame_skip=config.frame_skip)
+                data_gen = TestDataGen(config.wait_for_data, frame_skip=config.frame_skip)
                 # data_gen = TestDataGen(config.wait_for_data, frame_skip=1)
                 margin_loss, seg_loss, accuracy, _ = capsnet.eval(sess, data_gen, validation=True)
 

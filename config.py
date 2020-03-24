@@ -25,6 +25,10 @@ use_c3d_weights = False
 # number of classes for the network to predict
 n_classes = 12
 
+# resolution
+vid_h = 128
+vid_w = 240
+
 # model number, output file name, save file directory, and save file name
 model_num = 2
 output_file_name = './output%d.txt' % model_num

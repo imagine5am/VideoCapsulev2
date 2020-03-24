@@ -321,8 +321,8 @@ class Caps3d(object):
                 for k in range(8):
                     ind = i + j + k * f_skip
                     if ind >= n_frames:
-                        b_vid.append(np.zeros((1, 112, 112, 3), dtype=np.float32))
-                        b_bbox.append(np.zeros((1, 112, 112, 1), dtype=np.float32))
+                        b_vid.append(np.zeros((1, 128, 240, 3), dtype=np.float32))
+                        b_bbox.append(np.zeros((1, 128, 240, 1), dtype=np.float32))
                     else:
                         b_vid.append(video[ind:ind + 1, :, :, :])
                         b_bbox.append(bbox[ind:ind + 1, :, :, :])

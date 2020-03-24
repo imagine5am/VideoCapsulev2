@@ -39,6 +39,8 @@ def get_det_annotations(split='train'):
     random.shuffle(polygon_ann)
     if split == 'train':
         return polygon_ann
+    elif split == 'test':
+        return polygon_ann[:10]
     
 
 
@@ -46,12 +48,12 @@ def create_mask(shape, pts):
     im = np.zeros(shape, dtype=np.uint8)
     im = Image.fromarray(im, 'L')
     draw = ImageDraw.Draw(im)
-    draw.polygon(pts.tolist(), fill=255)
+    draw.polygon(pts.tolist(), fill=1)
     del draw
     # print(pts.tolist())
     #input()
     im = np.asarray(im).copy()
-    im = im // 255
+    #im = im // 255
     #print('np.min(im)', np.min(im))
     #print('np.max(im)', np.max(im))
     #print(im.dtype)
