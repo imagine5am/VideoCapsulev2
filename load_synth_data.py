@@ -95,11 +95,12 @@ def get_video_det(video_dir, annotations, skip_frames=1, start_rand=True):
             print('*' * 20)
         
         mask = create_mask((frame.shape[0],frame.shape[1]), annotations['para_ann'][idx,0])
+        mask = cv2.resize(mask, (config.vid_w, config.vid_h))
+        mask = np.reshape(mask, mask.shape + (1,))
         
         frame = cv2.resize(frame, (config.vid_w, config.vid_h))
-        mask = cv2.resize(mask, (config.vid_w, config.vid_h))
+        
         video[idx] = frame
-        mask = np.reshape(mask, mask.shape + (1,))
         bbox[idx] = mask  
         
         
