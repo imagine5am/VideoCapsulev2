@@ -19,25 +19,25 @@ def get_det_annotations(split='train'):
     contain tuples with the following content (file name, annotations), where annotations is a list of tuples with the
     form (start frame, end frame, label, bounding boxes).
     """
+    polygon_ann = []
+    with h5py.File(dataset_dir + 'Annotations/synthvid_ann.hdf5', 'r') as hf:
+    # with h5py.File('../SynthVideo/synthvid_ann.hdf5', 'r') as hf:
+        for label in hf.keys():
+            label_grp = hf.get(label)
+            for file in label_grp.keys():
+                file_grp = label_grp.get(file)
+                # print(file)
+                k = label + '/' + file
+                v = {'label': int(label),
+                    #'char_ann': file_grp.get('char_ann')[()],
+                    #'word_ann': file_grp.get('word_ann')[()],
+                    #'line_ann': file_grp.get('line_ann')[()],
+                    'para_ann': file_grp.get('para_ann')[()]
+                    }
+                #print(label)
+                polygon_ann.append((k, v))
+    random.shuffle(polygon_ann)
     if split == 'train':
-        polygon_ann = []
-        with h5py.File(dataset_dir + 'Annotations/synthvid_ann.hdf5', 'r') as hf:
-        # with h5py.File('../SynthVideo/synthvid_ann.hdf5', 'r') as hf:
-            for label in hf.keys():
-                label_grp = hf.get(label)
-                for file in label_grp.keys():
-                    file_grp = label_grp.get(file)
-                    # print(file)
-                    k = label + '/' + file
-                    v = {'label': int(label),
-                        #'char_ann': file_grp.get('char_ann')[()],
-                        #'word_ann': file_grp.get('word_ann')[()],
-                        #'line_ann': file_grp.get('line_ann')[()],
-                        'para_ann': file_grp.get('para_ann')[()]
-                        }
-                    #print(label)
-                    polygon_ann.append((k, v))
-        random.shuffle(polygon_ann) 
         return polygon_ann
     
 
