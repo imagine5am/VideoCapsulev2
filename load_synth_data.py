@@ -79,8 +79,8 @@ def get_video_det(video_dir, annotations, skip_frames=1, start_rand=True):
 
     im0 = imread(video_dir + ('frame_%d.jpg' % frame_start))
     h, w, ch = im0.shape
-    video = np.zeros((n_frames, config.vid_h, config.vid_w, 3), dtype=np.uint8)
-    bbox = np.zeros((n_frames, config.vid_h, config.vid_w, 1), dtype=np.uint8)
+    video = np.zeros((n_frames, h, w, ch), dtype=np.uint8)
+    bbox = np.zeros((n_frames, h, w, 1), dtype=np.uint8)
     label = annotations['label']
     
     # video[0] = im0
