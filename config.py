@@ -2,7 +2,7 @@ import os
 # os.environ["CUDA_VISIBLE_DEVICES"]="3"
 
 # batch size and number of epochs
-batch_size = 1
+batch_size = 3
 n_epochs = 50
 
 # number of epochs to train in between validations

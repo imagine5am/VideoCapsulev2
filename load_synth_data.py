@@ -175,7 +175,7 @@ class SynthTrainDataGenDet(object):
             vid_name, anns = self.train_files.pop()
             clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', anns, skip_frames=self.frame_skip, start_rand=True)
             clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
-            # clip, bbox_clip = crop_clip_det(clip, bbox_clip, shuffle=True)
+            clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(128, 240), shuffle=True)
             self.data_queue.append((clip, bbox_clip, label))
         print('Loading data thread finished')
 
@@ -223,7 +223,7 @@ class SynthTestDataGenDet(object):
                 time.sleep(1)
             vid_name, anns = self.test_files.pop(0)
             clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', anns, skip_frames=self.skip_frame, start_rand=False)
-            # clip, bbox_clip = crop_clip_det(clip, bbox_clip, shuffle=False)
+            clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(128, 240), shuffle=False)
             self.data_queue.append((clip, bbox_clip, label))
         print('Loading data thread finished')
 

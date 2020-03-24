@@ -27,7 +27,7 @@ def create_skip_connection(in_caps_layer, n_units, kernel_size, strides=(1, 1, 1
 
 
 class Caps3d(object):
-    def __init__(self,  input_shape=(None, 8, 130, 240, 3)):
+    def __init__(self,  input_shape=(None, 8, 128, 240, 3)):
         self.input_shape = input_shape
         self.graph = tf.Graph()
         with self.graph.as_default():
@@ -37,7 +37,7 @@ class Caps3d(object):
             #with tf.device('/gpu:0'):
             self.x_input = tf.placeholder(dtype=tf.float32, shape=self.input_shape)
             self.y_input = tf.placeholder(dtype=tf.int32, shape=[None])
-            self.y_bbox = tf.placeholder(dtype=tf.float32, shape=(None, 8, 130, 240, 1))
+            self.y_bbox = tf.placeholder(dtype=tf.float32, shape=(None, 8, 128, 240, 1))
             self.is_train = tf.placeholder(tf.bool)
             self.m = tf.placeholder(tf.float32, shape=())
 
@@ -164,8 +164,8 @@ class Caps3d(object):
             masked_caps = tf.reshape(masked_caps, (batch_size, n_classes * dim))
 
             # creates the decoder network
-            recon_fc1 = tf.layers.dense(masked_caps, 4 * 27 * 54 * 1, activation=tf.nn.relu, name='recon_fc1')
-            recon_fc1 = tf.reshape(recon_fc1, (batch_size, 4, 27, 54, 1))
+            recon_fc1 = tf.layers.dense(masked_caps, 4 * 10 * 24 * 1, activation=tf.nn.relu, name='recon_fc1')
+            recon_fc1 = tf.reshape(recon_fc1, (batch_size, 4, 10, 24, 1))
 
             deconv1 = tf.layers.conv3d_transpose(recon_fc1, 128, kernel_size=[1, 3, 3], 
                                                 strides=[1, 1, 1], padding='SAME', 
@@ -178,7 +178,7 @@ class Caps3d(object):
 
             deconv1 = tf.concat([deconv1, skip_connection1], axis=-1)
 
-            deconv2 = tf.layers.conv3d_transpose(deconv1, 128, kernel_size=[3, 5, 6], strides=[1, 2, 2],
+            deconv2 = tf.layers.conv3d_transpose(deconv1, 128, kernel_size=[3, 6, 6], strides=[1, 2, 2],
                                                  padding='VALID', use_bias=False, activation=tf.nn.relu, name='deconv2')
 
             
