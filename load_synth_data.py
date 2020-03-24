@@ -81,13 +81,26 @@ def get_video_det(video_dir, annotations, skip_frames=1, start_rand=True):
     video = np.zeros((n_frames, h, w, ch), dtype=np.uint8)
     bbox = np.zeros((n_frames, h, w, 1), dtype=np.uint8)
     label = annotations['label']
+    bad_frames = []
     # video[0] = im0
     # annotations['para_ann'][count] has type [[0 0...]]
     for idx in range(n_frames):
         frame = imread(video_dir + ('frame_%d.jpg' % idx))
-	video[idx] = 
+        if (h, w, ch) != frame.shape:
+            frame = cv2.resize(frame, (h, w, ch))
+            bad_frames.append(idx)
+        
+        video[idx] = frame
         bbox[idx] = create_mask((h,w), annotations['para_ann'][idx,0])    
-
+        
+            
+    if len(bad_frames) != 0:
+        print('*' * 20)
+        print('BAD FRAMES FOUND')
+        print('Video:', video_dir)
+        print('Bad Frames:', bad_frames)
+        print('*' * 20)
+        
     if skip_frames == 1:
         return video, bbox, label
 
