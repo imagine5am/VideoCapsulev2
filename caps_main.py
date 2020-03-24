@@ -76,7 +76,7 @@ def main():
     gpu_config.gpu_options.allow_growth = True
     #gpu_config.gpu_options.per_process_gpu_memory_fraction = 1.0
     #gpu_config.gpu_options.allocator_type = 'BFC'
-    gpu_config.log_device_placement = True
+    #gpu_config.log_device_placement = True
     #gpu_config.allow_soft_placement = True
 
     # trains the network with the given gpu configuration

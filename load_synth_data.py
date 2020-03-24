@@ -84,7 +84,8 @@ def get_video_det(video_dir, annotations, skip_frames=1, start_rand=True):
     # video[0] = im0
     # annotations['para_ann'][count] has type [[0 0...]]
     for idx in range(n_frames):
-        video[idx] = imread(video_dir + ('frame_%d.jpg' % idx))
+        frame = imread(video_dir + ('frame_%d.jpg' % idx))
+	video[idx] = 
         bbox[idx] = create_mask((h,w), annotations['para_ann'][idx,0])    
 
     if skip_frames == 1:
