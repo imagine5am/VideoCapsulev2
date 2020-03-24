@@ -87,19 +87,21 @@ def get_video_det(video_dir, annotations, skip_frames=1, start_rand=True):
     # annotations['para_ann'][count] has type [[0 0...]]
     for idx in range(n_frames):
         frame = imread(video_dir + ('frame_%d.jpg' % idx))
+        
         if (h, w, ch) != frame.shape:
             print('*' * 20)
             print('BAD FRAMES FOUND')
             print('Video:', video_dir)
             print('Frame:', idx)
             print('*' * 20)
+            frame = cv2.resize(frame, (w, h))
         
         mask = create_mask((frame.shape[0],frame.shape[1]), annotations['para_ann'][idx,0])
+        '''
         mask = cv2.resize(mask, (config.vid_w, config.vid_h))
         mask = np.reshape(mask, mask.shape + (1,))
-        
         frame = cv2.resize(frame, (config.vid_w, config.vid_h))
-        
+        '''
         video[idx] = frame
         bbox[idx] = mask  
         
@@ -202,7 +204,7 @@ class SynthTrainDataGenDet(object):
             vid_name, anns = self.train_files.pop()
             clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', anns, skip_frames=self.frame_skip, start_rand=True)
             clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
-            # clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(128, 240), shuffle=True)
+            clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(config.vid_h, config.vid_w), shuffle=True)
             self.data_queue.append((clip, bbox_clip, label))
         print('Loading data thread finished')
 
@@ -251,7 +253,7 @@ class SynthTestDataGenDet(object):
             vid_name, anns = self.test_files.pop(0)
             clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', anns, skip_frames=self.skip_frame, start_rand=False)
             clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
-            # clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(128, 240), shuffle=False)
+            clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(config.vid_h, config.vid_w), shuffle=False)
             self.data_queue.append((clip, bbox_clip, label))
         print('Loading data thread finished')
 
