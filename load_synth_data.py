@@ -9,7 +9,7 @@ from scipy.misc import imread
 from PIL import Image, ImageDraw
 import cv2
 import config
-
+import traceback
 
 # dataset_dir = '../../data/SyntheticVideos/'
 dataset_dir = '../SynthVideo/MayurTest2/'
@@ -31,13 +31,12 @@ def get_det_annotations(split='train'):
             for file in label_grp.keys():
                 if file not in bad_files:
                     file_grp = label_grp.get(file)
-                    # print(file)
                     k = label + '/' + file
                     v = {'label': int(label),
                         #'char_ann': file_grp.get('char_ann')[()],
                         #'word_ann': file_grp.get('word_ann')[()],
                         #'line_ann': file_grp.get('line_ann')[()],
-                        'para_ann': np.rint(file_grp.get('para_ann')[()] / 2).astype(np.int32).tolist()
+                        'para_ann': np.rint(np.array(file_grp.get('para_ann')[()]) / 2).astype(np.int32)
                         }
                     #print(label)
                     polygon_ann.append((k, v))
@@ -98,8 +97,9 @@ def get_video_det(video_dir, annotations, skip_frames=1, start_rand=True):
             print('Frame:', idx)
             print('*' * 20)
             frame = cv2.resize(frame, (w, h))
-        
+        # print(annotations['para_ann'][idx,0])
         mask = create_mask((config.vid_h, config.vid_w), annotations['para_ann'][idx,0])
+        # input()
         '''
         mask = cv2.resize(mask, (config.vid_w, config.vid_h))
         mask = np.reshape(mask, mask.shape + (1,))
@@ -207,15 +207,15 @@ class SynthTrainDataGenDet(object):
             vid_name, anns = self.train_files.pop()
             while True:
                 try:
-                    clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', 
-                                                           anns, skip_frames=self.frame_skip, start_rand=True)
+                    clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', anns, skip_frames=self.frame_skip, start_rand=True)
                     clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
                     # clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(config.vid_h, config.vid_w), shuffle=True)
                     self.data_queue.append((clip, bbox_clip, label))
                     break
-                except:
+                except Exception as e:
                     print('Unexpected error:', sys.exc_info()[0])
                     print('Video:', vid_name)
+                    print(traceback.format_exc())
                     print('*' * 20)
                     if self.train_files:
                         vid_name, anns = self.train_files.pop()
@@ -268,14 +268,14 @@ class SynthTestDataGenDet(object):
             vid_name, anns = self.test_files.pop(0)
             while True:
                 try:
-                    clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/',
-                                                            anns, skip_frames=self.skip_frame, start_rand=False)
+                    clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', anns, skip_frames=self.skip_frame, start_rand=False)
                     clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
                     # clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(config.vid_h, config.vid_w), shuffle=False)
                     self.data_queue.append((clip, bbox_clip, label))
                     break
-                except:
+                except Exception as e:
                     print('Unexpected error:', sys.exc_info()[0])
+                    print(traceback.format_exc())
                     print('Video:', vid_name)
                     print('*' * 20)
                     if self.test_files:
