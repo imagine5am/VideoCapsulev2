@@ -4,6 +4,7 @@ import numpy as np
 import random
 from threading import Thread
 import h5py
+import sys
 from scipy.misc import imread
 from PIL import Image, ImageDraw
 import cv2
@@ -12,6 +13,8 @@ import config
 
 # dataset_dir = '../../data/SyntheticVideos/'
 dataset_dir = '../SynthVideo/MayurTest2/'
+
+bad_files = ['9410_tr_t_b_',]
 
 def get_det_annotations(split='train'):
     """
@@ -26,17 +29,18 @@ def get_det_annotations(split='train'):
         for label in hf.keys():
             label_grp = hf.get(label)
             for file in label_grp.keys():
-                file_grp = label_grp.get(file)
-                # print(file)
-                k = label + '/' + file
-                v = {'label': int(label),
-                    #'char_ann': file_grp.get('char_ann')[()],
-                    #'word_ann': file_grp.get('word_ann')[()],
-                    #'line_ann': file_grp.get('line_ann')[()],
-                    'para_ann': file_grp.get('para_ann')[()]
-                    }
-                #print(label)
-                polygon_ann.append((k, v))
+                if file not in bad_files:
+                    file_grp = label_grp.get(file)
+                    # print(file)
+                    k = label + '/' + file
+                    v = {'label': int(label),
+                        #'char_ann': file_grp.get('char_ann')[()],
+                        #'word_ann': file_grp.get('word_ann')[()],
+                        #'line_ann': file_grp.get('line_ann')[()],
+                        'para_ann': np.rint(file_grp.get('para_ann')[()] / 2).astype(np.int32).tolist()
+                        }
+                    #print(label)
+                    polygon_ann.append((k, v))
     random.shuffle(polygon_ann)
     if split == 'train':
         return polygon_ann
@@ -79,8 +83,8 @@ def get_video_det(video_dir, annotations, skip_frames=1, start_rand=True):
 
     im0 = imread(video_dir + ('frame_%d.jpg' % frame_start))
     h, w, ch = im0.shape
-    video = np.zeros((n_frames, h, w, ch), dtype=np.uint8)
-    bbox = np.zeros((n_frames, h, w, 1), dtype=np.uint8)
+    video = np.zeros((n_frames, config.vid_h, config.vid_w, ch), dtype=np.uint8)
+    bbox = np.zeros((n_frames, config.vid_h, config.vid_w, 1), dtype=np.uint8)
     label = annotations['label']
     
     # video[0] = im0
@@ -89,19 +93,18 @@ def get_video_det(video_dir, annotations, skip_frames=1, start_rand=True):
         frame = imread(video_dir + ('frame_%d.jpg' % idx))
         
         if (h, w, ch) != frame.shape:
-            print('*' * 20)
             print('BAD FRAMES FOUND')
             print('Video:', video_dir)
             print('Frame:', idx)
             print('*' * 20)
             frame = cv2.resize(frame, (w, h))
         
-        mask = create_mask((frame.shape[0],frame.shape[1]), annotations['para_ann'][idx,0])
+        mask = create_mask((config.vid_h, config.vid_w), annotations['para_ann'][idx,0])
         '''
         mask = cv2.resize(mask, (config.vid_w, config.vid_h))
         mask = np.reshape(mask, mask.shape + (1,))
-        frame = cv2.resize(frame, (config.vid_w, config.vid_h))
         '''
+        frame = cv2.resize(frame, (config.vid_w, config.vid_h))
         video[idx] = frame
         bbox[idx] = mask  
         
@@ -202,10 +205,22 @@ class SynthTrainDataGenDet(object):
             while len(self.data_queue) >= 600:
                 time.sleep(1)
             vid_name, anns = self.train_files.pop()
-            clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', anns, skip_frames=self.frame_skip, start_rand=True)
-            clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
-            clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(config.vid_h, config.vid_w), shuffle=True)
-            self.data_queue.append((clip, bbox_clip, label))
+            while True:
+                try:
+                    clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', 
+                                                           anns, skip_frames=self.frame_skip, start_rand=True)
+                    clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
+                    # clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(config.vid_h, config.vid_w), shuffle=True)
+                    self.data_queue.append((clip, bbox_clip, label))
+                    break
+                except:
+                    print('Unexpected error:', sys.exc_info()[0])
+                    print('Video:', vid_name)
+                    print('*' * 20)
+                    if self.train_files:
+                        vid_name, anns = self.train_files.pop()
+                    else:
+                        break
         print('Loading data thread finished')
 
     def get_batch(self, batch_size=5):
@@ -251,10 +266,22 @@ class SynthTestDataGenDet(object):
             while len(self.data_queue) >= 50:
                 time.sleep(1)
             vid_name, anns = self.test_files.pop(0)
-            clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', anns, skip_frames=self.skip_frame, start_rand=False)
-            clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
-            clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(config.vid_h, config.vid_w), shuffle=False)
-            self.data_queue.append((clip, bbox_clip, label))
+            while True:
+                try:
+                    clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/',
+                                                            anns, skip_frames=self.skip_frame, start_rand=False)
+                    clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
+                    # clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(config.vid_h, config.vid_w), shuffle=False)
+                    self.data_queue.append((clip, bbox_clip, label))
+                    break
+                except:
+                    print('Unexpected error:', sys.exc_info()[0])
+                    print('Video:', vid_name)
+                    print('*' * 20)
+                    if self.test_files:
+                        vid_name, anns = self.test_files.pop(0)
+                    else:
+                        break
         print('Loading data thread finished')
 
     def get_next_video(self):
