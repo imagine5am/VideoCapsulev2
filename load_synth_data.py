@@ -46,9 +46,12 @@ def get_det_annotations(split='train'):
     if split == 'train':
         train_split = polygon_ann[:num_train_samples]
         random.shuffle(train_split)
+        print("Num train samples:", len(train_split))
         return train_split
     elif split == 'test':
-        return polygon_ann[-num_test_samples:]
+        test_split = polygon_ann[-num_test_samples:]
+        print("Num test samples:", len(test_split))
+        return test_split
     
 
 
