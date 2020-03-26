@@ -15,6 +15,9 @@ gpu_config.gpu_options.allow_growth = True
 batch_size = 3
 n_epochs = 5
 
+# whether to continue from last checkpoint or not
+continue_from_chkpt = False
+
 # number of epochs to train in between validations
 n_eps_for_eval = 3
 

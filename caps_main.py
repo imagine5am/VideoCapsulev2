@@ -20,9 +20,12 @@ def get_num_params():
 def train_network(gpu_config):
     #with tf.device("/gpu:3"):
     capsnet = Caps3d()
-
+        
     with tf.Session(graph=capsnet.graph, config=gpu_config) as sess:
         tf.global_variables_initializer().run()
+        
+        if config.continue_from_chkpt:
+            capsnet.load(sess, config.save_file_name)
 
         get_num_params()
         config.clear_output()
