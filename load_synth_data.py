@@ -14,7 +14,7 @@ import traceback
 # dataset_dir = '../../data/SyntheticVideos/'
 dataset_dir = '../SynthVideo/MayurTest2/'
 
-bad_files = ['9410_tr_t_b_',]
+bad_files = ['9410_tr_t_b_','9535_tr_l_r_']
 
 def get_det_annotations(split='train'):
     """
