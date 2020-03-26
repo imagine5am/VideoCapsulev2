@@ -11,8 +11,8 @@ import cv2
 import config
 import traceback
 
-# dataset_dir = '../../data/SyntheticVideos/'
-dataset_dir = '../SynthVideo/MayurTest2/'
+dataset_dir = '../../data/SyntheticVideos/'
+#dataset_dir = '../SynthVideo/MayurTest2/'
 
 bad_files = ['9410_tr_t_b_','9535_tr_l_r_']
 
@@ -24,8 +24,8 @@ def get_det_annotations(split='train'):
     form (start frame, end frame, label, bounding boxes).
     """
     polygon_ann = []
-    # with h5py.File(dataset_dir + 'Annotations/synthvid_ann.hdf5', 'r') as hf:
-    with h5py.File('../SynthVideo/synthvid_ann.hdf5', 'r') as hf:
+    with h5py.File(dataset_dir + 'Annotations/synthvid_ann.hdf5', 'r') as hf:
+    #with h5py.File('../SynthVideo/synthvid_ann.hdf5', 'r') as hf:
         for label in hf.keys():
             label_grp = hf.get(label)
             for file in label_grp.keys():
@@ -40,11 +40,15 @@ def get_det_annotations(split='train'):
                         }
                     #print(label)
                     polygon_ann.append((k, v))
-    random.shuffle(polygon_ann)
+    num_samples = len(polygon_ann)
+    num_train_samples = int(0.8 * num_samples)
+    num_test_samples = num_samples - num_train_samples
     if split == 'train':
-        return polygon_ann
+        train_split = polygon_ann[:num_train_samples]
+        random.shuffle(train_split)
+        return train_split
     elif split == 'test':
-        return polygon_ann[:10]
+        return polygon_ann[-num_test_samples:]
     
 
 
