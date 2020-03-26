@@ -9,11 +9,9 @@ def iou():
     """
     Calculates the accuracy, f-mAP, and v-mAP over the test set
     """
-    gpu_config = tf.ConfigProto()
-    gpu_config.gpu_options.allow_growth = True
 
     capsnet = Caps3d()
-    with tf.Session(graph=capsnet.graph, config=gpu_config) as sess:
+    with tf.Session(graph=capsnet.graph, config=config.gpu_config) as sess:
         tf.global_variables_initializer().run()
         capsnet.load(sess, config.save_file_name)
 

@@ -2,18 +2,16 @@ import numpy as np
 import tensorflow as tf
 from caps_network import Caps3d
 import config
-from cv2 import imread
+from scipy.misc import imread
+from cv2 import resize
 import os
 from skvideo.io import vread, vwrite
 from scipy.misc import imresize
 
 
 def inference(video, dir=False):
-    gpu_config = tf.ConfigProto()
-    gpu_config.gpu_options.allow_growth = True
-
     capsnet = Caps3d()
-    with tf.Session(graph=capsnet.graph, config=gpu_config) as sess:
+    with tf.Session(graph=capsnet.graph, config=config.gpu_config) as sess:
         tf.global_variables_initializer().run()
         capsnet.load(sess, config.save_file_name)
         if not dir:
@@ -24,13 +22,15 @@ def inference(video, dir=False):
             frame_start = 0
             im0 = imread(video_dir + ('frame_%d.jpg' % frame_start))
             h, w, ch = im0.shape
-            video = np.zeros((n_frames, h, w, ch), dtype=np.uint8)
+            video = np.zeros((n_frames, config.vid_h, config.vid_w, ch), dtype=np.uint8)
             for idx in range(n_frames):
-                video[idx] = imread(video_dir + ('frame_%d.jpg' % idx))
+                frame = imread(video_dir + ('frame_%d.jpg' % idx))
+                frame = resize(frame, (config.vid_w, config.vid_h))
+                video[idx] = frame
                 
         n_frames = video.shape[0]
-        crop_size = (112, 112)
-
+        crop_size = (config.vid_h, config.vid_w)
+        '''
         # assumes a given aspect ratio of (240, 320). If given a cropped video, then no resizing occurs
         if video.shape[1] != 112 and video.shape[2] != 112:
             h, w = 120, 160
@@ -49,11 +49,13 @@ def inference(video, dir=False):
         margin_w = w - crop_size[1]
         w_crop_start = int(margin_w / 2)
         video_cropped = video_res[:, h_crop_start:h_crop_start+crop_size[0], w_crop_start:w_crop_start+crop_size[1], :]
-
         print('Saving Cropped Video')
         vwrite('cropped.avi', video_cropped)
+        '''
+        print('Saving Cropped Video')
+        vwrite('cropped.avi', video)
 
-        video_cropped = video_cropped/255.
+        video_cropped = video/255.
 
         segmentation_output = np.zeros((n_frames, crop_size[0], crop_size[1], 1))
         f_skip = config.frame_skip

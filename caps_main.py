@@ -41,7 +41,18 @@ def train_network(gpu_config):
             if ep % config.n_eps_for_m == 0:
                 capsnet.cur_m += config.m_delta
                 capsnet.cur_m = min(capsnet.cur_m, 0.9)
-
+            
+            # saves the network when validation loss in minimized
+            t_loss = margin_loss + seg_loss
+            if t_loss < best_loss:
+                best_loss = t_loss
+                try:
+                    capsnet.save(sess, config.save_file_name)
+                    config.write_output('Saved Network\n')
+                except:
+                    print('Failed to save network!!!')
+            
+            
             # only validates after a certain number of epochs and when the training accuracy is greater than a threshold
             # this is mainly used to save time, since validation takes about 10 minutes
             if (acc >= config.acc_for_eval or n_eps_after_acc >= 0) and ep >= config.n_eps_until_eval:
@@ -62,26 +73,17 @@ def train_network(gpu_config):
                     best_loss = t_loss
                     try:
                         capsnet.save(sess, config.save_file_name)
-                        config.write_output('Saved Network\n')
+                        config.write_output('Saved Network Finally\n')
                     except:
                         print('Failed to save network!!!')
-
+            
         # calculate final test accuracy, f-mAP, and v-mAP
         iou()
 
 
 def main():
-    gpu_config = tf.ConfigProto()
-    #gpu_config.gpu_options.visible_device_list= '1,2,0,3'
-    gpu_config.gpu_options.visible_device_list= '0'
-    gpu_config.gpu_options.allow_growth = True
-    #gpu_config.gpu_options.per_process_gpu_memory_fraction = 1.0
-    #gpu_config.gpu_options.allocator_type = 'BFC'
-    #gpu_config.log_device_placement = True
-    #gpu_config.allow_soft_placement = True
-
     # trains the network with the given gpu configuration
-    train_network(gpu_config)
+    train_network(config.gpu_config)
 
 
 main()

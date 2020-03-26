@@ -153,7 +153,7 @@ def get_clip_det(video, bbox, clip_len=8, any_clip=False):
         except:
             start_loc = min(np.where(frame_anns > 0)[0][0], video.shape[0]-clip_len)
 
-    return video[start_loc:start_loc+clip_len], bbox[start_loc:start_loc+clip_len]
+    return video[start_loc:start_loc+clip_len]/255., bbox[start_loc:start_loc+clip_len]
 
 
 def crop_clip_det(clip, bbox_clip, crop_size=(112, 112), shuffle=True):
