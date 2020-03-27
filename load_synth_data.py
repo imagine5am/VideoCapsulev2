@@ -11,8 +11,8 @@ import cv2
 import config
 import traceback
 
-dataset_dir = '../../data/SyntheticVideos/'
-#dataset_dir = '../SynthVideo/MayurTest2/'
+#dataset_dir = '../../data/SyntheticVideos/'
+dataset_dir = '../SynthVideo/MayurTest2/'
 
 bad_files = ['9410_tr_t_b_','9535_tr_l_r_']
 
@@ -24,8 +24,8 @@ def get_det_annotations(split='train'):
     form (start frame, end frame, label, bounding boxes).
     """
     polygon_ann = []
-    with h5py.File(dataset_dir + 'Annotations/synthvid_ann.hdf5', 'r') as hf:
-    #with h5py.File('../SynthVideo/synthvid_ann.hdf5', 'r') as hf:
+    #with h5py.File(dataset_dir + 'Annotations/synthvid_ann.hdf5', 'r') as hf:
+    with h5py.File('../SynthVideo/synthvid_ann.hdf5', 'r') as hf:
         for label in hf.keys():
             label_grp = hf.get(label)
             for file in label_grp.keys():

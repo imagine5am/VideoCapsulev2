@@ -1,3 +1,60 @@
-CL: 2.3022. SL: 33.2303. Acc: 0.0885
-CL: 0.9636. SL: 18.4133. Acc: 0.3599
-CL: 0.4637. SL: 14.3195. Acc: 0.5281
+CL: 1.3981. SL: 31.8868. Acc: 0.1565
+Saved Network
+CL: 0.6769. SL: 19.9268. Acc: 0.3761
+Saved Network
+CL: 0.4124. SL: 15.8913. Acc: 0.5445
+Saved Network
+Validation	CL: 27.5654. SL: 6.7393. Acc: 0.0055.
+CL: 0.3255. SL: 13.2835. Acc: 0.6031
+Saved Network
+Validation	CL: 28.5179. SL: 23.4923. Acc: 0.0004.
+CL: 0.2556. SL: 11.4317. Acc: 0.6544
+Saved Network
+Validation	CL: 28.2209. SL: 6.0943. Acc: 0.0004.
+Test Accuracy: 0.0055
+IoU f-mAP:
+0.0000	nan
+0.0500	nan
+0.1000	nan
+0.1500	nan
+0.2000	nan
+0.2500	nan
+0.3000	nan
+0.3500	nan
+0.4000	nan
+0.4500	nan
+0.5000	nan
+0.5500	nan
+0.6000	nan
+0.6500	nan
+0.7000	nan
+0.7500	nan
+0.8000	nan
+0.8500	nan
+0.9000	nan
+0.9500	nan
+[       nan        nan        nan        nan        nan        nan
+        nan 0.71997817 0.62439024 0.6296875         nan        nan]
+IoU v-mAP:
+0.0000	nan
+0.0500	nan
+0.1000	nan
+0.1500	nan
+0.2000	nan
+0.2500	nan
+0.3000	nan
+0.3500	nan
+0.4000	nan
+0.4500	nan
+0.5000	nan
+0.5500	nan
+0.6000	nan
+0.6500	nan
+0.7000	nan
+0.7500	nan
+0.8000	nan
+0.8500	nan
+0.9000	nan
+0.9500	nan
+[       nan        nan        nan        nan        nan        nan
+        nan 0.72270742 0.6302439  0.63365385        nan        nan]

@@ -19,13 +19,13 @@ n_epochs = 5
 continue_from_chkpt = False
 
 # number of epochs to train in between validations
-n_eps_for_eval = 3
+n_eps_for_eval = 1
 
 # training accuracy threshold needed for validation to run
-acc_for_eval = 0.9
+acc_for_eval = 0.5
 
 # number of epochs until validation can start
-n_eps_until_eval = 40
+n_eps_until_eval = 1
 
 # learning rate and beta1 are used in the Adam optimizer.
 learning_rate, beta1 = 0.0001, 0.5
