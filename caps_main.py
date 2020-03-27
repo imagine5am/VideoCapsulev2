@@ -38,7 +38,7 @@ def train_network(gpu_config):
             # trains network for one epoch
             data_gen = TrainDataGen(config.wait_for_data, frame_skip=config.frame_skip)
             margin_loss, seg_loss, acc = capsnet.train(sess, data_gen)
-            config.write_output('Training\tCL: %.4f. SL: %.4f. Acc: %.4f\n' % (margin_loss, seg_loss, acc))
+            config.write_output('Training\tCL: %.4f. SL: %.4f. Acc: %.4f.\n' % (margin_loss, seg_loss, acc))
 
             # increments the margin
             if ep % config.n_eps_for_m == 0:

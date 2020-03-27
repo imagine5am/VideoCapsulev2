@@ -1,0 +1,2 @@
+Training	CL: 6.2759. SL: 90.6067. Acc: 0.0832
+Validation	CL: 18.4091. SL: 10.9841. Acc: 0.0836.
