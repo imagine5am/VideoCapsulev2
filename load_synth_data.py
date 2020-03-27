@@ -24,8 +24,7 @@ def get_det_annotations(split='train'):
     form (start frame, end frame, label, bounding boxes).
     """
     polygon_ann = []
-    #with h5py.File(dataset_dir + 'Annotations/synthvid_ann.hdf5', 'r') as hf:
-    with h5py.File('../SynthVideo/synthvid_ann.hdf5', 'r') as hf:
+    with h5py.File(dataset_dir + 'Annotations/synthvid_ann.hdf5', 'r') as hf:
         for label in hf.keys():
             label_grp = hf.get(label)
             for file in label_grp.keys():
@@ -40,12 +39,14 @@ def get_det_annotations(split='train'):
                         }
                     #print(label)
                     polygon_ann.append((k, v))
+    random.seed(7)
+    random.shuffle(polygon_ann)
     num_samples = len(polygon_ann)
     num_train_samples = int(0.8 * num_samples)
     num_test_samples = num_samples - num_train_samples
+    
     if split == 'train':
         train_split = polygon_ann[:num_train_samples]
-        random.shuffle(train_split)
         print("Num train samples:", len(train_split))
         return train_split
     elif split == 'test':
