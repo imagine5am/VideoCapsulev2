@@ -12,20 +12,20 @@ gpu_config.gpu_options.allow_growth = True
 #gpu_config.allow_soft_placement = True
 
 # batch size and number of epochs
-batch_size = 3
-n_epochs = 5
+batch_size = 8
+n_epochs = 20
 
 # whether to continue from last checkpoint or not
 continue_from_chkpt = False
 
 # number of epochs to train in between validations
-n_eps_for_eval = 2
+n_eps_for_eval = 5
 
 # training accuracy threshold needed for validation to run
 acc_for_eval = 0.5
 
 # number of epochs until validation can start
-n_eps_until_eval = 1
+n_eps_until_eval = 0
 
 # learning rate and beta1 are used in the Adam optimizer.
 learning_rate, beta1 = 0.0001, 0.5
