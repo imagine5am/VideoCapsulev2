@@ -87,8 +87,8 @@ def train_network(gpu_config):
                     except:
                         print('Failed to save network!!!')
             '''
-        # calculate final test accuracy, f-mAP, and v-mAP
-        iou()
+    # calculate final test accuracy, f-mAP, and v-mAP
+    iou()
 
 
 def main():
