@@ -4,7 +4,7 @@ import tensorflow as tf
 # os.environ["CUDA_VISIBLE_DEVICES"]="3"
 gpu_config = tf.ConfigProto()
 #gpu_config.gpu_options.visible_device_list= '1,2,0,3'
-gpu_config.gpu_options.visible_device_list= '0'
+gpu_config.gpu_options.visible_device_list= '1'
 gpu_config.gpu_options.allow_growth = True
 #gpu_config.gpu_options.per_process_gpu_memory_fraction = 1.0
 #gpu_config.gpu_options.allocator_type = 'BFC'
@@ -12,11 +12,11 @@ gpu_config.gpu_options.allow_growth = True
 #gpu_config.allow_soft_placement = True
 
 # batch size and number of epochs
-batch_size = 4
+batch_size = 8
 n_epochs = 20
 
 # whether to continue from last checkpoint or not
-continue_from_chkpt = True
+continue_from_chkpt = False
 
 # number of epochs to train in between validations
 n_eps_for_eval = 5
@@ -44,8 +44,8 @@ vid_w = 240
 
 # model number, output file name, save file directory, and save file name
 model_num = 2
-output_file_name = './output%d.txt' % model_num
-network_save_dir = './network_saves/'
+output_file_name = './output_inference_%d.txt' % model_num
+network_save_dir = './older_models/save_with_bad_split/'
 if not os.path.exists(network_save_dir):  # creates the directory if it does not exist
     os.mkdir(network_save_dir)
 save_file_name = network_save_dir + ('model_%d.ckpt' % model_num)

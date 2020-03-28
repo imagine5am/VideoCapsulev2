@@ -10,3 +10,6 @@ Saved Network
 Training	CL: 1.3246. SL: 37.5162. Acc: 0.4623
 Validation	CL: 13.6698. SL: 9.4601. Acc: 0.2354.
 Saved Network
+Training	CL: 0.5634. SL: 16.8463. Acc: 0.5155.
+Validation	CL: 14.0078. SL: 8.2505. Acc: 0.2037.
+Saved Network
