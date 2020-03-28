@@ -309,13 +309,12 @@ class Caps3d(object):
 
     def eval_on_vid(self, sess, video, bbox, label, validation):
         losses, slosses, norms = [], [], []
-        frames, _, _, _ = video.shape
 
         # ensures the video is trimmed and separate video into clips of 8 frames
         f_skip = config.frame_skip
         clips = []
         n_frames = video.shape[0]
-        for i in range(0, video.shape[0], 8 * f_skip):
+        for i in range(0, n_frames, 8 * f_skip):
             for j in range(f_skip):
                 b_vid, b_bbox = [], []
                 for k in range(8):
