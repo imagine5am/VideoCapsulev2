@@ -96,7 +96,7 @@ def inference(video, dir=False):
             x_batch = [np.stack(x, axis=0) for x in x_batch]
 
             # runs the network to get segmentations
-            pred, seg_out = sess.run([capsnet.digit_preds, capsnet.segment_layer_sig], 
+            batch_pred, seg_out = sess.run([capsnet.digit_preds, capsnet.segment_layer_sig], 
                                      feed_dict={capsnet.x_input: x_batch,
                                      capsnet.is_train: False,
                                      capsnet.y_input: np.ones((f_skip,), np.int32)*-1})
@@ -106,7 +106,7 @@ def inference(video, dir=False):
                                                                  capsnet.y_input: np.ones((f_skip,), np.int32)*-1})
             '''
             print('(Batch) Predictions for', name)
-            norm_mean = np.mean(pred, axis=0)
+            norm_mean = np.mean(batch_pred, axis=0)
             batch_pred_arg = np.argmax(norm_mean)
             print(labels[batch_pred_arg])
             pred.append(norm_mean)
