@@ -75,7 +75,7 @@ def inference(video, dir=False):
             seg_out = sess.run(capsnet.segment_layer_sig, feed_dict={capsnet.x_input: x_batch,
                                                                      capsnet.is_train: False,
                                                                      capsnet.y_input: np.ones((f_skip,), np.int32)*-1})
-
+            
             # collects the segmented frames into the correct order
             for k in range(f_skip * 8):
                 if i + k >= n_frames:

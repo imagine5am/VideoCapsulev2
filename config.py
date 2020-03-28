@@ -12,7 +12,7 @@ gpu_config.gpu_options.allow_growth = True
 #gpu_config.allow_soft_placement = True
 
 # batch size and number of epochs
-batch_size = 6
+batch_size = 4
 n_epochs = 20
 
 # whether to continue from last checkpoint or not

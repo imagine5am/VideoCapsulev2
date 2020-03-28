@@ -2,4 +2,5 @@ __pycache__/
 network_saves/
 ./output2.txt
 *.jpg
-
+*.png
+temp/
