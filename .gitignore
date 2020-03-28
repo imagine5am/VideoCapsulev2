@@ -4,3 +4,6 @@ network_saves/
 *.jpg
 *.png
 temp/
+older_models/
+inference/
+
