@@ -26,9 +26,11 @@ def train_network(gpu_config):
         
         if config.continue_from_chkpt:
             capsnet.load(sess, config.save_file_name)
+        else:
+            config.clear_output()
 
         get_num_params()
-        config.clear_output()
+        
 
         n_eps_after_acc, best_loss = -1, 100000
         print('Training on Synthetic Videos')
