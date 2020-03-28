@@ -10,17 +10,18 @@ from scipy.misc import imresize
 
 output_dir = './inference/outputs/'
 labels = {0: '_tr_l_r_',
- 1: '_tr_r_l_',
- 2: '_tr_t_b_',
- 3: '_tr_b_t_',
- 4: '_roll_ac_',
- 5: '_roll_c_',
- 6: '_Pan1_',
- 7: '_Panrev1_',
- 8: '_tilt1_',
- 9: '_tilt1rev_',
- 10: '_zoomout_',
- 11: '_zoomin_',}
+          1: '_tr_r_l_',
+          2: '_tr_t_b_',
+          3: '_tr_b_t_',
+          4: '_roll_ac_',
+          5: '_roll_c_',
+          6: '_Pan1_',
+          7: '_Panrev1_',
+          8: '_tilt1_',
+          9: '_tilt1rev_',
+          10: '_zoomout_',
+          11: '_zoomin_',
+          }
 
 def inference(video, dir=False):
     name = os.path.basename(video[:-1])
@@ -81,6 +82,7 @@ def inference(video, dir=False):
 
         segmentation_output = np.zeros((n_frames, crop_size[0], crop_size[1], 1))
         f_skip = config.frame_skip
+        pred = []
 
         for i in range(0, n_frames, 8*f_skip):
             # if frames are skipped (subsampled) during training, they should also be skipped at test time
@@ -94,18 +96,21 @@ def inference(video, dir=False):
             x_batch = [np.stack(x, axis=0) for x in x_batch]
 
             # runs the network to get segmentations
-            seg_out = sess.run(capsnet.segment_layer_sig, feed_dict={capsnet.x_input: x_batch,
-                                                                     capsnet.is_train: False,
-                                                                     capsnet.y_input: np.ones((f_skip,), np.int32)*-1})
-            #'''
+            pred, seg_out = sess.run([capsnet.digit_preds, capsnet.segment_layer_sig], 
+                                     feed_dict={capsnet.x_input: x_batch,
+                                     capsnet.is_train: False,
+                                     capsnet.y_input: np.ones((f_skip,), np.int32)*-1})
+            '''
             pred = sess.run(capsnet.digit_preds, feed_dict={capsnet.x_input: x_batch,
                                                                  capsnet.is_train: False,
                                                                  capsnet.y_input: np.ones((f_skip,), np.int32)*-1})
-            print('Predictions for', name)
+            '''
+            print('(Batch) Predictions for', name)
             norm_mean = np.mean(pred, axis=0)
-            pred = np.argmax(norm_mean)
-            print(labels[pred])
-            #'''
+            batch_pred_arg = np.argmax(norm_mean)
+            print(labels[batch_pred_arg])
+            pred.append(norm_mean)
+            
             # collects the segmented frames into the correct order
             for k in range(f_skip * 8):
                 if i + k >= n_frames:
@@ -113,6 +118,10 @@ def inference(video, dir=False):
 
                 segmentation_output[i+k] = seg_out[k % f_skip][k//f_skip]
 
+        pred_mean = np.mean(np.stack(pred, axis=0), axis=0)
+        video_label = labels[np.argmax(pred_mean)]
+        print('Video Prediction for', name + ':', video_label)
+        
         # Final segmentation output
         segmentation_output = (segmentation_output >= 0.5).astype(np.int32)
 
