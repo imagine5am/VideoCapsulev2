@@ -280,7 +280,7 @@ class SynthTestDataGenDet(object):
             while True:
                 try:
                     clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', anns, skip_frames=self.skip_frame, start_rand=False)
-                    clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
+                    # clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
                     # clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(config.vid_h, config.vid_w), shuffle=False)
                     self.data_queue.append((clip, bbox_clip, label))
                     break
