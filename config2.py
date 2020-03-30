@@ -97,3 +97,17 @@ def write_output(string):
         output_log.close()
     except:
         print('Unable to save to output log')
+        
+labels = {0: '_tr_l_r_',
+          1: '_tr_r_l_',
+          2: '_tr_t_b_',
+          3: '_tr_b_t_',
+          4: '_roll_ac_',
+          5: '_roll_c_',
+          6: '_Pan1_',
+          7: '_Panrev1_',
+          8: '_tilt1_',
+          9: '_tilt1rev_',
+          10: '_zoomout_',
+          11: '_zoomin_',
+          }

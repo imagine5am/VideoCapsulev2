@@ -9,19 +9,6 @@ from skvideo.io import vread, vwrite
 from scipy.misc import imresize
 
 output_dir = './inference/outputs/'
-labels = {0: '_tr_l_r_',
-          1: '_tr_r_l_',
-          2: '_tr_t_b_',
-          3: '_tr_b_t_',
-          4: '_roll_ac_',
-          5: '_roll_c_',
-          6: '_Pan1_',
-          7: '_Panrev1_',
-          8: '_tilt1_',
-          9: '_tilt1rev_',
-          10: '_zoomout_',
-          11: '_zoomin_',
-          }
 
 def inference(video, dir=False):
     name = os.path.basename(video[:-1])
@@ -108,7 +95,7 @@ def inference(video, dir=False):
             print('(Batch) Predictions for', name)
             norm_mean = np.mean(batch_pred, axis=0)
             batch_pred_arg = np.argmax(norm_mean)
-            print(labels[batch_pred_arg])
+            print(config.labels[batch_pred_arg])
             pred.append(norm_mean)
             
             # collects the segmented frames into the correct order
@@ -119,7 +106,7 @@ def inference(video, dir=False):
                 segmentation_output[i+k] = seg_out[k % f_skip][k//f_skip]
 
         pred_mean = np.mean(np.stack(pred, axis=0), axis=0)
-        video_label = labels[np.argmax(pred_mean)]
+        video_label = config.labels[np.argmax(pred_mean)]
         print('Video Prediction for', name + ':', video_label)
         
         # Final segmentation output
