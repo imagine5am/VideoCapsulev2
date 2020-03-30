@@ -12,6 +12,6 @@ for sample in data:
     label = sample[1]['label']
     num_samples[label] += 1
     
-print('Label\tCount\n')
+print('Label\tCount')
 for k,v in num_samples.items():
-    print('%d\t%d\n' % (config.labels[k], v))
+    print('%d\t%d' % (k, v))
