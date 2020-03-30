@@ -44,7 +44,7 @@ def inference(batch, gpu_config):
                                   clip * (1 - alpha) + alpha * color, clip)
 
             print('Saving Segmented Video')
-            vwrite(str(i)+'_segmented.avi', (masked_vid * 255).astype(np.uint8))
+            vwrite('./out/'+str(i)+'_segmented.avi', (masked_vid * 255).astype(np.uint8))
             i += 0
         
 if __name__=='__main__':
@@ -52,8 +52,8 @@ if __name__=='__main__':
     gpu_config.gpu_options.visible_device_list= '3'
     gpu_config.gpu_options.allow_growth = True
     frames = get_first_8_frames('../SynthVideo/MayurTest2/Frames/6/17523_Pan1_/')
-    print(frames.shape)
+    print('frames.shape:', frames.shape)
     # Batch of one clip i.e. 8 frames
     batch = np.expand_dims(frames, axis=0)
-    print(batch.shape)
+    print('batch.shape:', batch.shape)
     inference(batch, gpu_config)
