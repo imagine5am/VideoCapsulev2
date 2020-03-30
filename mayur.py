@@ -5,6 +5,7 @@ import tensorflow as tf
 from caps_network import Caps3d
 from cv2 import resize
 from scipy.misc import imread
+from skvideo.io import vwrite
 
 def get_first_8_frames(video_dir):
     n_frames = len(os.listdir(video_dir))
@@ -14,7 +15,7 @@ def get_first_8_frames(video_dir):
         frame = imread(video_dir + ('frame_%d.jpg' % idx))
         frame = resize(frame, (w, h))
         video[idx] = frame
-    return video[:8]
+    return video[:8] / 255.
 
 def inference(batch, gpu_config):
     capsnet = Caps3d()
@@ -54,6 +55,5 @@ if __name__=='__main__':
     print(frames.shape)
     # Batch of one clip i.e. 8 frames
     batch = np.expand_dims(frames, axis=0)
-    frames = frames / 255.
-    print(frames.shape)
-    inference(frames, gpu_config)
+    print(batch.shape)
+    inference(batch, gpu_config)
