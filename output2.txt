@@ -25,3 +25,18 @@ Validation	CL: 12.3934. SL: 6.4879. Acc: 0.2965.
 Saved Network
 Training	CL: 0.6147. SL: 10.2578. Acc: 0.6780.
 Validation	CL: 13.7386. SL: 6.3589. Acc: 0.2449.
+Training	CL: 0.5240. SL: 9.5348. Acc: 0.7155.
+Validation	CL: 14.5989. SL: 5.7897. Acc: 0.2168.
+Training	CL: 0.4485. SL: 8.8201. Acc: 0.7460.
+Validation	CL: 12.5158. SL: 5.8129. Acc: 0.3678.
+Saved Network
+Training	CL: 0.3940. SL: 8.1104. Acc: 0.7595.
+Validation	CL: 14.7011. SL: 6.2304. Acc: 0.2073.
+Training	CL: 0.3787. SL: 7.9221. Acc: 0.7712.
+Validation	CL: 12.7343. SL: 5.5195. Acc: 0.3512.
+Saved Network
+Training	CL: 0.7269. SL: 7.9301. Acc: 0.7741.
+Validation	CL: 11.2083. SL: 5.6180. Acc: 0.4178.
+Saved Network
+Training	CL: 0.5937. SL: 7.1579. Acc: 0.8053.
+Validation	CL: 10.9724. SL: 6.2152. Acc: 0.4348.
