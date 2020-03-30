@@ -26,12 +26,12 @@ def parse():
         training_batches = num_training_samples // batch_size + min(num_training_samples % batch_size, 1)
         for line in file:
             line = line.strip()
-            if line.startswith('Training\t'):
+            if line.startswith('Training'):
                 cl, sl, acc = map(float, re.findall(r"\d+\.\d+", line))
                 values['train']['CL'].append(cl)
                 values['train']['SL'].append(sl)
                 values['train']['ACC'].append(acc * 100)
-            elif line.startswith('Validation\t'):
+            elif line.startswith('Validation'):
                 cl, sl, acc = map(float, re.findall(r"\d+\.\d+", line))
                 values['val']['CL'].append(cl)
                 values['val']['SL'].append(sl)
