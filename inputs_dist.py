@@ -9,7 +9,7 @@ data = get_det_annotations(split='train')
 
 num_samples = {i:0 for i in range(config.n_classes)}
 for sample in data:
-    label = sample[1][0]
+    label = sample[1]['label']
     num_samples[label] += 1
     
 print('Label\tCount\n')
