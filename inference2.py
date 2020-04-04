@@ -127,17 +127,23 @@ def inference(video, dir=False):
 # inference('/mnt/data/Rohit/VideoCapsNet/data/SyntheticVideos/Frames/1/7207_tr_r_l_/', dir=True)
 
 
-dirs = ['../SynthVideo/MayurTest2/Frames/6/17523_Pan1_/',
-'../SynthVideo/MayurTest2/Frames/9/13847_tilt1rev_/',
-'../SynthVideo/MayurTest2/Frames/10/7326_zoomout_/',
-'../SynthVideo/MayurTest2/Frames/0/9184_tr_l_r_/',
-'../SynthVideo/MayurTest2/Frames/8/16312_tilt1_/',]
+frames_dir = '../SynthVideo/MayurTest2/Frames/'
+video_dir_list = ['1/18020_tr_r_l_',
+                  '3/8541_tr_b_t_',
+                  '5/19958_roll_c_',
+                  '7/11102_Panrev1_',
+                  '7/15155_Panrev1_',
+                  '8/16916_tilt1_',
+                  '10/13774_zoomout_',
+                  '10/16716_zoomout_',
+                  '10/13961_zoomout_',
+                  '10/19740_zoomout_',
+                  '11/19722_zoomin_',]
 #'''
 file_loc = './inference/inputs/'
 for vid in os.listdir(file_loc):
     inference(file_loc+vid)
-'''
-    
-for dir in dirs:
-    inference(dir, dir=True)
-'''
+#'''
+for video_dir in video_dir_list:
+    inference(frames_dir+video_dir, dir=True)
+#'''
