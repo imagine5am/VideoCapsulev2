@@ -12,9 +12,10 @@ import config
 import traceback
 
 #dataset_dir = '../../data/SyntheticVideos/'
-dataset_dir = '../SynthVideo/MayurTest2/'
+dataset_dir = '../SynthVideo/out/'
 
-bad_files = ['9410_tr_t_b_','9535_tr_l_r_']
+#bad_files = ['9410_tr_t_b_','9535_tr_l_r_']
+bad_files = []
 
 def get_det_annotations(split='train'):
     """

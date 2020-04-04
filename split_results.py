@@ -22,7 +22,7 @@ with tf.Session(graph=capsnet.graph, config=config.gpu_config) as sess:
         video, bbox, label = data_gen.get_next_video()
 
         # gets losses and predictionfor a single video
-        mloss, sloss, pred = capsnet.eval_on_vid(sess, video, bbox, label, validation=False)
+        mloss, sloss, pred = capsnet.eval_on_vid(sess, video, bbox, label, validation=True)
         #print(pred,' ',label)
         if pred == label:
             records[label]['correct'] += 1
