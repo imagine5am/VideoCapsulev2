@@ -40,28 +40,7 @@ def inference(video, dir=False):
                 
         n_frames = video.shape[0]
         crop_size = (config.vid_h, config.vid_w)
-        '''
-        # assumes a given aspect ratio of (240, 320). If given a cropped video, then no resizing occurs
-        if video.shape[1] != 112 and video.shape[2] != 112:
-            h, w = 120, 160
-
-            video_res = np.zeros((n_frames, 120, 160, 3))
-
-            for f in range(n_frames):
-                video_res[f] = imresize(video[f], (120, 160))
-        else:
-            h, w = 112, 112
-            video_res = video
-
-        # crops video to 112x112
-        margin_h = h - crop_size[0]
-        h_crop_start = int(margin_h / 2)
-        margin_w = w - crop_size[1]
-        w_crop_start = int(margin_w / 2)
-        video_cropped = video_res[:, h_crop_start:h_crop_start+crop_size[0], w_crop_start:w_crop_start+crop_size[1], :]
-        print('Saving Cropped Video')
-        vwrite('cropped.avi', video_cropped)
-        '''
+        
         print('Saving Cropped Video')
         vwrite(output_dir+name+'_cropped.avi', video)
 
@@ -127,7 +106,7 @@ def inference(video, dir=False):
 # inference('/mnt/data/Rohit/VideoCapsNet/data/SyntheticVideos/Frames/1/7207_tr_r_l_/', dir=True)
 
 
-frames_dir = '../SynthVideo/MayurTest2/Frames/'
+frames_dir = '../SynthVideo/out/Frames/'
 video_dir_list = ['1/18020_tr_r_l_',
                   '3/8541_tr_b_t_',
                   '5/19958_roll_c_',
