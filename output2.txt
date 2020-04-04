@@ -38,3 +38,4 @@ Validation	CL: 60.1566. SL: 2181.8828. Acc: 0.0041.
 Training	CL: 0.9303. SL: 11.2262. Acc: 0.8221.
 Validation	CL: 62.7364. SL: 1860.5291. Acc: 0.0000.
 Training	CL: 0.8764. SL: 10.8301. Acc: 0.8315.
+Validation	CL: 62.3191. SL: 1750.5819. Acc: 0.0024.
