@@ -38,5 +38,5 @@ num_test_samples = num_samples - num_train_samples
 
 test_split = polygon_ann[-num_test_samples:]
 
-for k,v in test_split.items():
-    print(k)
+for sample in test_split:
+    print(sample[0])
