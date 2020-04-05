@@ -107,6 +107,7 @@ def inference(video, dir=False):
 
 
 frames_dir = '../SynthVideo/out/Frames/'
+'''
 video_dir_list = ['1/18020_tr_r_l_/',
                   '3/8541_tr_b_t_/',
                   '5/19958_roll_c_/',
@@ -118,11 +119,19 @@ video_dir_list = ['1/18020_tr_r_l_/',
                   '10/13961_zoomout_/',
                   '10/19740_zoomout_/',
                   '11/19722_zoomin_/',]
-#'''
+'''
+# Training files
+video_dir_list = ['2/19310_tr_t_b_/'
+                  '7/12213_Panrev1_/'
+                  '2/14451_tr_t_b_/'
+                  '0/15847_tr_l_r_/'
+                  '10/16454_zoomout_/'
+
+'''
 file_loc = './inference/inputs/'
 for vid in os.listdir(file_loc):
     inference(file_loc+vid)
-#'''
+'''
 for video_dir in video_dir_list:
     inference(frames_dir+video_dir, dir=True)
 #'''

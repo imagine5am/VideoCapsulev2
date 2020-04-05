@@ -212,7 +212,7 @@ class SynthTrainDataGenDet(object):
                 try:
                     clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', 
                                                            anns, skip_frames=self.frame_skip, start_rand=True)
-                    clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
+                    #clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
                     # clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(config.vid_h, config.vid_w), shuffle=True)
                     self.data_queue.append((clip, bbox_clip, label))
                     break
