@@ -45,8 +45,8 @@ vid_w = 240
 # model number, output file name, save file directory, and save file name
 model_num = 2
 output_file_name = './output%d.txt' % model_num
-network_save_dir = './older_models/plate_nums_20/network_saves/'
-#network_save_dir = './network_saves/'
+#network_save_dir = './older_models/plate_nums_20/network_saves/'
+network_save_dir = './network_saves/'
 if not os.path.exists(network_save_dir):  # creates the directory if it does not exist
     os.mkdir(network_save_dir)
 save_file_name = network_save_dir + ('model_%d.ckpt' % model_num)
