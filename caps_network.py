@@ -247,14 +247,17 @@ class Caps3d(object):
         start_time = time.time()
         # continues until no more training data is generated
         losses, batch, acc, s_losses = 0, 0, 0, 0
+        # mlosses, slosses, corrs = [], [], 0
         while data_gen.has_data():
             x_batch, bbox_batch, y_batch = data_gen.get_batch(config.batch_size)
 
             # runs network on batch
-            _, loss, s_loss, preds = sess.run([self.train_op, self.class_loss, self.segmentation_loss, self.digit_preds],
-                                              feed_dict={self.x_input: x_batch, self.y_input: y_batch,
-                                                         self.m: self.cur_m, self.is_train: True,
-                                                         self.y_bbox: bbox_batch})
+            _, loss, s_loss, preds = sess.run([self.train_op, self.class_loss, 
+                                               self.segmentation_loss, self.digit_preds],
+                                               feed_dict={self.x_input: x_batch, 
+                                                          self.y_input: y_batch,
+                                                          self.m: self.cur_m, self.is_train: True,
+                                                          self.y_bbox: bbox_batch})
 
             # accumulates loses and accuracies
             acc += np.count_nonzero(np.argmax(preds, axis=1) == np.array(y_batch))/config.batch_size

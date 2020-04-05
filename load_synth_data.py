@@ -38,7 +38,6 @@ def get_det_annotations(split='train'):
                         #'line_ann': file_grp.get('line_ann')[()],
                         'para_ann': np.rint(np.array(file_grp.get('para_ann')[()]) / 2).astype(np.int32)
                         }
-                    #print(label)
                     polygon_ann.append((k, v))
     random.seed(7)
     random.shuffle(polygon_ann)
@@ -111,10 +110,6 @@ def get_video_det(video_dir, annotations, skip_frames=1, start_rand=True):
         # print(annotations['para_ann'][idx,0])
         mask = create_mask((config.vid_h, config.vid_w), annotations['para_ann'][idx,0])
         # input()
-        '''
-        mask = cv2.resize(mask, (config.vid_w, config.vid_h))
-        mask = np.reshape(mask, mask.shape + (1,))
-        '''
         frame = cv2.resize(frame, (config.vid_w, config.vid_h))
         video[idx] = frame
         bbox[idx] = mask  
@@ -198,9 +193,6 @@ class SynthTrainDataGenDet(object):
         self.sec_to_wait = sec_to_wait
         self.frame_skip = frame_skip
         self.frames_dir = dataset_dir + "Frames/"
-
-        np.random.seed(None)
-        # random.shuffle(self.train_files)
 
         self.data_queue = []
 
