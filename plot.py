@@ -1,18 +1,21 @@
 import matplotlib.pyplot as plt
 import re
 
-def plot(ylabel, train, val):
+def plot(ylabel, x1, x2=None):
     plt.clf()
     # fig = plt.figure()
     # ax = plt.axes()
     # plt.style.use('seaborn-whitegrid')
-    x_vals = range(1, len(train)+1)
-    plt.plot(x_vals, train, color='blue', linestyle='solid', label='train')
-    plt.plot(x_vals, val, color='red', linestyle='solid', label='validation')
+    x_vals = range(1, len(x1)+1)
+    if x2 == None:
+        plt.plot(x_vals, x1, color='blue', linestyle='solid')
+    else:
+        plt.plot(x_vals, x1, color='blue', linestyle='solid', label='train')
+        plt.plot(x_vals, x2, color='red', linestyle='solid', label='validation')
+        plt.legend()
     plt.xlabel("Epochs")
     plt.ylabel(ylabel)
-    plt.legend()
-    plt.xticks(x_vals) 
+    plt.xticks(range(1, len(x1)+2, 5)) 
     plt.savefig(ylabel+'.png')
 
 
@@ -45,9 +48,11 @@ if __name__=='__main__':
     print(values['train'])
     print('Validation')
     print(values['val'])
-    plot('Segmentation Loss', train=values['train']['SL'], val=values['val']['SL'])
-    plot('Classification Loss', train=values['train']['CL'], val=values['val']['CL'])
-    plot('Accuracy', train=values['train']['ACC'], val=values['val']['ACC'])
+    plot(' Training Segmentation Loss', values['train']['SL'])
+    plot('Training Classification Loss', values['train']['CL'])
+    plot('Validation Segmentation Loss', values['val']['SL'])
+    plot('Validation Classification Loss', values['val']['CL'])
+    plot('Accuracy', values['train']['ACC'], values['val']['ACC'])
 # x2 = [10,20,30]
 # y2 = [40,10,30]
 # plot('acc', x2, y2)
