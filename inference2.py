@@ -131,7 +131,7 @@ video_dir_list = ['2/19310_tr_t_b_/',
 file_loc = './inference/inputs/'
 for vid in os.listdir(file_loc):
     inference(file_loc+vid)
-"""
+'''
 for video_dir in video_dir_list:
     inference(frames_dir+video_dir, dir=True)
 
