@@ -48,7 +48,7 @@ def train_network(gpu_config):
                 capsnet.cur_m = min(capsnet.cur_m, 0.9)
             
             # validates the network
-            data_gen = TestDataGen(config.wait_for_data, frame_skip=config.frame_skip)
+            data_gen = TestDataGen(config.wait_for_data, frame_skip=1)
             margin_loss, seg_loss, accuracy, _ = capsnet.eval(sess, data_gen, validation=True)
             config.write_output('Validation\tCL: %.4f. SL: %.4f. Acc: %.4f.\n' %
                                     (margin_loss, seg_loss, accuracy))

@@ -34,9 +34,9 @@ def get_det_annotations(split='train'):
                     k = label + '/' + file
                     v = {'label': int(label),
                         #'char_ann': file_grp.get('char_ann')[()],
-                        #'word_ann': file_grp.get('word_ann')[()],
+                        'word_ann': np.rint(np.array(file_grp.get('word_ann')[()]) / 2).astype(np.int32),
                         #'line_ann': file_grp.get('line_ann')[()],
-                        'para_ann': np.rint(np.array(file_grp.get('para_ann')[()]) / 2).astype(np.int32)
+                        #'para_ann': np.rint(np.array(file_grp.get('para_ann')[()]) / 2).astype(np.int32)
                         }
                     polygon_ann.append((k, v))
     random.seed(7)
@@ -55,7 +55,6 @@ def get_det_annotations(split='train'):
         test_split = polygon_ann[-num_test_samples:]
         print("Num test samples:", len(test_split))
         return test_split
-    
 
 
 def create_mask(shape, pts):
@@ -74,6 +73,19 @@ def create_mask(shape, pts):
     #cv2.imwrite('temp2.jpg', im)
     #input()
     return np.reshape(im, im.shape + (1,))
+
+
+def create_word_mask(shape, pts):
+    im = np.zeros(shape, dtype=np.uint8)
+    im = Image.fromarray(im, 'L')
+    draw = ImageDraw.Draw(im)
+    for word_ann in pts:
+        draw.polygon(word_ann.tolist(), fill=1)
+    del draw
+    im = np.asarray(im).copy()
+    #cv2.imwrite('temp2.jpg', im)
+    #input()
+    return np.reshape(im, shape + (1,))
 
 
 def get_video_det(video_dir, annotations, skip_frames=1, start_rand=True):
@@ -108,7 +120,7 @@ def get_video_det(video_dir, annotations, skip_frames=1, start_rand=True):
             print('*' * 20)
             frame = cv2.resize(frame, (w, h))
         # print(annotations['para_ann'][idx,0])
-        mask = create_mask((config.vid_h, config.vid_w), annotations['para_ann'][idx,0])
+        mask = create_word_mask((config.vid_h, config.vid_w), annotations['word_ann'][idx])
         # input()
         frame = cv2.resize(frame, (config.vid_w, config.vid_h))
         video[idx] = frame
@@ -212,7 +224,7 @@ class SynthTrainDataGenDet(object):
                 try:
                     clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', 
                                                            anns, skip_frames=self.frame_skip, start_rand=True)
-                    #clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
+                    clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
                     # clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(config.vid_h, config.vid_w), shuffle=True)
                     self.data_queue.append((clip, bbox_clip, label))
                     break
@@ -273,7 +285,7 @@ class SynthTestDataGenDet(object):
             while True:
                 try:
                     clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', anns, skip_frames=self.skip_frame, start_rand=False)
-                    clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
+                    # clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
                     # clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(config.vid_h, config.vid_w), shuffle=False)
                     self.data_queue.append((clip, bbox_clip, label))
                     break
