@@ -388,6 +388,8 @@ class Caps3d(object):
 
     def load(self, sess, file_name):
         # loads the model
+        print('Restoring model from file: %s' %file_name)
+        #self.saver.restore(sess, file_name)
         self.saver.restore(sess, tf.train.latest_checkpoint(file_name))
-        print('Model restored from file: %s' % file_name)
+        # print('Model restored from file: %s' % file_name)
 
