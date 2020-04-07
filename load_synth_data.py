@@ -33,11 +33,14 @@ def get_det_annotations(split='train'):
                     file_grp = label_grp.get(file)
                     k = label + '/' + file
                     v = {'label': int(label),
-                        #'char_ann': file_grp.get('char_ann')[()],
-                        'word_ann': np.rint(np.array(file_grp.get('word_ann')[()]) / 2).astype(np.int32),
-                        #'line_ann': file_grp.get('line_ann')[()],
-                        #'para_ann': np.rint(np.array(file_grp.get('para_ann')[()]) / 2).astype(np.int32)
+                         'ann': np.rint(np.array(file_grp.get(config.ann_type)[()]) / 2).astype(np.int32)
                         }
+                    '''
+                        'char_ann': file_grp.get('char_ann')[()],
+                        'word_ann': np.rint(np.array(file_grp.get('word_ann')[()]) / 2).astype(np.int32),
+                        'line_ann': file_grp.get('line_ann')[()],
+                        'para_ann': np.rint(np.array(file_grp.get('para_ann')[()]) / 2).astype(np.int32)
+                    '''
                     polygon_ann.append((k, v))
     random.seed(7)
     random.shuffle(polygon_ann)
@@ -120,7 +123,7 @@ def get_video_det(video_dir, annotations, skip_frames=1, start_rand=True):
             print('*' * 20)
             frame = cv2.resize(frame, (w, h))
         # print(annotations['para_ann'][idx,0])
-        mask = create_word_mask((config.vid_h, config.vid_w), annotations['word_ann'][idx])
+        mask = create_word_mask((config.vid_h, config.vid_w), annotations['ann'][idx])
         # input()
         frame = cv2.resize(frame, (config.vid_w, config.vid_h))
         video[idx] = frame
