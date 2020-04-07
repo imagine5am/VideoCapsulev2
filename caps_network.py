@@ -381,13 +381,13 @@ class Caps3d(object):
 
         return fin_mloss, fin_sloss, pred
 
-    def save(self, sess, file_name):
+    def save(self, sess, file_name, ep):
         # saves the model
-        save_path = self.saver.save(sess, file_name)
+        save_path = self.saver.save(sess, file_name, global_step=ep)  # +25
         print("Model saved in file: %s" % save_path)
 
     def load(self, sess, file_name):
         # loads the model
-        self.saver.restore(sess, file_name)
+        self.saver.restore(sess, tf.train.latest_checkpoint(file_name))
         print('Model restored from file: %s' % file_name)
 
