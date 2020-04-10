@@ -85,10 +85,9 @@ def inference():
                                          capsnet.is_train: False,
                                          capsnet.y_input: np.ones((f_skip,), np.int32)*-1})
                 
-                print('(Batch) Predictions for', name)
                 norm_mean = np.mean(batch_pred, axis=0)
                 batch_pred_arg = np.argmax(norm_mean)
-                print(config.labels[batch_pred_arg])
+                print('(Batch) Predictions for', name, 'is', config.labels[batch_pred_arg])
                 pred.append(norm_mean)
 
                 # collects the segmented frames into the correct order
