@@ -75,7 +75,7 @@ def create_mask(shape, pts):
     #print(im.dtype)
     #cv2.imwrite('temp2.jpg', im)
     #input()
-    return np.reshape(im, im.shape + (1,))
+    return np.expand_dims(im, axis=-1)
 
 
 def create_word_mask(shape, pts):
@@ -88,7 +88,22 @@ def create_word_mask(shape, pts):
     im = np.asarray(im).copy()
     #cv2.imwrite('temp2.jpg', im)
     #input()
-    return np.reshape(im, shape + (1,))
+    # np.reshape(im, shape + (1,))
+    return np.expand_dims(im, axis=-1)
+
+def create_multi_mask(shape, pts):
+    mask = []
+    for _, ann_type in enumerate(pts.keys(), start=1):
+        im = np.zeros(shape, dtype=np.uint8)
+        im = Image.fromarray(im, 'L')
+        draw = ImageDraw.Draw(im)
+        for bbox in pts[ann_type]:
+            draw.polygon(bbox.tolist(), fill=1)
+        del draw
+        mask.append(np.asarray(im).copy())
+    #cv2.imwrite('temp2.jpg', im)
+    #input()
+    return np.expand_dims(np.array(mask), axis=-1)
 
 
 def get_video_det(video_dir, annotations, skip_frames=1, start_rand=True):
@@ -123,7 +138,12 @@ def get_video_det(video_dir, annotations, skip_frames=1, start_rand=True):
             print('*' * 20)
             frame = cv2.resize(frame, (w, h))
         # print(annotations['para_ann'][idx,0])
-        mask = create_word_mask((config.vid_h, config.vid_w), annotations['ann'][idx])
+        pts = {'para_ann': annotations['para_ann'][idx],
+               'line_ann': annotations['line_ann'][idx],
+               'word_ann': annotations['word_ann'][idx],
+               'char_ann': annotations['char_ann'][idx],    
+              }
+        mask = create_multi_mask((config.vid_h, config.vid_w), pts)
         # input()
         frame = cv2.resize(frame, (config.vid_w, config.vid_h))
         video[idx] = frame
