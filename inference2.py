@@ -99,7 +99,7 @@ def inference():
 
             pred_mean = np.mean(np.stack(pred, axis=0), axis=0)
             video_label = config.labels[np.argmax(pred_mean)]
-            print('Video Prediction for', name + ':', video_label)
+            print('Video Prediction for', name + ':', video_label, '\n')
 
             # Final segmentation output
             segmentation_output = (segmentation_output >= 0.5).astype(np.int32)
