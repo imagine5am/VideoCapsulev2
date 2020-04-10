@@ -12,13 +12,13 @@ gpu_config.gpu_options.allow_growth = True
 #gpu_config.allow_soft_placement = True
 
 # batch size and number of epochs
-batch_size = 10
+batch_size = 4
 n_epochs = 20
 
 # whether to continue from last checkpoint or not
 continue_from_chkpt = False
 
-ann_type = 'para_ann' # 'char_ann' 'word_ann' 'line_ann' 'para_ann'
+ann_type = 'word_ann' # 'char_ann' 'word_ann' 'line_ann' 'para_ann'
 
 # number of epochs to train in between validations
 n_eps_for_eval = 5
