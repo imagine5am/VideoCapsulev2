@@ -41,11 +41,11 @@ def data_gen():
     for video_dir in video_dir_list:
         n_frames = len(os.listdir(frames_dir+video_dir))
         frame_start = 0
-        im0 = imread(video_dir + ('frame_%d.jpg' % frame_start))
+        im0 = imread(frames_dir + video_dir + ('frame_%d.jpg' % frame_start))
         _, _, ch = im0.shape
         video = np.zeros((n_frames, config.vid_h, config.vid_w, ch), dtype=np.uint8)
         for idx in range(n_frames):
-            frame = imread(video_dir + ('frame_%d.jpg' % idx))
+            frame = imread(frames_dir + video_dir + ('frame_%d.jpg' % idx))
             frame = resize(frame, (config.vid_w, config.vid_h))
             video[idx] = frame
         yield os.path.basename(video_dir[:-1]), video/255.
