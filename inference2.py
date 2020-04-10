@@ -60,8 +60,8 @@ def inference():
         capsnet.load(sess, config.save_file_name)
         
         for name, video in data_gen():        
-            print('Saving Cropped Video')
-            vwrite(output_dir+name+'_cropped.avi', video)
+            # print('Saving Cropped Video')
+            # vwrite(output_dir+name+'_cropped.avi', video)
 
             n_frames = video.shape[0]
             segmentation_output = np.zeros((n_frames, config.vid_h, config.vid_w, 1))
