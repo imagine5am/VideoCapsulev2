@@ -32,8 +32,8 @@ with tf.Session(graph=capsnet.graph, config=config.gpu_config) as sess:
             records[label]['incorrect'] += 1
 
 try:
-    output_log = open('pred_recs.txt', 'w')
-    output_log.write('Label\tTrus\tFalse\tAccuracy\n')
+    output_log = open('split_results.txt', 'w')
+    output_log.write('Label\tTrue\tFalse\tAccuracy\n')
     for i in range(config.n_classes):
         output_log.write('%d\t%d\t%d\t%.4f%%\n' % (i,records[i]['correct'],records[i]['incorrect'],
                         (records[i]['correct'] * 100)/(records[i]['correct']+records[i]['incorrect'])))
