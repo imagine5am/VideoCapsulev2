@@ -16,9 +16,9 @@ batch_size = 4
 n_epochs = 30
 
 # whether to continue from last checkpoint or not
-continue_from_chkpt = True
+continue_from_chkpt = False
 
-ann_type = 'word_ann' # 'char_ann' 'word_ann' 'line_ann' 'para_ann'
+# ann_type = 'word_ann' # 'char_ann' 'word_ann' 'line_ann' 'para_ann'
 
 # number of epochs to train in between validations
 n_eps_for_eval = 5
