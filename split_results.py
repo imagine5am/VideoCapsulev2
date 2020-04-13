@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 import time
 from tqdm import tqdm
-
+import traceback
 
 def output_conf(conf):
     try: 
@@ -13,18 +13,19 @@ def output_conf(conf):
 
         output_log.write('Label\t')
         for i in range(config.n_classes):
-            output_log.write('%d\t', i)
+            output_log.write('%d\t' % i)
         output_log.write('Accuracy\n')
 
         for i in range(config.n_classes):
             output_log.write('%d\t' % i)
             for j in range(config.n_classes):
                 output_log.write('%d\t' % conf[i,j])
-            output_log.write('%.2f%%\n' % conf[i,i] * 100 / np.sum(conf[i]))
+            output_log.write('%.2f%%\n' % (conf[i,i] * 100 / np.sum(conf[i])))
 
         output_log.close()
     except:
         print('Unable to save to split_results.txt')
+        print(traceback.format_exc())
 
 
 def get_val_conf():
