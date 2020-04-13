@@ -57,7 +57,7 @@ def inference():
     capsnet = Caps3d()
     with tf.Session(graph=capsnet.graph, config=config.gpu_config) as sess:
         tf.global_variables_initializer().run()
-        capsnet.load(sess, config.save_file_name)
+        capsnet.load(sess, config.network_save_dir)
         
         for name, video in data_gen():        
             # print('Saving Cropped Video')

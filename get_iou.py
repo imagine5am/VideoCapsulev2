@@ -13,7 +13,7 @@ def iou():
     capsnet = Caps3d()
     with tf.Session(graph=capsnet.graph, config=config.gpu_config) as sess:
         tf.global_variables_initializer().run()
-        capsnet.load(sess, config.save_file_name)
+        capsnet.load(sess, config.network_save_dir)
 
         data_gen = TestDataGen(config.wait_for_data)
 

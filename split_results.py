@@ -36,7 +36,7 @@ def get_val_conf():
     capsnet = Caps3d()
     with tf.Session(graph=capsnet.graph, config=config.gpu_config) as sess:
         tf.global_variables_initializer().run()
-        capsnet.load(sess, config.save_file_name)
+        capsnet.load(sess, config.network_save_dir)
 
         data_gen = TestDataGen(config.wait_for_data, frame_skip=1)
         for _ in tqdm(range(data_gen.n_videos)):
