@@ -194,7 +194,7 @@ def get_clip_det(video, bbox, clip_len=8, any_clip=False):
         except:
             start_loc = min(np.where(frame_anns > 0)[0][0], video.shape[0]-clip_len)
 
-    return video[start_loc:start_loc+clip_len]/255., bbox[start_loc:start_loc+clip_len]
+    return video[start_loc:start_loc+clip_len], bbox[start_loc:start_loc+clip_len]
 
 
 def crop_clip_det(clip, bbox_clip, crop_size=(112, 112), shuffle=True):
@@ -218,7 +218,7 @@ def crop_clip_det(clip, bbox_clip, crop_size=(112, 112), shuffle=True):
         h_crop_start = np.random.randint(0, h - crop_size[0])
         w_crop_start = np.random.randint(0, w - crop_size[1])
 
-    return clip[:, h_crop_start:h_crop_start+crop_size[0], w_crop_start:w_crop_start+crop_size[1], :] / 255., \
+    return clip[:, h_crop_start:h_crop_start+crop_size[0], w_crop_start:w_crop_start+crop_size[1], :], \
            bbox_clip[:, h_crop_start:h_crop_start+crop_size[0], w_crop_start:w_crop_start+crop_size[1], :]
 
 # The data generator for training. Outputs clips, bounding boxes, and labels for the training split.
@@ -249,7 +249,7 @@ class SynthTrainDataGenDet(object):
                                                            anns, skip_frames=self.frame_skip, start_rand=True)
                     clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
                     # clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(config.vid_h, config.vid_w), shuffle=True)
-                    self.data_queue.append((clip, bbox_clip, label))
+                    self.data_queue.append((clip/255., bbox_clip, label))
                     break
                 except Exception as e:
                     print('Unexpected error:', sys.exc_info()[0])
@@ -310,7 +310,7 @@ class SynthTestDataGenDet(object):
                     clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', anns, skip_frames=self.skip_frame, start_rand=False)
                     # clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
                     # clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(config.vid_h, config.vid_w), shuffle=False)
-                    self.data_queue.append((clip, bbox_clip, label))
+                    self.data_queue.append((clip/255., bbox_clip, label))
                     break
                 except Exception as e:
                     print('Unexpected error:', sys.exc_info()[0])
