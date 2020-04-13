@@ -101,9 +101,11 @@ def create_multi_mask(shape, pts):
             draw.polygon(bbox.tolist(), fill=1)
         del draw
         mask.append(np.asarray(im).copy())
-    #cv2.imwrite('temp2.jpg', im)
-    #input()
-    return np.expand_dims(np.array(mask), axis=-1)
+    # cv2.imwrite('temp2.jpg', im)
+    # input()
+    mask = np.expand_dims(np.array(mask), axis=-1)
+    print(mask.shape)
+    return mask
 
 
 def get_video_det(video_dir, annotations, skip_frames=1, start_rand=True):
@@ -123,11 +125,9 @@ def get_video_det(video_dir, annotations, skip_frames=1, start_rand=True):
     im0 = imread(video_dir + ('frame_%d.jpg' % frame_start))
     h, w, ch = im0.shape
     video = np.zeros((n_frames, config.vid_h, config.vid_w, ch), dtype=np.uint8)
-    bbox = np.zeros((n_frames, config.vid_h, config.vid_w, 1), dtype=np.uint8)
+    bbox = np.zeros((n_frames, 4, config.vid_h, config.vid_w, 1), dtype=np.uint8)
     label = annotations['label']
     
-    # video[0] = im0
-    # annotations['para_ann'][count] has type [[0 0...]]
     for idx in range(n_frames):
         frame = imread(video_dir + ('frame_%d.jpg' % idx))
         
@@ -137,14 +137,12 @@ def get_video_det(video_dir, annotations, skip_frames=1, start_rand=True):
             print('Frame:', idx)
             print('*' * 20)
             frame = cv2.resize(frame, (w, h))
-        # print(annotations['para_ann'][idx,0])
         pts = {'para_ann': annotations['para_ann'][idx],
                'line_ann': annotations['line_ann'][idx],
                'word_ann': annotations['word_ann'][idx],
                'char_ann': annotations['char_ann'][idx],    
               }
         mask = create_multi_mask((config.vid_h, config.vid_w), pts)
-        # input()
         frame = cv2.resize(frame, (config.vid_w, config.vid_h))
         video[idx] = frame
         bbox[idx] = mask  

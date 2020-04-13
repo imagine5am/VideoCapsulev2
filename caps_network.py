@@ -37,7 +37,7 @@ class Caps3d(object):
             #with tf.device('/gpu:0'):
             self.x_input = tf.placeholder(dtype=tf.float32, shape=self.input_shape)
             self.y_input = tf.placeholder(dtype=tf.int32, shape=[None])
-            self.y_bbox = tf.placeholder(dtype=tf.float32, shape=(None, 8, config.vid_h, config.vid_w, 1))
+            self.y_bbox = tf.placeholder(dtype=tf.float32, shape=(None, 8, 4, config.vid_h, config.vid_w, 1))
             self.is_train = tf.placeholder(tf.bool)
             self.m = tf.placeholder(tf.float32, shape=())
 
@@ -200,9 +200,12 @@ class Caps3d(object):
         deconv5 = tf.layers.conv3d_transpose(deconv4, 256, kernel_size=[1, 3, 3], strides=[1, 2, 2], padding='SAME',
                                              use_bias=False, activation=tf.nn.relu, name='deconv5')
 
-        self.segment_layer = tf.layers.conv3d(deconv5, 1, kernel_size=[1, 3, 3], strides=[1, 1, 1],
-                                              padding='SAME', activation=None, name='segment_layer')
-        self.segment_layer_sig = tf.nn.sigmoid(self.segment_layer)
+        self.segment_layer = {}
+        self.segment_layer_sig = {}
+        for ann_type in ['para_ann', 'line_ann', 'word_ann', 'char_ann']:
+            self.segment_layer[ann_type] = tf.layers.conv3d(deconv5, 1, kernel_size=[1, 3, 3], strides=[1, 1, 1],
+                                                  padding='SAME', activation=None, name='segment_layer_'+ann_type)
+            self.segment_layer_sig[ann_type] = tf.nn.sigmoid(self.segment_layer[ann_type])
 
         if config.print_layers:
             print('Deconv Layer 1:', deconv1.get_shape())
@@ -210,7 +213,8 @@ class Caps3d(object):
             print('Deconv Layer 3:', deconv3.get_shape())
             print('Deconv Layer 4:', deconv4.get_shape())
             print('Deconv Layer 5:', deconv5.get_shape())
-            print('Segmentation Layer:', self.segment_layer.get_shape())
+            print('Segmentation Layer:', self.segment_layer['para_ann'].get_shape())
+
 
     def init_loss_and_opt(self):
         y_onehot = tf.one_hot(indices=self.y_input, depth=config.n_classes)
@@ -224,11 +228,24 @@ class Caps3d(object):
         spread_loss = tf.square(tf.maximum(0.0, self.m - (a_t - a_i)))
         spread_loss = tf.matmul(spread_loss, 1. - y_onehot2)
         self.class_loss = tf.reduce_sum(tf.reduce_sum(spread_loss, axis=[1, 2]))
-
+        
+        '''
         # segmentation loss
         segment = tf.contrib.layers.flatten(self.segment_layer)
         y_bbox = tf.contrib.layers.flatten(self.y_bbox)
         self.segmentation_loss = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels=y_bbox, logits=segment))
+        self.segmentation_loss = config.segment_coef * self.segmentation_loss
+        '''
+        
+        # segmentation loss
+        for i, ann_type in enumerate(['para_ann', 'line_ann', 'word_ann', 'char_ann']):
+            segment = tf.contrib.layers.flatten(self.segment_layer[ann_type])
+            y_bbox = tf.contrib.layers.flatten(self.y_bbox[:, :, i, :, :, :])
+            if ann_type == 'para_ann':
+                self.segmentation_loss = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels=y_bbox, logits=segment))
+            else:     
+                self.segmentation_loss += tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels=y_bbox, logits=segment))
+            
         self.segmentation_loss = config.segment_coef * self.segmentation_loss
 
         # accuracy of a given batch
