@@ -99,7 +99,7 @@ def inference():
 
             pred_mean = np.mean(np.stack(pred, axis=0), axis=0)
             video_label = config.labels[np.argmax(pred_mean)]
-            print('Video Prediction for', name + ':', video_label, '\n')
+            print('Video Prediction for', name + ':', video_label)
 
             # Final segmentation output
             segmentation_output = (segmentation_output >= 0.5).astype(np.int32)
@@ -110,7 +110,7 @@ def inference():
             masked_vid = np.where(np.tile(segmentation_output, [1, 1, 3]) == 1,
                                   video * (1 - alpha) + alpha * color, video)
 
-            print('Saving Segmented Video')
+            print('Saving Segmented Video\n')
             vwrite(output_dir+name+'_segmented.avi', (masked_vid * 255).astype(np.uint8))
 
 
