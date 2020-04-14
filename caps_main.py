@@ -25,7 +25,7 @@ def train_network(gpu_config):
         tf.global_variables_initializer().run()
         
         if config.continue_from_chkpt:
-            capsnet.load(sess, config.save_file_name)
+            capsnet.load(sess, config.network_save_dir)
         else:
             config.clear_output()
 
@@ -48,7 +48,7 @@ def train_network(gpu_config):
                 capsnet.cur_m = min(capsnet.cur_m, 0.9)
                 
             try:
-                capsnet.save(sess, config.save_file_name, ep) #+25 
+                capsnet.save(sess, config.save_file_name, config.prev_epochs + ep) #+25 
                 config.write_output('Saved Network\n')
             except:
                 print('Failed to save network!!!')

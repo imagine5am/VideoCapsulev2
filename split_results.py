@@ -9,22 +9,22 @@ import traceback
 
 def output_conf(conf):
     try: 
-        output_log = open('split_results.txt', 'w')
+        output_log = open('split_results.csv', 'w')
 
-        output_log.write('Label\t')
+        output_log.write('Label\\Pred, ')
         for i in range(config.n_classes):
-            output_log.write('%d\t' % i)
+            output_log.write('%s, ' % config.labels[i])
         output_log.write('Accuracy\n')
 
         for i in range(config.n_classes):
-            output_log.write('%d\t' % i)
+            output_log.write('%s, ' % config.labels[i])
             for j in range(config.n_classes):
-                output_log.write('%d\t' % conf[i,j])
+                output_log.write('%d, ' % conf[i,j])
             output_log.write('%.2f%%\n' % (conf[i,i] * 100 / np.sum(conf[i])))
 
         output_log.close()
     except:
-        print('Unable to save to split_results.txt')
+        print('Unable to save to split_results.csv')
         print(traceback.format_exc())
 
 
@@ -36,7 +36,7 @@ def get_val_conf():
     capsnet = Caps3d()
     with tf.Session(graph=capsnet.graph, config=config.gpu_config) as sess:
         tf.global_variables_initializer().run()
-        capsnet.load(sess, config.save_file_name)
+        capsnet.load(sess, config.network_save_dir)
 
         data_gen = TestDataGen(config.wait_for_data, frame_skip=1)
         for _ in tqdm(range(data_gen.n_videos)):

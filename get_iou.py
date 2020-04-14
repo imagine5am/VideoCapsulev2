@@ -1,8 +1,9 @@
 import numpy as np
 import tensorflow as tf
-from caps_network import Caps3d
 import config
+from caps_network import Caps3d
 from load_synth_data import SynthTestDataGenDet as TestDataGen
+from tqdm import tqdm
 
 
 def iou():
@@ -13,7 +14,7 @@ def iou():
     capsnet = Caps3d()
     with tf.Session(graph=capsnet.graph, config=config.gpu_config) as sess:
         tf.global_variables_initializer().run()
-        capsnet.load(sess, config.save_file_name)
+        capsnet.load(sess, config.network_save_dir)
 
         data_gen = TestDataGen(config.wait_for_data)
 
@@ -23,7 +24,7 @@ def iou():
         video_ious = np.zeros((config.n_classes, 20))
         iou_threshs = np.arange(0, 20, dtype=np.float32)/20
 
-        while data_gen.has_data():
+        for _ in tqdm(range(data_gen.n_videos)):
             video, bbox, label = data_gen.get_next_video()
 
             f_skip = config.frame_skip

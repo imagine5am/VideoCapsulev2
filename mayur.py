@@ -21,7 +21,7 @@ def inference(batch, gpu_config):
     capsnet = Caps3d()
     with tf.Session(graph=capsnet.graph, config=gpu_config) as sess:
         tf.global_variables_initializer().run()
-        capsnet.load(sess, config.save_file_name)
+        capsnet.load(sess, config.network_save_dir)
         
         batch_pred, seg_out = sess.run([capsnet.digit_preds, capsnet.segment_layer_sig], 
                                      feed_dict={capsnet.x_input: batch,
