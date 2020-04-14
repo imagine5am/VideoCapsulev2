@@ -1,45 +1,5 @@
-Training	CL: 0.2123. SL: 10.1243. Acc: 0.7646.
-Validation	CL: 60.9497. SL: 856.2609. Acc: 0.0024.
+Training	CL: 13.4923. SL: 73.3941. Acc: 0.1367.
 Saved Network
-Training	CL: 0.1608. SL: 8.1330. Acc: 0.7836.
-Validation	CL: 55.6508. SL: 1036.1990. Acc: 0.0089.
-Training	CL: 0.1373. SL: 7.5112. Acc: 0.7912.
-Validation	CL: 58.6547. SL: 909.7578. Acc: 0.0069.
-Training	CL: 0.1223. SL: 6.9513. Acc: 0.7961.
-Validation	CL: 58.1276. SL: 417.2976. Acc: 0.0069.
+Training	CL: 1.9667. SL: 91.7910. Acc: 0.2173.
 Saved Network
-Training	CL: 6.9010. SL: 10.5095. Acc: 0.7909.
-Saved Network
-Validation	CL: 66.5041. SL: 485.3865. Acc: 0.0016.
-Training	CL: 6.0684. SL: 8.4269. Acc: 0.8256.
-Saved Network
-Validation	CL: 63.2043. SL: 490.7094. Acc: 0.0093.
-Training	CL: 5.6661. SL: 7.6524. Acc: 0.8526.
-Saved Network
-Validation	CL: 65.3836. SL: 478.0172. Acc: 0.0049.
-Training	CL: 5.4433. SL: 7.1284. Acc: 0.8556.
-Saved Network
-Validation	CL: 65.5305. SL: 611.8261. Acc: 0.0008.
-Training	CL: 5.2329. SL: 6.6980. Acc: 0.8627.
-Saved Network
-Validation	CL: 62.1212. SL: 502.5706. Acc: 0.0065.
-Training	CL: 8.3600. SL: 6.4994. Acc: 0.8712.
-Saved Network
-Validation	CL: 63.5976. SL: 579.5611. Acc: 0.0012.
-Training	CL: 8.0879. SL: 6.2088. Acc: 0.8828.
-Saved Network
-Validation	CL: 64.4264. SL: 604.4302. Acc: 0.0041.
-Training	CL: 7.8957. SL: 5.9720. Acc: 0.8868.
-Saved Network
-Validation	CL: 61.9979. SL: 746.2258. Acc: 0.0049.
-Training	CL: 7.7685. SL: 5.8333. Acc: 0.8902.
-Saved Network
-Validation	CL: 64.3845. SL: 523.6586. Acc: 0.0016.
-Training	CL: 7.5978. SL: 5.6758. Acc: 0.9013.
-Saved Network
-Validation	CL: 61.9796. SL: 740.4212. Acc: 0.0016.
-Training	CL: 7.4287. SL: 5.5276. Acc: 0.9068.
-Saved Network
-Validation	CL: 62.6702. SL: 877.9839. Acc: 0.0004.
-Training	CL: 7.2994. SL: 5.3028. Acc: 0.9131.
-Saved Network
+Validation	CL: 28.6516. SL: 79.7641. Acc: 0.2191.

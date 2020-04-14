@@ -12,7 +12,7 @@ import config
 import traceback
 
 #dataset_dir = '../../data/SyntheticVideos/'
-dataset_dir = '../SynthVideo/out/'
+dataset_dir = '../../SynthVideo/out/'
 
 #bad_files = ['9410_tr_t_b_','9535_tr_l_r_']
 bad_files = []
@@ -57,40 +57,9 @@ def get_det_annotations(split='train'):
         return test_split
 
 
-def create_mask(shape, pts):
-    im = np.zeros(shape, dtype=np.uint8)
-    im = Image.fromarray(im, 'L')
-    draw = ImageDraw.Draw(im)
-    draw.polygon(pts.tolist(), fill=1)
-    del draw
-    # print(pts.tolist())
-    #input()
-    im = np.asarray(im).copy()
-    #im = im // 255
-    #print('np.min(im)', np.min(im))
-    #print('np.max(im)', np.max(im))
-    #print(im.dtype)
-    #cv2.imwrite('temp2.jpg', im)
-    #input()
-    return np.expand_dims(im, axis=-1)
-
-
-def create_word_mask(shape, pts):
-    im = np.zeros(shape, dtype=np.uint8)
-    im = Image.fromarray(im, 'L')
-    draw = ImageDraw.Draw(im)
-    for word_ann in pts:
-        draw.polygon(word_ann.tolist(), fill=1)
-    del draw
-    im = np.asarray(im).copy()
-    #cv2.imwrite('temp2.jpg', im)
-    #input()
-    # np.reshape(im, shape + (1,))
-    return np.expand_dims(im, axis=-1)
-
 def create_multi_mask(shape, pts):
     mask = []
-    for _, ann_type in enumerate(pts.keys(), start=1):
+    for ann_type in config.ann_types:
         im = np.zeros(shape, dtype=np.uint8)
         im = Image.fromarray(im, 'L')
         draw = ImageDraw.Draw(im)
@@ -101,7 +70,6 @@ def create_multi_mask(shape, pts):
     # cv2.imwrite('temp2.jpg', im)
     # input()
     mask = np.expand_dims(np.array(mask), axis=-1)
-    print(mask.shape)
     return mask
 
 
@@ -134,11 +102,11 @@ def get_video_det(video_dir, annotations, skip_frames=1, start_rand=True):
             print('Frame:', idx)
             print('*' * 20)
             frame = cv2.resize(frame, (w, h))
-        pts = {'para_ann': annotations['para_ann'][idx],
-               'line_ann': annotations['line_ann'][idx],
-               'word_ann': annotations['word_ann'][idx],
-               'char_ann': annotations['char_ann'][idx],    
-              }
+        
+        pts = {}
+        for ann_type in config.ann_types:
+            pts[ann_type] = annotations[ann_type][idx]
+        
         mask = create_multi_mask((config.vid_h, config.vid_w), pts)
         frame = cv2.resize(frame, (config.vid_w, config.vid_h))
         video[idx] = frame

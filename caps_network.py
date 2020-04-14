@@ -37,7 +37,7 @@ class Caps3d(object):
             #with tf.device('/gpu:0'):
             self.x_input = tf.placeholder(dtype=tf.float32, shape=self.input_shape)
             self.y_input = tf.placeholder(dtype=tf.int32, shape=[None])
-            self.y_bbox = tf.placeholder(dtype=tf.float32, shape=(None, 8, 4, config.vid_h, config.vid_w, 1))
+            self.y_bbox = tf.placeholder(dtype=tf.float32, shape=(None, 8, len(config.ann_types), config.vid_h, config.vid_w, 1))
             self.is_train = tf.placeholder(tf.bool)
             self.m = tf.placeholder(tf.float32, shape=())
 
@@ -202,7 +202,7 @@ class Caps3d(object):
 
         self.segment_layer = {}
         self.segment_layer_sig = {}
-        for ann_type in ['para_ann', 'line_ann', 'word_ann', 'char_ann']:
+        for ann_type in config.ann_types:
             self.segment_layer[ann_type] = tf.layers.conv3d(deconv5, 1, kernel_size=[1, 3, 3], strides=[1, 1, 1],
                                                   padding='SAME', activation=None, name='segment_layer_'+ann_type)
             self.segment_layer_sig[ann_type] = tf.nn.sigmoid(self.segment_layer[ann_type])
@@ -213,7 +213,7 @@ class Caps3d(object):
             print('Deconv Layer 3:', deconv3.get_shape())
             print('Deconv Layer 4:', deconv4.get_shape())
             print('Deconv Layer 5:', deconv5.get_shape())
-            print('Segmentation Layer:', self.segment_layer['para_ann'].get_shape())
+            print('Segmentation Layer:', self.segment_layer[config.ann_types[0]].get_shape())
 
 
     def init_loss_and_opt(self):
@@ -238,10 +238,10 @@ class Caps3d(object):
         '''
         
         # segmentation loss
-        for i, ann_type in enumerate(['para_ann', 'line_ann', 'word_ann', 'char_ann']):
+        for i, ann_type in enumerate(config.ann_types):
             segment = tf.contrib.layers.flatten(self.segment_layer[ann_type])
             y_bbox = tf.contrib.layers.flatten(self.y_bbox[:, :, i, :, :, :])
-            if ann_type == 'para_ann':
+            if i == 0:
                 self.segmentation_loss = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels=y_bbox, logits=segment))
             else:     
                 self.segmentation_loss += tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels=y_bbox, logits=segment))
@@ -341,10 +341,10 @@ class Caps3d(object):
                     ind = i + j + k * f_skip
                     if ind >= n_frames:
                         b_vid.append(np.zeros((1, config.vid_h, config.vid_w, 3), dtype=np.float32))
-                        b_bbox.append(np.zeros((1, config.vid_h, config.vid_w, 1), dtype=np.float32))
+                        b_bbox.append(np.zeros((1, len(config.ann_types), config.vid_h, config.vid_w, 1), dtype=np.float32))
                     else:
                         b_vid.append(video[ind:ind + 1, :, :, :])
-                        b_bbox.append(bbox[ind:ind + 1, :, :, :])
+                        b_bbox.append(bbox[ind:ind + 1, :, :, :, :])
 
                 clips.append((np.concatenate(b_vid, axis=0), np.concatenate(b_bbox, axis=0), label))
                 if clips[-1][1].sum() == 0:

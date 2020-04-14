@@ -26,8 +26,11 @@ def train_network(gpu_config):
         
         if config.continue_from_chkpt:
             capsnet.load(sess, config.network_save_dir)
+            capsnet.cur_m += config.m_delta * config.prev_epochs / config.n_eps_for_m
+            capsnet.cur_m = min(capsnet.cur_m, 0.9)
         else:
             config.clear_output()
+            config.prev_epochs = 0
 
         get_num_params()
         
@@ -43,7 +46,7 @@ def train_network(gpu_config):
             config.write_output('Training\tCL: %.4f. SL: %.4f. Acc: %.4f.\n' % (margin_loss, seg_loss, acc))
 
             # increments the margin
-            if ep % config.n_eps_for_m == 0:
+            if (ep + config.prev_epochs) % config.n_eps_for_m == 0:
                 capsnet.cur_m += config.m_delta
                 capsnet.cur_m = min(capsnet.cur_m, 0.9)
                 

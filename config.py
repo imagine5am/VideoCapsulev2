@@ -17,9 +17,9 @@ n_epochs = 30
 
 # whether to continue from last checkpoint or not
 continue_from_chkpt = True
-prev_epochs = 0
+prev_epochs = 1
 
-# ann_type = 'word_ann' # 'char_ann' 'word_ann' 'line_ann' 'para_ann'
+ann_types = ['para_ann', 'line_ann', 'word_ann', 'char_ann']
 
 # number of epochs to train in between validations
 n_eps_for_eval = 5
@@ -58,7 +58,7 @@ save_file_name = network_save_dir + ('model_%d.ckpt' % model_num)
 segment_coef = 0.0002
 
 # margin for classification loss, how much it is incremented by, and how often it is incremented by
-start_m = 0.8
+start_m = 0.2
 m_delta = 0.1
 n_eps_for_m = 5
 
