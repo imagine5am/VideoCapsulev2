@@ -1,8 +1,9 @@
 import numpy as np
 import tensorflow as tf
-from caps_network import Caps3d
 import config
+from caps_network import Caps3d
 from load_synth_data import SynthTestDataGenDet as TestDataGen
+from tqdm import tqdm
 
 
 def iou():
@@ -23,7 +24,8 @@ def iou():
         video_ious = np.zeros((config.n_classes, 20))
         iou_threshs = np.arange(0, 20, dtype=np.float32)/20
 
-        while data_gen.has_data():
+        #while data_gen.has_data():
+        for _ in tqdm(range(data_gen.n_videos)):
             video, bbox, label = data_gen.get_next_video()
 
             f_skip = config.frame_skip

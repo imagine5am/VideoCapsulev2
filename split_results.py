@@ -9,22 +9,22 @@ import traceback
 
 def output_conf(conf):
     try: 
-        output_log = open('split_results.txt', 'w')
+        output_log = open('split_results.csv', 'w')
 
-        output_log.write('Label\t')
+        output_log.write('Label\\Pred, ')
         for i in range(config.n_classes):
-            output_log.write('%d\t' % i)
+            output_log.write('%s, ' % config.labels[i])
         output_log.write('Accuracy\n')
 
         for i in range(config.n_classes):
-            output_log.write('%d\t' % i)
+            output_log.write('%s, ' % config.labels[i])
             for j in range(config.n_classes):
-                output_log.write('%d\t' % conf[i,j])
+                output_log.write('%d, ' % conf[i,j])
             output_log.write('%.2f%%\n' % (conf[i,i] * 100 / np.sum(conf[i])))
 
         output_log.close()
     except:
-        print('Unable to save to split_results.txt')
+        print('Unable to save to split_results.csv')
         print(traceback.format_exc())
 
 
