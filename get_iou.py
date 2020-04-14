@@ -24,7 +24,6 @@ def iou():
         video_ious = np.zeros((config.n_classes, 20))
         iou_threshs = np.arange(0, 20, dtype=np.float32)/20
 
-        #while data_gen.has_data():
         for _ in tqdm(range(data_gen.n_videos)):
             video, bbox, label = data_gen.get_next_video()
 
