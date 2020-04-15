@@ -20,7 +20,7 @@ def output_iou(n_vids, n_tot_frames, n_correct, iou_threshs, video_ious, frame_i
         print('IoU, f-mAP:')
         config.write_output('IoU, f-mAP:\n')
         for i in range(20):
-            print(iou_threshs[i] + ', ' + fmAP[i])
+            print(str(iou_threshs[i]) + ', ' + str(fmAP[i]))
             config.write_output('%.4f, %.4f\n' % (iou_threshs[i], fmAP[i]))
         config.write_output(str(fAP[:, 10]) + '\n')
         print(fAP[:, 10])   # fAP for IoU = 0.5
@@ -28,7 +28,7 @@ def output_iou(n_vids, n_tot_frames, n_correct, iou_threshs, video_ious, frame_i
         print('IoU, v-mAP:')
         config.write_output('IoU, v-mAP:\n')
         for i in range(20):
-            print(iou_threshs[i] + ', ' + vmAP[i])
+            print(str(iou_threshs[i]) + ', ' + str(vmAP[i]))
             config.write_output('%.4f, %.4f\n' % (iou_threshs[i], vmAP[i]))
         config.write_output(str(vAP[:, 10]) + '\n')
         print(vAP[:, 10])   # vAP for IoU = 0.5
