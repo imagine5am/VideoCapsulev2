@@ -50,7 +50,7 @@ def iou():
         iou_threshs = np.arange(0, 20, dtype=np.float32) / 20
         
         frame_ious, video_ious = {}, {}
-        for ann_type in enumerate(config.ann_types): 
+        for ann_type in config.ann_types: 
             frame_ious[ann_type] = np.zeros((config.n_classes, 20))
             video_ious[ann_type] = np.zeros((config.n_classes, 20))
             
@@ -128,7 +128,6 @@ def iou():
                 pred_segmentations = pred_segmentations.reshape((-1, config.vid_h, config.vid_w, 1))
                 pred_segmentations = (pred_segmentations >= 0.5).astype(np.int32)
 
-                print('gt_segmentations.shape:', gt_segmentations.shape)
                 gt_segmentations = gt_segmentations[:, idx, :, :, :]
                 seg_plus_gt = pred_segmentations + gt_segmentations
 

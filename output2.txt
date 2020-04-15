@@ -1,5 +1,8 @@
-Training	CL: 13.4923. SL: 73.3941. Acc: 0.1367.
+Training        CL: 13.4923. SL: 73.3941. Acc: 0.1367.
 Saved Network
-Training	CL: 1.9667. SL: 91.7910. Acc: 0.2173.
+Training        CL: 1.9667. SL: 91.7910. Acc: 0.2173.
 Saved Network
-Validation	CL: 28.6516. SL: 79.7641. Acc: 0.2191.
+Validation      CL: 28.6516. SL: 79.7641. Acc: 0.2191.
+Training        CL: 1.5331. SL: 75.5782. Acc: 0.2878.
+Saved Network
+Validation      CL: 23.5973. SL: 73.2541. Acc: 0.3556.
