@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-import config
+import config2 as config
 from caps_network import Caps3d
 from load_synth_data import SynthTestDataGenDet as TestDataGen
 from tqdm import tqdm
@@ -81,7 +81,7 @@ def iou():
                 print('Video has no bounding boxes')
                 continue
 
-            batches, gt_segmentations = [], []
+            batches, all_gt_segmentations = [], []
             for i in range(0, len(clips), config.batch_size):
                 x_batch, bb_batch, y_batch = [], [], []
                 for j in range(i, min(i+config.batch_size, len(clips))):
@@ -90,10 +90,10 @@ def iou():
                     bb_batch.append(bb)
                     y_batch.append(y)
                 batches.append((x_batch, bb_batch, y_batch))
-                gt_segmentations.append(np.stack(bb_batch))
+                all_gt_segmentations.append(np.stack(bb_batch))
 
-            gt_segmentations = np.concatenate(gt_segmentations, axis=0)
-            gt_segmentations = gt_segmentations.reshape((-1, len(config.ann_types), config.vid_h, config.vid_w, 1))  # Shape N_FRAMES, 4,112, 112, 1
+            all_gt_segmentations = np.concatenate(all_gt_segmentations, axis=0)
+            all_gt_segmentations = all_gt_segmentations.reshape((-1, len(config.ann_types), config.vid_h, config.vid_w, 1))  # Shape N_FRAMES, 4,112, 112, 1
 
             segmentations = {}
             for ann_type in config.ann_types:
@@ -128,7 +128,9 @@ def iou():
                 pred_segmentations = pred_segmentations.reshape((-1, config.vid_h, config.vid_w, 1))
                 pred_segmentations = (pred_segmentations >= 0.5).astype(np.int32)
 
-                gt_segmentations = gt_segmentations[:, idx, :, :, :]
+                print('all_gt_segmentations.shape:', all_gt_segmentations.shape)
+                print('idx', idx)
+                gt_segmentations = all_gt_segmentations[:, idx, :, :, :]
                 seg_plus_gt = pred_segmentations + gt_segmentations
 
                 vid_inter, vid_union = 0, 0
