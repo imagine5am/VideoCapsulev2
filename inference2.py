@@ -9,7 +9,8 @@ from skvideo.io import vread, vwrite
 from scipy.misc import imresize
 
 def data_gen():
-    file_loc = './inference/inputs/'
+    # file_loc = '../../VideoCapsuleNetv2/inference/inputs/'
+    file_loc = '/mnt/data/Rohit/VideoCapsNet/code/VideoCapsuleNetv2/inference/inputs/'
     for vid in os.listdir(file_loc):
         video_orig = vread(file_loc + vid)
         n_frames = video_orig.shape[0]
@@ -18,7 +19,7 @@ def data_gen():
             video[idx] = resize(video_orig[idx], (config.vid_w, config.vid_h))
         yield os.path.splitext(vid)[0], video/255.
 
-    frames_dir = '../SynthVideo/out/Frames/'
+    frames_dir = '../../SynthVideo/out/Frames/'
     video_dir_list = ['1/18020_tr_r_l_/',
                       '3/8541_tr_b_t_/',
                       '5/19958_roll_c_/',
