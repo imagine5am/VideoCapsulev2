@@ -128,8 +128,6 @@ def iou():
                 pred_segmentations = pred_segmentations.reshape((-1, config.vid_h, config.vid_w, 1))
                 pred_segmentations = (pred_segmentations >= 0.5).astype(np.int32)
 
-                print('all_gt_segmentations.shape:', all_gt_segmentations.shape)
-                print('idx', idx)
                 gt_segmentations = all_gt_segmentations[:, idx, :, :, :]
                 seg_plus_gt = pred_segmentations + gt_segmentations
 
