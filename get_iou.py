@@ -163,5 +163,5 @@ def iou():
                     
     output_iou(n_vids, n_tot_frames, n_correct, iou_threshs, video_ious, frame_ious)
 
-
-#iou()
+if __name__=='__main__':
+    iou()
