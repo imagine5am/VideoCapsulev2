@@ -4,7 +4,7 @@ import tensorflow as tf
 # os.environ["CUDA_VISIBLE_DEVICES"]="3"
 gpu_config = tf.ConfigProto()
 #gpu_config.gpu_options.visible_device_list= '1,2,0,3'
-gpu_config.gpu_options.visible_device_list= '0'
+gpu_config.gpu_options.visible_device_list= '1'
 gpu_config.gpu_options.allow_growth = True
 #gpu_config.gpu_options.per_process_gpu_memory_fraction = 1.0
 #gpu_config.gpu_options.allocator_type = 'BFC'
@@ -12,13 +12,14 @@ gpu_config.gpu_options.allow_growth = True
 #gpu_config.allow_soft_placement = True
 
 # batch size and number of epochs
-batch_size = 4
+batch_size = 2
 n_epochs = 20
 
 # whether to continue from last checkpoint or not
-continue_from_chkpt = False
+continue_from_chkpt = True
+prev_epochs = 1
 
-ann_type = 'word_ann' # 'char_ann' 'word_ann' 'line_ann' 'para_ann'
+ann_types = ['para_ann', 'line_ann', 'word_ann', 'char_ann']
 
 # number of epochs to train in between validations
 n_eps_for_eval = 5
