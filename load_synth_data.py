@@ -33,7 +33,7 @@ def get_det_annotations(split='train'):
                     file_grp = label_grp.get(file)
                     k = label + '/' + file
                     v = {'label': int(label),
-                         'ann': np.rint(np.array(file_grp.get(config.ann_type)[()]) / 2).astype(np.int32)
+                         'ann': np.rint(np.array(file_grp.get(config.ann_type)[()])).astype(np.int32)
                         }
                     '''
                         'char_ann': file_grp.get('char_ann')[()],
@@ -64,26 +64,8 @@ def create_mask(shape, pts):
     im = np.zeros(shape, dtype=np.uint8)
     im = Image.fromarray(im, 'L')
     draw = ImageDraw.Draw(im)
-    draw.polygon(pts.tolist(), fill=1)
-    del draw
-    # print(pts.tolist())
-    #input()
-    im = np.asarray(im).copy()
-    #im = im // 255
-    #print('np.min(im)', np.min(im))
-    #print('np.max(im)', np.max(im))
-    #print(im.dtype)
-    #cv2.imwrite('temp2.jpg', im)
-    #input()
-    return np.reshape(im, im.shape + (1,))
-
-
-def create_word_mask(shape, pts):
-    im = np.zeros(shape, dtype=np.uint8)
-    im = Image.fromarray(im, 'L')
-    draw = ImageDraw.Draw(im)
-    for word_ann in pts:
-        draw.polygon(word_ann.tolist(), fill=1)
+    for ann_box in pts:
+        draw.polygon(ann_box.tolist(), fill=1)
     del draw
     im = np.asarray(im).copy()
     #cv2.imwrite('temp2.jpg', im)
@@ -121,9 +103,9 @@ def get_video_det(video_dir, annotations, skip_frames=1, start_rand=True):
             print('Video:', video_dir)
             print('Frame:', idx)
             print('*' * 20)
-            frame = cv2.resize(frame, (w, h))
+            frame = cv2.resize(frame, (config.vid_w, config.vid_h))
         # print(annotations['para_ann'][idx,0])
-        mask = create_word_mask((config.vid_h, config.vid_w), annotations['ann'][idx])
+        mask = create_mask((config.vid_h, config.vid_w), annotations['ann'][idx])
         # input()
         frame = cv2.resize(frame, (config.vid_w, config.vid_h))
         video[idx] = frame
@@ -177,30 +159,6 @@ def get_clip_det(video, bbox, clip_len=8, any_clip=False):
     return video[start_loc:start_loc+clip_len], bbox[start_loc:start_loc+clip_len]
 
 
-def crop_clip_det(clip, bbox_clip, crop_size=(112, 112), shuffle=True):
-    """
-    Crops the clip to a given spatial dimension
-
-    :param clip: the video clip
-    :param bbox_clip: the bounding box annotations clip
-    :param crop_size: the size which the clip will be cropped to
-    :param shuffle: If True, a random cropping will occur. If False, a center crop will be taken.
-    :return: returns the cropped clip and the cropped bounding box annotation clip
-    """
-
-    frames, h, w, _ = clip.shape
-    if not shuffle:
-        margin_h = h - crop_size[0]
-        h_crop_start = int(margin_h/2)
-        margin_w = w - crop_size[1]
-        w_crop_start = int(margin_w/2)
-    else:
-        h_crop_start = np.random.randint(0, h - crop_size[0])
-        w_crop_start = np.random.randint(0, w - crop_size[1])
-
-    return clip[:, h_crop_start:h_crop_start+crop_size[0], w_crop_start:w_crop_start+crop_size[1], :], \
-           bbox_clip[:, h_crop_start:h_crop_start+crop_size[0], w_crop_start:w_crop_start+crop_size[1], :]
-
 # The data generator for training. Outputs clips, bounding boxes, and labels for the training split.
 class SynthTrainDataGenDet(object):
     def __init__(self, sec_to_wait=5, frame_skip=2):
@@ -228,7 +186,7 @@ class SynthTrainDataGenDet(object):
                     clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', 
                                                            anns, skip_frames=self.frame_skip, start_rand=True)
                     clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
-                    # clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(config.vid_h, config.vid_w), shuffle=True)
+                    
                     self.data_queue.append((clip/255., bbox_clip, label))
                     break
                 except Exception as e:

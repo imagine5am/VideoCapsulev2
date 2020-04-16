@@ -42,8 +42,8 @@ use_c3d_weights = False
 n_classes = 12
 
 # resolution
-vid_h = 128
-vid_w = 240
+vid_h = 256
+vid_w = 480
 
 # model number, output file name, save file directory, and save file name
 model_num = 3
