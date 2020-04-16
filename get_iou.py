@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-import config2 as config
+import config as config
 from caps_network import Caps3d
 from load_synth_data import SynthTestDataGenDet as TestDataGen
 from tqdm import tqdm

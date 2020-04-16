@@ -17,7 +17,7 @@ n_epochs = 30
 
 # whether to continue from last checkpoint or not
 continue_from_chkpt = True
-prev_epochs = 1
+prev_epochs = 8
 
 ann_types = ['para_ann', 'line_ann', 'word_ann', 'char_ann']
 
