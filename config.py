@@ -4,7 +4,7 @@ import tensorflow as tf
 # os.environ["CUDA_VISIBLE_DEVICES"]="3"
 gpu_config = tf.ConfigProto()
 #gpu_config.gpu_options.visible_device_list= '1,2,0,3'
-gpu_config.gpu_options.visible_device_list= '0'
+gpu_config.gpu_options.visible_device_list= '1'
 gpu_config.gpu_options.allow_growth = True
 #gpu_config.gpu_options.per_process_gpu_memory_fraction = 1.0
 #gpu_config.gpu_options.allocator_type = 'BFC'
@@ -12,12 +12,12 @@ gpu_config.gpu_options.allow_growth = True
 #gpu_config.allow_soft_placement = True
 
 # batch size and number of epochs
-batch_size = 4
+batch_size = 2
 n_epochs = 30
 
 # whether to continue from last checkpoint or not
 continue_from_chkpt = True
-prev_epochs = 0
+prev_epochs = 20
 
 ann_type = 'word_ann' # 'char_ann' 'word_ann' 'line_ann' 'para_ann'
 
@@ -46,7 +46,7 @@ vid_h = 128
 vid_w = 240
 
 # model number, output file name, save file directory, and save file name
-model_num = 2
+model_num = 3
 output_file_name = './output%d.txt' % model_num
 #network_save_dir = './older_models/plate_nums_20/network_saves/'
 network_save_dir = './network_saves/'

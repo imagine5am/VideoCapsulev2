@@ -46,20 +46,20 @@ def train_network(gpu_config):
             if ep % config.n_eps_for_m == 0:
                 capsnet.cur_m += config.m_delta
                 capsnet.cur_m = min(capsnet.cur_m, 0.9)
-                
-            try:
-                capsnet.save(sess, config.save_file_name, config.prev_epochs + ep) #+25 
-                config.write_output('Saved Network\n')
-            except:
-                print('Failed to save network!!!')
-            
             
             # validates the network
             data_gen = TestDataGen(config.wait_for_data, frame_skip=1)
             margin_loss, seg_loss, accuracy, _ = capsnet.eval(sess, data_gen, validation=True)
             config.write_output('Validation\tCL: %.4f. SL: %.4f. Acc: %.4f.\n' %
                                     (margin_loss, seg_loss, accuracy))
-            
+            t_loss = margin_loss + seg_loss
+            if t_loss < best_loss:
+                best_loss = t_loss
+                try:
+                    capsnet.save(sess, config.save_file_name, config.prev_epochs + ep)
+                    config.write_output('Saved Network Finally\n')
+                except:
+                    print('Failed to save network!!!')
             '''
             # only validates after a certain number of epochs and when the training accuracy is greater than a threshold
             # this is mainly used to save time, since validation takes about 10 minutes
