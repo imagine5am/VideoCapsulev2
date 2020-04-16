@@ -16,8 +16,8 @@ batch_size = 4
 n_epochs = 30
 
 # whether to continue from last checkpoint or not
-continue_from_chkpt = True
-prev_epochs = 8
+continue_from_chkpt = False
+prev_epochs = 0
 
 ann_types = ['para_ann', 'line_ann', 'word_ann', 'char_ann']
 
