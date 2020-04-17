@@ -3,6 +3,7 @@ import tensorflow as tf
 from caps_network import Caps3d
 from get_iou import iou
 from load_synth_data import SynthTrainDataGenDet as TrainDataGen, SynthTestDataGenDet as TestDataGen
+import gc
 
 
 def get_num_params():
@@ -34,7 +35,6 @@ def train_network(gpu_config):
 
         get_num_params()
         
-
         n_eps_after_acc, best_loss = -1, 100000
         print('Training on Synthetic Videos')
         for ep in range(1, config.n_epochs+1):
@@ -44,13 +44,10 @@ def train_network(gpu_config):
             data_gen = TrainDataGen(config.wait_for_data, frame_skip=config.frame_skip)
             margin_loss, seg_loss, acc = capsnet.train(sess, data_gen)
             config.write_output('Training\tCL: %.4f. SL: %.4f. Acc: %.4f.\n' % (margin_loss, seg_loss, acc))
-
-            # increments the margin
-            if (ep + config.prev_epochs) % config.n_eps_for_m == 0:
-                capsnet.cur_m += config.m_delta
-                capsnet.cur_m = min(capsnet.cur_m, 0.9)
-                
             
+            del data_gen
+            gc.collect()
+                
             # validates the network
             data_gen = TestDataGen(config.wait_for_data, frame_skip=1)
             margin_loss, seg_loss, accuracy, _ = capsnet.eval(sess, data_gen, validation=True)
@@ -64,6 +61,11 @@ def train_network(gpu_config):
                     config.write_output('Saved Network Finally\n')
                 except:
                     print('Failed to save network!!!')
+            
+            # increments the margin
+            if (ep + config.prev_epochs) % config.n_eps_for_m == 0:
+                capsnet.cur_m += config.m_delta
+                capsnet.cur_m = min(capsnet.cur_m, 0.9)
             
             '''
             # only validates after a certain number of epochs and when the training accuracy is greater than a threshold

@@ -203,7 +203,7 @@ class SynthTrainDataGenDet(object):
 
     def __load_and_process_data(self):
         while self.train_files:
-            while len(self.data_queue) >= 600:
+            while len(self.data_queue) >= 100:
                 time.sleep(1)
             vid_name, anns = self.train_files.pop()
             while True:
@@ -265,7 +265,7 @@ class SynthTestDataGenDet(object):
 
     def __load_and_process_data(self):
         while self.test_files:
-            while len(self.data_queue) >= 50:
+            while len(self.data_queue) >= 100:
                 time.sleep(1)
             vid_name, anns = self.test_files.pop(0)
             while True:
