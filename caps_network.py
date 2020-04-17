@@ -52,74 +52,46 @@ class Caps3d(object):
             self.saver = tf.train.Saver()
 
     def init_weights(self):
-        if config.use_c3d_weights:
-            reader = pywrap_tensorflow.NewCheckpointReader('./c3d_pretrained/conv3d_deepnetA_sport1m_iter_1900000_TF.model')
-            self.w_and_b = {
-                'wc1': tf.constant_initializer(reader.get_tensor('var_name/wc1')),
-                'wc2': tf.constant_initializer(reader.get_tensor('var_name/wc2')),
-                'wc3a': tf.constant_initializer(reader.get_tensor('var_name/wc3a')),
-                'wc3b': tf.constant_initializer(reader.get_tensor('var_name/wc3b')),
-                'wc4a': tf.constant_initializer(reader.get_tensor('var_name/wc4a')),
-                'wc4b': tf.constant_initializer(reader.get_tensor('var_name/wc4b')),
-                'wc5a': tf.constant_initializer(reader.get_tensor('var_name/wc5a')),
-                'wc5b': tf.constant_initializer(reader.get_tensor('var_name/wc5b')),
-                'bc1': tf.constant_initializer(reader.get_tensor('var_name/bc1')),
-                'bc2': tf.constant_initializer(reader.get_tensor('var_name/bc2')),
-                'bc3a': tf.constant_initializer(reader.get_tensor('var_name/bc3a')),
-                'bc3b': tf.constant_initializer(reader.get_tensor('var_name/bc3b')),
-                'bc4a': tf.constant_initializer(reader.get_tensor('var_name/bc4a')),
-                'bc4b': tf.constant_initializer(reader.get_tensor('var_name/bc4b')),
-                'bc5a': tf.constant_initializer(reader.get_tensor('var_name/bc5a')),
-                'bc5b': tf.constant_initializer(reader.get_tensor('var_name/bc5b'))
-            }
-        else:
-            self.w_and_b = {
-                'wc1': None,
-                'wc2': None,
-                'wc3a': None,
-                'wc3b': None,
-                'wc4a': None,
-                'wc4b': None,
-                'wc5a': None,
-                'wc5b': None,
-                'bc1': tf.zeros_initializer(),
-                'bc2': tf.zeros_initializer(),
-                'bc3a': tf.zeros_initializer(),
-                'bc3b': tf.zeros_initializer(),
-                'bc4a': tf.zeros_initializer(),
-                'bc4b': tf.zeros_initializer(),
-                'bc5a': tf.zeros_initializer(),
-                'bc5b': tf.zeros_initializer()
-            }
+        self.w_and_b = {
+            'none': None,
+            'zero': tf.zeros_initializer()
+        }
 
     def init_network(self):
         print('Building Caps3d Model')
 
         # creates the video encoder
-        #with tf.device('/gpu:1'):
         conv1 = tf.layers.conv3d(self.x_input, 64, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 1, 1],
-                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['wc1'],
-                                 bias_initializer=self.w_and_b['bc1'], name='conv1')
-
+                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
+                                 bias_initializer=self.w_and_b['zero'], name='conv1')
+        
         conv2 = tf.layers.conv3d(conv1, 128, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 2, 2],
-                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['wc2'],
-                                 bias_initializer=self.w_and_b['bc2'], name='conv2')
+                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
+                                 bias_initializer=self.w_and_b['zero'], name='conv2')
+        
+        conv3 = tf.layers.conv3d(conv2, 64, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 1, 1],
+                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
+                                 bias_initializer=self.w_and_b['zero'], name='conv3')
 
-        conv3 = tf.layers.conv3d(conv2, 256, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 1, 1],
-                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['wc3a'],
-                                 bias_initializer=self.w_and_b['bc3a'], name='conv3')
+        conv4 = tf.layers.conv3d(conv3, 128, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 2, 2],
+                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
+                                 bias_initializer=self.w_and_b['zero'], name='conv4')
 
-        conv4 = tf.layers.conv3d(conv3, 256, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 2, 2],
-                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['wc3b'],
-                                 bias_initializer=self.w_and_b['bc3b'], name='conv4')
+        conv5 = tf.layers.conv3d(conv4, 256, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 1, 1],
+                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
+                                 bias_initializer=self.w_and_b['zero'], name='conv5')
 
-        conv5 = tf.layers.conv3d(conv4, 512, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 1, 1],
-                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['wc4a'],
-                                 bias_initializer=self.w_and_b['bc4a'], name='conv5')
+        conv6 = tf.layers.conv3d(conv5, 256, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 2, 2],
+                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
+                                 bias_initializer=self.w_and_b['zero'], name='conv6')
 
-        conv6 = tf.layers.conv3d(conv5, 512, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 1, 1],
-                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['wc4b'],
-                                 bias_initializer=self.w_and_b['bc4b'], name='conv6')
+        conv7 = tf.layers.conv3d(conv6, 512, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 1, 1],
+                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
+                                 bias_initializer=self.w_and_b['zero'], name='conv7')
+
+        conv8 = tf.layers.conv3d(conv7, 512, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 1, 1],
+                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
+                                 bias_initializer=self.w_and_b['zero'], name='conv8')
 
         if config.print_layers:
             print('Conv1:', conv1.get_shape())
@@ -128,6 +100,8 @@ class Caps3d(object):
             print('Conv4:', conv4.get_shape())
             print('Conv5:', conv5.get_shape())
             print('Conv6:', conv6.get_shape())
+            print('Conv7:', conv7.get_shape())
+            print('Conv8:', conv8.get_shape())
 
         # with tf.device('/gpu:0'):
         # creates the primary capsule layer: conv caps1
@@ -199,11 +173,14 @@ class Caps3d(object):
         #with tf.device('/gpu:2'):
         deconv5 = tf.layers.conv3d_transpose(deconv4, 256, kernel_size=[1, 3, 3], strides=[1, 2, 2], padding='SAME',
                                              use_bias=False, activation=tf.nn.relu, name='deconv5')
+        
+        deconv6 = tf.layers.conv3d_transpose(deconv5, 256, kernel_size=[1, 3, 3], strides=[1, 2, 2], padding='SAME',
+                                             use_bias=False, activation=tf.nn.relu, name='deconv6')
 
         self.segment_layer = {}
         self.segment_layer_sig = {}
         for ann_type in config.ann_types:
-            self.segment_layer[ann_type] = tf.layers.conv3d(deconv5, 1, kernel_size=[1, 3, 3], strides=[1, 1, 1],
+            self.segment_layer[ann_type] = tf.layers.conv3d(deconv6, 1, kernel_size=[1, 3, 3], strides=[1, 1, 1],
                                                   padding='SAME', activation=None, name='segment_layer_'+ann_type)
             self.segment_layer_sig[ann_type] = tf.nn.sigmoid(self.segment_layer[ann_type])
 
@@ -213,6 +190,7 @@ class Caps3d(object):
             print('Deconv Layer 3:', deconv3.get_shape())
             print('Deconv Layer 4:', deconv4.get_shape())
             print('Deconv Layer 5:', deconv5.get_shape())
+            print('Deconv Layer 6:', deconv6.get_shape())
             print('Segmentation Layer:', self.segment_layer[config.ann_types[0]].get_shape())
 
 

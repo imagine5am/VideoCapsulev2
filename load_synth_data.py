@@ -33,10 +33,10 @@ def get_det_annotations(split='train'):
                     file_grp = label_grp.get(file)
                     k = label + '/' + file
                     v = {'label': int(label),
-                         'char_ann': np.rint(np.array(file_grp.get('char_ann')[()]) / 2).astype(np.int32),
-                         'word_ann': np.rint(np.array(file_grp.get('word_ann')[()]) / 2).astype(np.int32),
-                         'line_ann': np.rint(np.array(file_grp.get('line_ann')[()]) / 2).astype(np.int32),
-                         'para_ann': np.rint(np.array(file_grp.get('para_ann')[()]) / 2).astype(np.int32)
+                         'char_ann': np.rint(np.array(file_grp.get('char_ann')[()])).astype(np.int32),
+                         'word_ann': np.rint(np.array(file_grp.get('word_ann')[()])).astype(np.int32),
+                         'line_ann': np.rint(np.array(file_grp.get('line_ann')[()])).astype(np.int32),
+                         'para_ann': np.rint(np.array(file_grp.get('para_ann')[()])).astype(np.int32)
                         }
                     polygon_ann.append((k, v))
     random.seed(7)

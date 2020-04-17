@@ -36,17 +36,15 @@ learning_rate, beta1 = 0.0001, 0.5
 # Used to prevent numerical instability (dividing by zero or log(0))
 epsilon = 1e-6
 
-use_c3d_weights = False
-
 # number of classes for the network to predict
 n_classes = 12
 
 # resolution
-vid_h = 128
-vid_w = 240
+vid_h = 256
+vid_w = 480
 
 # model number, output file name, save file directory, and save file name
-model_num = 2
+model_num = 7
 output_file_name = './output_inference_%d.txt' % model_num
 #network_save_dir = './older_models/save_with_bad_split/'
 #network_save_dir = './older_models/plate_nums_20/network_saves/'
