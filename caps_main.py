@@ -1,4 +1,5 @@
 import config
+import gc
 import tensorflow as tf
 from caps_network import Caps3d
 from get_iou import iou
@@ -26,8 +27,11 @@ def train_network(gpu_config):
         
         if config.continue_from_chkpt:
             capsnet.load(sess, config.network_save_dir)
+            capsnet.cur_m += config.m_delta * config.prev_epochs / config.n_eps_for_m
+            capsnet.cur_m = min(capsnet.cur_m, 0.9)
         else:
             config.clear_output()
+            config.prev_epochs = 0
 
         get_num_params()
         
@@ -42,10 +46,8 @@ def train_network(gpu_config):
             margin_loss, seg_loss, acc = capsnet.train(sess, data_gen)
             config.write_output('Training\tCL: %.4f. SL: %.4f. Acc: %.4f.\n' % (margin_loss, seg_loss, acc))
 
-            # increments the margin
-            if ep % config.n_eps_for_m == 0:
-                capsnet.cur_m += config.m_delta
-                capsnet.cur_m = min(capsnet.cur_m, 0.9)
+            del data_gen
+            gc.collect()
             
             # validates the network
             data_gen = TestDataGen(config.wait_for_data, frame_skip=1)
@@ -60,6 +62,14 @@ def train_network(gpu_config):
                     config.write_output('Saved Network Finally\n')
                 except:
                     print('Failed to save network!!!')
+                    
+            del data_gen
+            gc.collect()
+                    
+            # increments the margin
+            if ep % config.n_eps_for_m == 0:
+                capsnet.cur_m += config.m_delta
+                capsnet.cur_m = min(capsnet.cur_m, 0.9)
             '''
             # only validates after a certain number of epochs and when the training accuracy is greater than a threshold
             # this is mainly used to save time, since validation takes about 10 minutes

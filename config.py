@@ -13,11 +13,11 @@ gpu_config.gpu_options.allow_growth = True
 
 # batch size and number of epochs
 batch_size = 2
-n_epochs = 30
+n_epochs = 40
 
 # whether to continue from last checkpoint or not
 continue_from_chkpt = True
-prev_epochs = 20
+prev_epochs = 24
 
 ann_type = 'word_ann' # 'char_ann' 'word_ann' 'line_ann' 'para_ann'
 
@@ -58,7 +58,7 @@ save_file_name = network_save_dir + ('model_%d.ckpt' % model_num)
 segment_coef = 0.0002
 
 # margin for classification loss, how much it is incremented by, and how often it is incremented by
-start_m = 0.8
+start_m = 0.2
 m_delta = 0.1
 n_eps_for_m = 5
 
