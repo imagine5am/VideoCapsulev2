@@ -61,6 +61,9 @@ def train_network(gpu_config):
                     config.write_output('Saved Network Finally\n')
                 except:
                     print('Failed to save network!!!')
+                    
+            del data_gen
+            gc.collect()
             
             # increments the margin
             if (ep + config.prev_epochs) % config.n_eps_for_m == 0:
