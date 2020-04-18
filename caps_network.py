@@ -105,7 +105,7 @@ class Caps3d(object):
 
         # with tf.device('/gpu:0'):
         # creates the primary capsule layer: conv caps1
-        prim_caps = create_prim_conv3d_caps(conv6, 32, kernel_size=[3, 9, 9], strides=[1, 1, 1],                         
+        prim_caps = create_prim_conv3d_caps(conv8, 32, kernel_size=[3, 9, 9], strides=[1, 1, 1],                         
                                             padding='VALID', name='prim_caps')
         # with tf.device('/gpu:0'):
         # creates the secondary capsule layer: conv caps2
