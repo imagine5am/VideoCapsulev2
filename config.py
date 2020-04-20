@@ -22,7 +22,7 @@ prev_epochs = 5
 ann_types = ['para_ann', 'line_ann', 'word_ann', 'char_ann']
 
 # number of epochs to train in between validations
-n_eps_for_eval = 5
+n_eps_for_eval = 6
 
 # training accuracy threshold needed for validation to run
 acc_for_eval = 0.5
