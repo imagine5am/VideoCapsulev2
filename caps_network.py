@@ -1,4 +1,5 @@
 import config
+import gc
 import tensorflow as tf
 from tensorflow.python import pywrap_tensorflow
 import time
@@ -266,6 +267,9 @@ class Caps3d(object):
                 print('Finished %d batches. %d(s) since start. Avg Classification Loss is %.4f. '
                       'Avg Segmentation Loss is %.4f. Accuracy is %.4f.'
                       % (batch, time.time()-start_time, losses / batch, s_losses / batch, acc / batch))
+                
+            del x_batch, bbox_batch, y_batch
+            gc.collect()
 
         # prints the loss and accuracy statistics for the entire epoch
         print(preds[0][:10])  # prints activations just in case of numerical instability
@@ -298,6 +302,9 @@ class Caps3d(object):
                 print('Tested %d videos. %d(s) since start. Avg Accuracy is %.4f'
                       % (batch, time.time() - start_time, float(corrs) / batch))
 
+            del video, bbox, label
+            gc.collect()
+            
         # print evaluation statistics for all evaluation videos
         print('Evaluation done in %d(s).' % (time.time() - start_time))
         print('Test Classification Loss: %.4f. Test Segmentation Loss: %.4f. Accuracy: %.4f.'
