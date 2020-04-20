@@ -17,12 +17,12 @@ n_epochs = 30
 
 # whether to continue from last checkpoint or not
 continue_from_chkpt = True
-prev_epochs = 5
+prev_epochs = 6
 
 ann_types = ['para_ann', 'line_ann', 'word_ann', 'char_ann']
 
 # number of epochs to train in between validations
-n_eps_for_eval = 6
+n_eps_for_eval = 5
 
 # training accuracy threshold needed for validation to run
 acc_for_eval = 0.5
