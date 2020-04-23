@@ -1,15 +1,13 @@
 import cv2
-import matplotlib.pyplot as plt
 import numpy as np
 import os
-import pandas as pd
 import time
 import xml.etree.ElementTree as ET
 
 from threading import Thread
 from PIL import Image, ImageDraw 
 
-base_dir = '/home/shivam/Downloads/minetto/www.liv.ic.unicamp.br/~minetto/datasets/text/VIDEOS/'
+base_dir = '../../data/minetto/'
 rect_prop_list = ['x', 'y', 'w', 'h', 'text', 'vfr']
 in_h, in_w = 480, 640
 out_h, out_w = 256, 480
@@ -79,6 +77,7 @@ class Minetto_Gen():
         self.videos_left = self.n_videos
         self.data_queue = []
         self.load_thread = Thread(target=self.__load_and_process_data)
+        self.load_thread.start()
         
         print('Running MinettoGen...')
         print('Waiting 5(s) to load data')
