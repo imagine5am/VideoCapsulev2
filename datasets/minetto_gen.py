@@ -10,7 +10,7 @@ from PIL import Image, ImageDraw
 base_dir = '../../data/minetto/'
 rect_prop_list = ['x', 'y', 'w', 'h', 'text', 'vfr']
 in_h, in_w = 480, 640
-out_h, out_w = 256, 480
+out_h, out_w = 128, 240
 
 def resize_and_pad(im):
     if out_w / out_h > in_w / in_h:
