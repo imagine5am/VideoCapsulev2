@@ -7,7 +7,13 @@ from cv2 import resize
 import os
 from skvideo.io import vread, vwrite
 from scipy.misc import imresize
-from datasets.minetto_gen import minetto_gen
+from datasets.minetto_gen import Minetto_Gen
+
+def data_gen():
+    minetto_gen = Minetto_Gen()
+    while minetto_gen.has_data():
+        name, video, _ = minetto_gen.get_next_video()
+        yield name, video
 
 def inference():    
     output_dir = './inference/outputs/'
@@ -17,7 +23,7 @@ def inference():
         tf.global_variables_initializer().run()
         capsnet.load(sess, config.network_save_dir)
         
-        for name, video, _ in minetto_gen():        
+        for name, video in data_gen():        
             # print('Saving Cropped Video')
             # vwrite(output_dir+name+'_cropped.avi', video)
 

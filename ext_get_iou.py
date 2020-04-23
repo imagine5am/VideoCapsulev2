@@ -4,7 +4,7 @@ import ext_config as config
 from caps_network import Caps3d
 from load_synth_data import SynthTestDataGenDet as TestDataGen
 from tqdm import tqdm
-from datasets.minetto_gen import minetto_gen, n_videos
+from datasets.minetto_gen import Minetto_Gen
 
 def iou():
     """
@@ -16,14 +16,16 @@ def iou():
         tf.global_variables_initializer().run()
         capsnet.load(sess, config.network_save_dir)
 
+        minetto_gen = Minetto_Gen()
+        
         n_correct, n_vids, n_tot_frames = 0, np.zeros((config.n_classes, 1)), np.zeros((config.n_classes, 1))
 
         frame_ious = np.zeros((config.n_classes, 20))
         video_ious = np.zeros((config.n_classes, 20))
         iou_threshs = np.arange(0, 20, dtype=np.float32)/20
 
-        for _ in tqdm(range(n_videos)):
-            _, video, bbox = minetto_gen()
+        for _ in tqdm(minetto_gen.n_videos):
+            _, video, bbox = minetto_gen.get_next_video()
             label = 0
             f_skip = config.frame_skip
             clips = []

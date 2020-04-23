@@ -1,16 +1,18 @@
-import os
-import numpy as np
-import pandas as pd
 import cv2
 import matplotlib.pyplot as plt
+import numpy as np
+import os
+import pandas as pd
+import time
 import xml.etree.ElementTree as ET
+
+from threading import Thread
 from PIL import Image, ImageDraw 
 
 base_dir = '/home/shivam/Downloads/minetto/www.liv.ic.unicamp.br/~minetto/datasets/text/VIDEOS/'
 rect_prop_list = ['x', 'y', 'w', 'h', 'text', 'vfr']
 in_h, in_w = 480, 640
 out_h, out_w = 256, 480
-n_videos = 5
 
 def resize_and_pad(im):
     if out_w / out_h > in_w / in_h:
@@ -26,6 +28,7 @@ def resize_and_pad(im):
     
     im = cv2.copyMakeBorder(im, top, bottom, left, right, cv2.BORDER_CONSTANT)
     return im
+
 
 def parse_ann(file):
     '''
@@ -50,6 +53,7 @@ def parse_ann(file):
         ann[image_num] = rectangle
     return ann
 
+
 def create_mask(pts):
     mask = np.zeros((in_h, in_w), dtype=np.uint8)
     mask = Image.fromarray(mask, 'L')
@@ -69,28 +73,57 @@ def get_pts_for_rectangles(rectangles):
     return rect_pts
         
 
-def minetto_gen():
-    for video_dir in filter(lambda x: os.path.isdir(base_dir+x),os.listdir(base_dir)):
-        ann_file = base_dir+video_dir+'/groundtruth.xml'
-        ann = parse_ann(ann_file)
+class Minetto_Gen():
+    def __init__(self):
+        self.n_videos = len([x for x in filter(lambda x: os.path.isdir(base_dir+x),os.listdir(base_dir))])
+        self.videos_left = self.n_videos
+        self.data_queue = []
+        self.load_thread = Thread(target=self.__load_and_process_data)
         
-        image_dir = base_dir+video_dir+'/PNG/'
-        n_frames = len(os.listdir(image_dir))
-        video = np.zeros((n_frames, out_h, out_w, 3), dtype=np.uint8)
-        mask = np.zeros((n_frames, out_h, out_w, 1), dtype=np.uint8)
+        print('Running MinettoGen...')
+        print('Waiting 5(s) to load data')
+        time.sleep(5)
         
-        for idx in range(n_frames):
-            frame_loc = image_dir + '%06d.png' % idx
-            frame = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
-            video[idx] = resize_and_pad(frame)
+    def __load_and_process_data(self):
+        while self.videos_left:
+            while len(self.data_queue) >= 2:
+                time.sleep(1)
+            name, video, mask = self.get_vid_and_mask()
+            self.data_queue.append(name, video, mask)
+        print('Loading data thread finished')
             
-            if idx in ann:
-                rectangles = ann[idx]
-                pts = get_pts_for_rectangles(rectangles)
-                frame_mask = create_mask(pts)
-                mask_resized = resize_and_pad(frame_mask)
-                mask[idx] = np.expand_dims(np.array(mask_resized), axis=-1)
-        
-        yield video_dir, video/255., mask
+    def get_vid_and_mask(self):
+        for video_dir in filter(lambda x: os.path.isdir(base_dir+x),os.listdir(base_dir)):
+            ann_file = base_dir+video_dir+'/groundtruth.xml'
+            ann = parse_ann(ann_file)
+
+            image_dir = base_dir+video_dir+'/PNG/'
+            n_frames = len(os.listdir(image_dir))
+            video = np.zeros((n_frames, out_h, out_w, 3), dtype=np.uint8)
+            mask = np.zeros((n_frames, out_h, out_w, 1), dtype=np.uint8)
+
+            for idx in range(n_frames):
+                frame_loc = image_dir + '%06d.png' % idx
+                frame = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
+                video[idx] = resize_and_pad(frame)
+
+                if idx in ann:
+                    rectangles = ann[idx]
+                    pts = get_pts_for_rectangles(rectangles)
+                    frame_mask = create_mask(pts)
+                    mask_resized = resize_and_pad(frame_mask)
+                    mask[idx] = np.expand_dims(np.array(mask_resized), axis=-1)
+            self.videos_left -= 1
+            yield video_dir, video/255., mask
+            
+    def get_next_video(self):
+        while len(self.data_queue) == 0:
+            print('Waiting on data')
+            time.sleep(5)
+
+        return self.data_queue.pop(0)
+
+    def has_data(self):
+        return self.videos_left != 0
 
     
