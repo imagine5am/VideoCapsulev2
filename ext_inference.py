@@ -9,11 +9,13 @@ import os
 from skvideo.io import vread, vwrite
 from scipy.misc import imresize
 from datasets.minetto_gen import Minetto_Gen
+from datasets.icdar_gen import ICDAR_Gen
 
 def data_gen():
-    minetto_gen = Minetto_Gen()
-    while minetto_gen.has_data():
-        name, video, _ = minetto_gen.get_next_video()
+    # date_gen = Minetto_Gen()
+    date_gen = ICDAR_Gen()
+    while date_gen.has_data():
+        name, video, _ = date_gen.get_next_video()
         yield name, video
 
 def inference():    

@@ -123,6 +123,6 @@ class Minetto_Gen():
         return self.data_queue.pop(0)
 
     def has_data(self):
-        return self.videos_left != 0
+        return self.videos_left > 0
 
     
