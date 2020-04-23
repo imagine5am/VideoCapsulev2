@@ -76,12 +76,12 @@ class ICDAR_Gen():
         self.load_thread.start()
         
         print('Running ICDARGen...')
-        print('Waiting 30(s) to load data')
-        time.sleep(30)
+        print('Waiting 5 (s) to load data')
+        time.sleep(5)
         
     def __load_and_process_data(self):
         for name, video, mask in self.get_vid_and_mask():
-            while len(self.data_queue) >= 2:
+            while len(self.data_queue) >= 10:
                 time.sleep(1)
             self.data_queue.append((name, video, mask))
         print('Loading data thread finished')
