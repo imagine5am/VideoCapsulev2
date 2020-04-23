@@ -105,9 +105,6 @@ class ICDAR_Gen():
                         frame_mask = create_mask((h, w), list(polygons.values()))
                         mask_resized = resize_and_pad((h, w), frame_mask)
                         mask[idx] = np.expand_dims(mask_resized, axis=-1)
-                        cv2.imwrite('mask.jpg', mask[idx])
-                        cv2.imwrite('video.jpg', video[idx])
-                        input()
             yield video_name[:-4], video/255., mask
             
     def get_next_video(self):
