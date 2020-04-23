@@ -87,7 +87,7 @@ class Minetto_Gen():
         for name, video, mask in self.get_vid_and_mask():
             while len(self.data_queue) >= 2:
                 time.sleep(1)
-            self.data_queue.append(name, video, mask)
+            self.data_queue.append((name, video, mask))
         print('Loading data thread finished')
             
     def get_vid_and_mask(self):
