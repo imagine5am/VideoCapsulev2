@@ -1,3 +1,4 @@
+import gc
 import numpy as np
 import tensorflow as tf
 import ext_config as config
@@ -111,7 +112,9 @@ def iou():
                 if i_over_u >= iou_threshs[k]:
                     video_ious[label, k] += 1
 
-
+            del video, bbox
+            gc.collect()
+            
             if np.sum(n_vids) % 100 == 0:
                 print('Finished %d videos' % np.sum(n_vids))
 

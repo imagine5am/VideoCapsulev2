@@ -1,3 +1,4 @@
+import gc
 import numpy as np
 import tensorflow as tf
 from caps_network import Caps3d
@@ -76,6 +77,9 @@ def inference():
 
             print('Saving Segmented Video\n')
             vwrite(output_dir+name+'_segmented.avi', (masked_vid * 255).astype(np.uint8))
+            
+            del name, video, masked_vid
+            gc.collect()
 
 
 if __name__=='__main__':
