@@ -80,14 +80,13 @@ class Minetto_Gen():
         self.load_thread.start()
         
         print('Running MinettoGen...')
-        print('Waiting 5(s) to load data')
-        time.sleep(5)
+        print('Waiting 30(s) to load data')
+        time.sleep(30)
         
     def __load_and_process_data(self):
-        while self.videos_left:
+        for name, video, mask in self.get_vid_and_mask():
             while len(self.data_queue) >= 2:
                 time.sleep(1)
-            name, video, mask = self.get_vid_and_mask()
             self.data_queue.append(name, video, mask)
         print('Loading data thread finished')
             
