@@ -46,7 +46,7 @@ vid_w = 240
 
 # model number, output file name, save file directory, and save file name
 model_num = 2
-output_file_name = './output_inference_%d.txt' % model_num
+output_file_name = './ext_output_inference_%d.txt' % model_num
 #network_save_dir = './older_models/save_with_bad_split/'
 #network_save_dir = './older_models/plate_nums_20/network_saves/'
 network_save_dir = './network_saves/'
