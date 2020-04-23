@@ -19,7 +19,7 @@ def iou():
         capsnet.load(sess, config.network_save_dir)
 
         # data_gen = Minetto_Gen()
-        date_gen = ICDAR_Gen()
+        data_gen = ICDAR_Gen()
         
         # CHANGE 0 to correct label
         n_correct, n_vids, n_tot_frames = 0, np.zeros((config.n_classes, 1)), np.zeros((config.n_classes, 1))
