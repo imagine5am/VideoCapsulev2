@@ -113,13 +113,13 @@ class Minetto_Gen():
                     frame_mask = create_mask(pts)
                     mask_resized = resize_and_pad(frame_mask)
                     mask[idx] = np.expand_dims(np.array(mask_resized), axis=-1)
-            self.videos_left -= 1
             yield video_dir, video/255., mask
             
     def get_next_video(self):
         while len(self.data_queue) == 0:
             print('Waiting on data')
             time.sleep(5)
+        self.videos_left -= 1
         return self.data_queue.pop(0)
 
     def has_data(self):
