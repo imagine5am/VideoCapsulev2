@@ -53,45 +53,10 @@ class Caps3d(object):
             self.saver = tf.train.Saver()
 
     def init_weights(self):
-        if config.use_c3d_weights:
-            reader = pywrap_tensorflow.NewCheckpointReader('./c3d_pretrained/conv3d_deepnetA_sport1m_iter_1900000_TF.model')
-            self.w_and_b = {
-                'wc1': tf.constant_initializer(reader.get_tensor('var_name/wc1')),
-                'wc2': tf.constant_initializer(reader.get_tensor('var_name/wc2')),
-                'wc3a': tf.constant_initializer(reader.get_tensor('var_name/wc3a')),
-                'wc3b': tf.constant_initializer(reader.get_tensor('var_name/wc3b')),
-                'wc4a': tf.constant_initializer(reader.get_tensor('var_name/wc4a')),
-                'wc4b': tf.constant_initializer(reader.get_tensor('var_name/wc4b')),
-                'wc5a': tf.constant_initializer(reader.get_tensor('var_name/wc5a')),
-                'wc5b': tf.constant_initializer(reader.get_tensor('var_name/wc5b')),
-                'bc1': tf.constant_initializer(reader.get_tensor('var_name/bc1')),
-                'bc2': tf.constant_initializer(reader.get_tensor('var_name/bc2')),
-                'bc3a': tf.constant_initializer(reader.get_tensor('var_name/bc3a')),
-                'bc3b': tf.constant_initializer(reader.get_tensor('var_name/bc3b')),
-                'bc4a': tf.constant_initializer(reader.get_tensor('var_name/bc4a')),
-                'bc4b': tf.constant_initializer(reader.get_tensor('var_name/bc4b')),
-                'bc5a': tf.constant_initializer(reader.get_tensor('var_name/bc5a')),
-                'bc5b': tf.constant_initializer(reader.get_tensor('var_name/bc5b'))
-            }
-        else:
-            self.w_and_b = {
-                'wc1': None,
-                'wc2': None,
-                'wc3a': None,
-                'wc3b': None,
-                'wc4a': None,
-                'wc4b': None,
-                'wc5a': None,
-                'wc5b': None,
-                'bc1': tf.zeros_initializer(),
-                'bc2': tf.zeros_initializer(),
-                'bc3a': tf.zeros_initializer(),
-                'bc3b': tf.zeros_initializer(),
-                'bc4a': tf.zeros_initializer(),
-                'bc4b': tf.zeros_initializer(),
-                'bc5a': tf.zeros_initializer(),
-                'bc5b': tf.zeros_initializer()
-            }
+        self.w_and_b = {
+            'none': None,
+            'zero': tf.zeros_initializer()
+        }
 
     def init_network(self):
         print('Building Caps3d Model')
@@ -99,28 +64,28 @@ class Caps3d(object):
         # creates the video encoder
         #with tf.device('/gpu:1'):
         conv1 = tf.layers.conv3d(self.x_input, 64, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 1, 1],
-                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['wc1'],
-                                 bias_initializer=self.w_and_b['bc1'], name='conv1')
+                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
+                                 bias_initializer=self.w_and_b['zero'], name='conv1')
 
         conv2 = tf.layers.conv3d(conv1, 128, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 2, 2],
-                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['wc2'],
-                                 bias_initializer=self.w_and_b['bc2'], name='conv2')
+                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
+                                 bias_initializer=self.w_and_b['zero'], name='conv2')
 
         conv3 = tf.layers.conv3d(conv2, 256, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 1, 1],
-                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['wc3a'],
-                                 bias_initializer=self.w_and_b['bc3a'], name='conv3')
+                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
+                                 bias_initializer=self.w_and_b['zero'], name='conv3')
 
         conv4 = tf.layers.conv3d(conv3, 256, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 2, 2],
-                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['wc3b'],
-                                 bias_initializer=self.w_and_b['bc3b'], name='conv4')
+                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
+                                 bias_initializer=self.w_and_b['zero'], name='conv4')
 
         conv5 = tf.layers.conv3d(conv4, 512, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 1, 1],
-                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['wc4a'],
-                                 bias_initializer=self.w_and_b['bc4a'], name='conv5')
+                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
+                                 bias_initializer=self.w_and_b['zero'], name='conv5')
 
         conv6 = tf.layers.conv3d(conv5, 512, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 1, 1],
-                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['wc4b'],
-                                 bias_initializer=self.w_and_b['bc4b'], name='conv6')
+                                 activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
+                                 bias_initializer=self.w_and_b['zero'], name='conv6')
 
         if config.print_layers:
             print('Conv1:', conv1.get_shape())
