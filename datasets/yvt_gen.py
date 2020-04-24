@@ -59,7 +59,7 @@ class YVT_Gen():
         
         print('Running YVTGen...')
         print('Waiting 5 (s) to load data')
-        time.sleep(5)
+        time.sleep(30)
         
     def __load_and_process_data(self):
         for name, video, mask in self.get_vid_and_mask():
