@@ -19,13 +19,13 @@ def output_iou(n_vids, n_tot_frames, n_correct, iou_threshs, video_ious, frame_i
         
         for ann_type in config.ann_types:
             print('For ' + ann_type + ':')
-            output_log.write_output('For ' + ann_type + ':\n')
+            output_log.write('For ' + ann_type + ':\n')
 
             fmAP = frame_ious[ann_type]/n_tot_frames
             vmAP = video_ious[ann_type]/n_vids
             
             print('IoU, f-mAP:')
-            output_log.write_output('IoU, f-mAP:\n')
+            output_log.write('IoU, f-mAP:\n')
             for i in range(20):
                 print('%.2f, %.2f' % (iou_threshs[i], fmAP[i]))
                 output_log.write('%.2f, %.2f\n' % (iou_threshs[i], fmAP[i]))
