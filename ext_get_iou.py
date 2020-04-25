@@ -11,7 +11,7 @@ from datasets.yvt_gen import YVT_Gen
 
 def output_iou(n_vids, n_tot_frames, n_correct, iou_threshs, video_ious, frame_ious):
     try:
-        output_log = open('ext_get_iou', 'w')
+        output_log = open('ext_get_iou.txt', 'w')
         print('Accuracy:', n_correct / n_vids)
         output_log.write('Test Accuracy: %.4f\n' % float(n_correct / n_vids))
 
