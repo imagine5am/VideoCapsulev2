@@ -64,7 +64,7 @@ class YVT_Gen():
         self.data_queue = []
         
         self.load_thread_condition = Condition()
-        self.load_thread = Thread(target=self.__load_and_process_data, args=(condition, load_thread_condition))
+        self.load_thread = Thread(target=self.__load_and_process_data)
         self.load_thread.start()
         
         print('Running YVTGen...')
@@ -75,7 +75,9 @@ class YVT_Gen():
     def __load_and_process_data(self):
         for name, video, mask in self.get_vid_and_mask():
             while len(self.data_queue) >= 10:
-                time.sleep(1)
+                with self.load_thread_condition:
+                    self.load_thread_condition.wait()
+                # time.sleep(1)
             self.data_queue.append((name, video, mask))
         print('Loading data thread finished')
             
@@ -128,6 +130,8 @@ class YVT_Gen():
             print('Waiting on data')
             time.sleep(5)
         self.videos_left -= 1
+        if self.load_thread.is_alive():
+            self.load_thread_condition.notifyAll()
         return self.data_queue.pop(0)
 
     def has_data(self):
