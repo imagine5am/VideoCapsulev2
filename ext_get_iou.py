@@ -19,16 +19,16 @@ def output_iou(n_vids, n_tot_frames, n_correct, iou_threshs, video_ious, frame_i
         fmAP = frame_ious/n_tot_frames
         vmAP = video_ious/n_vids
 
-        print('IoU f-mAP:')
-        output_log.write('IoU f-mAP:\n')
+        print('IoU, f-mAP:')
+        output_log.write('IoU, f-mAP:\n')
         for i in range(20):
-            print('%.2f\t%.2f' % (iou_threshs[i], fmAP[i]))
-            output_log.write('%.2f\t%.2f\n' % (iou_threshs[i], fmAP[i]))
-        print('IoU v-mAP:')
-        output_log.write('IoU v-mAP:\n')
+            print('%.2f, %.2f' % (iou_threshs[i], fmAP[i]))
+            output_log.write('%.2f, %.2f\n' % (iou_threshs[i], fmAP[i]))
+        print('IoU, v-mAP:')
+        output_log.write('IoU, v-mAP:\n')
         for i in range(20):
-            print('%.2f\t%.2f' % (iou_threshs[i], vmAP[i]))
-            output_log.write('%.2f\t%.2f\n' % (iou_threshs[i], vmAP[i]))
+            print('%.2f, %.2f' % (iou_threshs[i], vmAP[i]))
+            output_log.write('%.2f, %.2f\n' % (iou_threshs[i], vmAP[i]))
             
         output_log.close()
     except:
