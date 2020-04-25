@@ -11,7 +11,7 @@ from datasets.yvt_gen import YVT_Gen
 
 def output_iou(n_vids, n_tot_frames, n_correct, iou_threshs, video_ious, frame_ious):
     try:
-        output_log = open('ext_get_iou.txt', 'w')
+        output_log = open('minetto_iou.txt', 'w')
         print('Accuracy:', n_correct / n_vids)
         output_log.write('Test Accuracy: %.4f\n' % float(n_correct / n_vids))
 
@@ -43,9 +43,9 @@ def iou():
         tf.global_variables_initializer().run()
         capsnet.load(sess, config.network_save_dir)
 
-        # data_gen = Minetto_Gen()
+        data_gen = Minetto_Gen()
         # data_gen = ICDAR_Gen()
-        data_gen = YVT_Gen()
+        # data_gen = YVT_Gen()
         
         # CHANGE 0 to correct label
         n_correct, n_vids, n_tot_frames = 0, 0, 0
