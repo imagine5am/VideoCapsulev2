@@ -9,6 +9,30 @@ from datasets.minetto_gen import Minetto_Gen
 from datasets.icdar_gen import ICDAR_Gen
 from datasets.yvt_gen import YVT_Gen
 
+def output_iou(n_vids, n_tot_frames, n_correct, iou_threshs, video_ious, frame_ious):
+    try:
+        output_log = open('ext_get_iou', 'w')
+        print('Accuracy:', n_correct / n_vids)
+        output_log.write('Test Accuracy: %.4f\n' % float(n_correct / n_vids))
+
+        fmAP = frame_ious/n_tot_frames
+        vmAP = video_ious/n_vids
+
+        print('IoU f-mAP:')
+        output_log.write('IoU f-mAP:\n')
+        for i in range(20):
+            print('%.2f\t%.2f' % (iou_threshs[i], fmAP[i]))
+            output_log.write('%.2f\t%.2f\n' % (iou_threshs[i], fmAP[i]))
+        print('IoU v-mAP:')
+        output_log.write('IoU v-mAP:\n')
+        for i in range(20):
+            print('%.2f\t%.2f' % (iou_threshs[i], vmAP[i]))
+            output_log.write('%.2f\t%.2f\n' % (iou_threshs[i], vmAP[i]))
+            
+        output_log.close()
+    except:
+        print('Unable to save to output log')
+
 def iou():
     """
     Calculates the accuracy, f-mAP, and v-mAP over the test set
@@ -123,22 +147,6 @@ def iou():
             if n_vids % 100 == 0:
                 print('Finished %d videos' % n_vids)
 
-        print('Accuracy:', n_correct / n_vids)
-        config.write_output('Test Accuracy: %.4f\n' % float(n_correct / n_vids))
-
-        fmAP = frame_ious/n_tot_frames
-        vmAP = video_ious/n_vids
-
-        print('IoU f-mAP:')
-        config.write_output('IoU f-mAP:\n')
-        for i in range(20):
-            print('%.2f\t%.2f' % (iou_threshs[i], fmAP[i]))
-            config.write_output('%.2f\t%.2f\n' % (iou_threshs[i], fmAP[i]))
-        print('IoU v-mAP:')
-        config.write_output('IoU v-mAP:\n')
-        for i in range(20):
-            print('%.2f\t%.2f' % (iou_threshs[i], vmAP[i]))
-            config.write_output('%.2f\t%.2f\n' % (iou_threshs[i], vmAP[i]))
-
-
+        output_iou(n_vids, n_tot_frames, n_correct, iou_threshs, video_ious, frame_ious)
+        
 iou()
