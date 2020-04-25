@@ -4,8 +4,9 @@ import numpy as np
 import pandas as pd
 import time
 
-from threading import Thread
-from PIL import Image, ImageDraw 
+from threading import Thread, Condition
+from PIL import Image, ImageDraw
+from skvideo.io import vread, vwrite
 
 base_dir = '/home/shivam/Downloads/YVT/'
 ann_dir = 'annotations/'
@@ -13,6 +14,14 @@ frames_dir = 'frames/'
 in_h, in_w = 405, 720
 out_h, out_w = 256, 480
 split_type = 'train'        # 'train', 'test'
+
+
+def save_masked_video(name, video, mask):
+    alpha = 0.5
+    color = np.zeros((3,)) + [0.0, 0, 1.0]
+    masked_vid = np.where(np.tile(mask, [1, 1, 3]) == 1, video * (1 - alpha) + alpha * color, video)
+    vwrite(name+'_segmented.avi', (masked_vid * 255).astype(np.uint8))
+
 
 def resize_and_pad(im):
     if out_w / out_h > in_w / in_h:
@@ -54,12 +63,14 @@ class YVT_Gen():
         self.videos_left = self.n_videos
         self.data_queue = []
         
-        self.load_thread = Thread(target=self.__load_and_process_data)
+        self.load_thread_condition = Condition()
+        self.load_thread = Thread(target=self.__load_and_process_data, args=(condition, load_thread_condition))
         self.load_thread.start()
         
         print('Running YVTGen...')
-        print('Waiting 5 (s) to load data')
+        print('Waiting 30 (s) to load data')
         time.sleep(30)
+        
         
     def __load_and_process_data(self):
         for name, video, mask in self.get_vid_and_mask():
@@ -68,6 +79,7 @@ class YVT_Gen():
             self.data_queue.append((name, video, mask))
         print('Loading data thread finished')
             
+            
     def get_vid_and_mask(self):
         for video_dir in os.listdir(base_dir+frames_dir+split_type):
             ann_file = base_dir+ann_dir+split_type+'/'+video_dir+'.txt'
@@ -75,14 +87,18 @@ class YVT_Gen():
 
             base_track_dir = base_dir+frames_dir+split_type+'/'+video_dir+'/0/'
             num_tracks = len(os.listdir(base_track_dir))
-            frame_num = 0
+            frame_num, n_frames = 0, 0
             for track_num in range(num_tracks):
-                n_frames = len(os.listdir(base_track_dir+str(track_num)+'/'))
-                video, mask = [], []
-                # video = np.zeros((n_frames, out_h, out_w, 3), dtype=np.uint8)
-                # mask = np.zeros((n_frames, out_h, out_w, 1), dtype=np.uint8)
+                n_frames += len(os.listdir(base_track_dir+str(track_num)+'/'))
                 
-                for frame_num in range(frame_num, frame_num+n_frames):
+            video = np.zeros((n_frames, out_h, out_w, 3), dtype=np.uint8)
+            mask = np.zeros((n_frames, out_h, out_w, 1), dtype=np.uint8)
+            
+            
+            for track_num in range(num_tracks):
+                num_track_frames = len(os.listdir(base_track_dir+str(track_num)+'/'))    
+                
+                for frame_num in range(frame_num, frame_num+num_track_frames):
                     frame_loc = base_track_dir+str(track_num)+'/%d.jpg' % frame_num
                     frame = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
                     frame_resized = resize_and_pad(frame)
@@ -92,8 +108,8 @@ class YVT_Gen():
                     frame_mask = create_mask(pts)
                     mask_resized = resize_and_pad(frame_mask)
                     
-                    video.append(frame_resized)
-                    mask.append(mask_resized)
+                    video[frame_num] = frame_resized
+                    mask[frame_num] = np.expand_dims(mask_resized, axis=-1)
                     '''
                     cv2.imwrite('mask.jpg', mask_resized)
                     cv2.imwrite('frame.jpg', frame_resized)
@@ -102,9 +118,8 @@ class YVT_Gen():
                     plt.show()
                     '''    
                 frame_num += 1
-                
-            video = np.concatenate(video)
-            mask = np.concatenate(mask).astype(np.uint8)  
+
+            save_masked_video(video_dir[:-4], video/255., mask)
             yield video_dir[:-4], video/255., mask    
             
             
