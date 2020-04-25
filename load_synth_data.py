@@ -248,7 +248,7 @@ class SynthTestDataGenDet(object):
 
     def __load_and_process_data(self):
         while self.test_files:
-            if len(self.data_queue) >= 10:
+            if len(self.data_queue) >= 30:
                 with self.load_thread_condition:
                     self.load_thread_condition.wait()
             vid_name, anns = self.test_files.pop(0)
