@@ -89,7 +89,7 @@ class Minetto_Gen():
         
     def __load_and_process_data(self):
         for name, video, mask in self.get_vid_and_mask():
-            if len(self.data_queue) >= 10:
+            if len(self.data_queue) >= 2:
                 with self.load_thread_condition:
                     self.load_thread_condition.wait()
             self.data_queue.append((name, video, mask))
