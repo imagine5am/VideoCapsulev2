@@ -1,6 +1,7 @@
 import gc
 import numpy as np
 import tensorflow as tf
+import traceback
 import ext_config as config
 from caps_network import Caps3d
 from load_synth_data import SynthTestDataGenDet as TestDataGen
@@ -37,6 +38,7 @@ def output_iou(n_vids, n_tot_frames, n_correct, iou_threshs, video_ious, frame_i
         output_log.close()
     except:
         print('Unable to save to output log')
+        print(traceback.format_exc())
 
 
 def iou():
