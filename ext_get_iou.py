@@ -24,10 +24,10 @@ def iou():
         data_gen = YVT_Gen()
         
         # CHANGE 0 to correct label
-        n_correct, n_vids, n_tot_frames = 0, np.zeros((config.n_classes, 1)), np.zeros((config.n_classes, 1))
+        n_correct, n_vids, n_tot_frames = 0, 0, 0
 
-        frame_ious = np.zeros((config.n_classes, 20))
-        video_ious = np.zeros((config.n_classes, 20))
+        frame_ious = np.zeros((20))
+        video_ious = np.zeros((20))
         iou_threshs = np.arange(0, 20, dtype=np.float32)/20
 
         for _ in tqdm(range(data_gen.n_videos)):
@@ -99,7 +99,7 @@ def iou():
                 if np.sum(frame_gt) == 0:
                     continue
 
-                n_tot_frames[label] += 1
+                n_tot_frames += 1
 
                 inter = np.count_nonzero(seg_plus_gt[i] == 2)
                 union = np.count_nonzero(seg_plus_gt[i])
@@ -109,42 +109,36 @@ def iou():
                 i_over_u = inter / union
                 for k in range(iou_threshs.shape[0]):
                     if i_over_u >= iou_threshs[k]:
-                        frame_ious[label, k] += 1
+                        frame_ious[k] += 1
 
-            n_vids[label] += 1
+            n_vids += 1
             i_over_u = vid_inter / vid_union
             for k in range(iou_threshs.shape[0]):
                 if i_over_u >= iou_threshs[k]:
-                    video_ious[label, k] += 1
+                    video_ious[k] += 1
 
             del video, bbox
             gc.collect()
             
-            if np.sum(n_vids) % 100 == 0:
-                print('Finished %d videos' % np.sum(n_vids))
+            if n_vids % 100 == 0:
+                print('Finished %d videos' % n_vids)
 
-        print('Accuracy:', n_correct / np.sum(n_vids))
-        config.write_output('Test Accuracy: %.4f\n' % float(n_correct / np.sum(n_vids)))
+        print('Accuracy:', n_correct / n_vids)
+        config.write_output('Test Accuracy: %.4f\n' % float(n_correct / n_vids))
 
-        fAP = frame_ious/n_tot_frames
-        fmAP = np.mean(fAP, axis=0)
-        vAP = video_ious/n_vids
-        vmAP = np.mean(vAP, axis=0)
+        fmAP = frame_ious/n_tot_frames
+        vmAP = video_ious/n_vids
 
         print('IoU f-mAP:')
         config.write_output('IoU f-mAP:\n')
         for i in range(20):
-            print(iou_threshs[i], fmAP[i])
-            config.write_output('%.4f\t%.4f\n' % (iou_threshs[i], fmAP[i]))
-        config.write_output(str(fAP[:, 10]) + '\n')
-        print(fAP[:, 10])
+            print('%.2f\t%.2f' % (iou_threshs[i], fmAP[i]))
+            config.write_output('%.2f\t%.2f\n' % (iou_threshs[i], fmAP[i]))
         print('IoU v-mAP:')
         config.write_output('IoU v-mAP:\n')
         for i in range(20):
-            print(iou_threshs[i], vmAP[i])
-            config.write_output('%.4f\t%.4f\n' % (iou_threshs[i], vmAP[i]))
-        config.write_output(str(vAP[:, 10]) + '\n')
-        print(vAP[:, 10])
+            print('%.2f\t%.2f' % (iou_threshs[i], vmAP[i]))
+            config.write_output('%.2f\t%.2f\n' % (iou_threshs[i], vmAP[i]))
 
 
 iou()
