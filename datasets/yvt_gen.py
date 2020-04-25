@@ -8,7 +8,7 @@ from threading import Thread, Condition
 from PIL import Image, ImageDraw
 from skvideo.io import vwrite
 
-base_dir = '/home/shivam/Downloads/YVT/'
+base_dir = '../../data/YVT/'
 ann_dir = 'annotations/'
 frames_dir = 'frames/'
 in_h, in_w = 405, 720
