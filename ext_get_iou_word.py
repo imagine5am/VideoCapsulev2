@@ -52,22 +52,17 @@ def iou():
         data_gen = Minetto_Gen()
         # data_gen = ICDAR_Gen()
         # data_gen = YVT_Gen()
-
-        n_correct, n_vids, n_tot_frames = 0, 0, 0
-        iou_threshs = np.arange(0, 20, dtype=np.float32) / 20
         
-        frame_ious, video_ious = {}, {}
-        for ann_type in config.ann_types: 
-            frame_ious[ann_type] = np.zeros((20))
-            video_ious[ann_type] = np.zeros((20))
-            
+        # CHANGE 0 to correct label
+        n_correct, n_vids, n_tot_frames = 0, 0, 0
+
+        frame_ious = np.zeros((20))
+        video_ious = np.zeros((20))
+        iou_threshs = np.arange(0, 20, dtype=np.float32)/20
 
         for _ in tqdm(range(data_gen.n_videos)):
             _, video, bbox = data_gen.get_next_video()
-            bbox = np.expand_dims(np.tile(bbox, [1, 1, 1, 4]), axis=-1)
-            print(bbox.shape)
-            label = 0   # CHANGE 0 to correct label
-
+            label = 0
             f_skip = config.frame_skip
             clips = []
             n_frames = video.shape[0]
@@ -78,10 +73,10 @@ def iou():
                         ind = i + j + k*f_skip
                         if ind >= n_frames:
                             b_vid.append(np.zeros((1, config.vid_h, config.vid_w, 3), dtype=np.float32))
-                            b_bbox.append(np.zeros((1, len(config.ann_types), config.vid_h, config.vid_w, 1), dtype=np.float32))
+                            b_bbox.append(np.zeros((1, config.vid_h, config.vid_w, 1), dtype=np.float32))
                         else:
                             b_vid.append(video[ind:ind+1, :, :, :])
-                            b_bbox.append(bbox[ind:ind+1, :, :, :, :])
+                            b_bbox.append(bbox[ind:ind+1, :, :, :])
 
                     clips.append((np.concatenate(b_vid, axis=0), np.concatenate(b_bbox, axis=0), label))
                     if np.sum(clips[-1][1]) == 0:
@@ -91,7 +86,7 @@ def iou():
                 print('Video has no bounding boxes')
                 continue
 
-            batches, all_gt_segmentations = [], []
+            batches, gt_segmentations = [], []
             for i in range(0, len(clips), config.batch_size):
                 x_batch, bb_batch, y_batch = [], [], []
                 for j in range(i, min(i+config.batch_size, len(clips))):
@@ -100,28 +95,17 @@ def iou():
                     bb_batch.append(bb)
                     y_batch.append(y)
                 batches.append((x_batch, bb_batch, y_batch))
-                all_gt_segmentations.append(np.stack(bb_batch))
+                gt_segmentations.append(np.stack(bb_batch))
 
-            all_gt_segmentations = np.concatenate(all_gt_segmentations, axis=0)
-            all_gt_segmentations = all_gt_segmentations.reshape((-1, len(config.ann_types), config.vid_h, config.vid_w, 1))  # Shape N_FRAMES, 4,112, 112, 1
+            gt_segmentations = np.concatenate(gt_segmentations, axis=0)
+            gt_segmentations = gt_segmentations.reshape((-1, config.vid_h, config.vid_w, 1))  # Shape N_FRAMES, 112, 112, 1
 
-            segmentations = {}
-            for ann_type in config.ann_types:
-                segmentations[ann_type] = []
-            predictions = []
+            segmentations, predictions = [], []
             for x_batch, bb_batch, y_batch in batches:
-                seg_para, seg_line, seg_word, seg_char, pred = sess.run([capsnet.segment_layer_sig['para_ann'],
-                                                                         capsnet.segment_layer_sig['line_ann'],
-                                                                         capsnet.segment_layer_sig['word_ann'],
-                                                                         capsnet.segment_layer_sig['char_ann'],
-                                                                         capsnet.digit_preds],
-                                                                      feed_dict={capsnet.x_input: x_batch, 
-                                                                                 capsnet.y_input: y_batch,
-                                                                                 capsnet.m: 0.9, capsnet.is_train: False})
-                segmentations['para_ann'].append(seg_para)
-                segmentations['line_ann'].append(seg_line)
-                segmentations['word_ann'].append(seg_word)
-                segmentations['char_ann'].append(seg_char)
+                segmentation, pred = sess.run([capsnet.segment_layer_sig['word_ann'], capsnet.digit_preds],
+                                              feed_dict={capsnet.x_input: x_batch, capsnet.y_input: y_batch,
+                                                         capsnet.m: 0.9, capsnet.is_train: False})
+                segmentations.append(segmentation)
                 predictions.append(pred)
 
             predictions = np.concatenate(predictions, axis=0)
@@ -131,40 +115,37 @@ def iou():
             fin_pred = np.argmax(fin_pred)
             if fin_pred == label:
                 n_correct += 1
-            n_vids += 1
 
-            for idx, ann_type in enumerate(config.ann_types): 
-                pred_segmentations = np.concatenate(segmentations[ann_type], axis=0)
-                pred_segmentations = pred_segmentations.reshape((-1, config.vid_h, config.vid_w, 1))
-                pred_segmentations = (pred_segmentations >= 0.5).astype(np.int32)
+            pred_segmentations = np.concatenate(segmentations, axis=0)
+            pred_segmentations = pred_segmentations.reshape((-1, config.vid_h, config.vid_w, 1))
 
-                gt_segmentations = all_gt_segmentations[:, idx, :, :, :]
-                seg_plus_gt = pred_segmentations + gt_segmentations
+            pred_segmentations = (pred_segmentations >= 0.5).astype(np.int32)
+            seg_plus_gt = pred_segmentations + gt_segmentations
 
-                vid_inter, vid_union = 0, 0
-                # calculates f_map
-                for i in range(gt_segmentations.shape[0]):
-                    frame_gt = gt_segmentations[i]
-                    if np.sum(frame_gt) == 0:
-                        continue
-                    
-                    if idx == 0:
-                        n_tot_frames += 1
+            vid_inter, vid_union = 0, 0
+            # calculates f_map
+            for i in range(gt_segmentations.shape[0]):
+                frame_gt = gt_segmentations[i]
+                if np.sum(frame_gt) == 0:
+                    continue
 
-                    inter = np.count_nonzero(seg_plus_gt[i] == 2)
-                    union = np.count_nonzero(seg_plus_gt[i])
-                    vid_inter += inter
-                    vid_union += union
+                n_tot_frames += 1
 
-                    i_over_u = inter / union
-                    for k in range(iou_threshs.shape[0]):
-                        if i_over_u >= iou_threshs[k]:
-                            frame_ious[ann_type][k] += 1
-                
-                i_over_u = vid_inter / vid_union
+                inter = np.count_nonzero(seg_plus_gt[i] == 2)
+                union = np.count_nonzero(seg_plus_gt[i])
+                vid_inter += inter
+                vid_union += union
+
+                i_over_u = inter / union
                 for k in range(iou_threshs.shape[0]):
                     if i_over_u >= iou_threshs[k]:
-                        video_ious[ann_type][k] += 1
+                        frame_ious[k] += 1
+
+            n_vids += 1
+            i_over_u = vid_inter / vid_union
+            for k in range(iou_threshs.shape[0]):
+                if i_over_u >= iou_threshs[k]:
+                    video_ious[k] += 1
 
             del video, bbox
             gc.collect()
