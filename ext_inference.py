@@ -6,14 +6,16 @@ import ext_config as config
 from scipy.misc import imread
 from cv2 import resize
 import os
-from skvideo.io import vread, vwrite
+from skvideo.io import vwrite
 from scipy.misc import imresize
 from datasets.minetto_gen import Minetto_Gen
 from datasets.icdar_gen import ICDAR_Gen
+from datasets.yvt_gen import YVT_Gen
 
 def data_gen():
     # date_gen = Minetto_Gen()
-    date_gen = ICDAR_Gen()
+    # date_gen = ICDAR_Gen()
+    data_gen = YVT_Gen()
     while date_gen.has_data():
         name, video, _ = date_gen.get_next_video()
         yield name, video
