@@ -4,7 +4,7 @@ import os
 import time
 import xml.etree.ElementTree as ET
 
-from threading import Thread
+from threading import Thread, Condition
 from PIL import Image, ImageDraw 
 
 base_dir = '../../data/minetto/'
@@ -78,17 +78,20 @@ class Minetto_Gen():
         self.n_videos = len([x for x in filter(lambda x: os.path.isdir(base_dir+x),os.listdir(base_dir))])
         self.videos_left = self.n_videos
         self.data_queue = []
+        
+        self.load_thread_condition = Condition()
         self.load_thread = Thread(target=self.__load_and_process_data)
         self.load_thread.start()
         
         print('Running MinettoGen...')
-        print('Waiting 5 (s) to load data')
-        time.sleep(5)
+        print('Waiting %d (s) to load data' % config.wait_for_data)
+        time.sleep(config.wait_for_data)
         
     def __load_and_process_data(self):
         for name, video, mask in self.get_vid_and_mask():
-            while len(self.data_queue) >= 10:
-                time.sleep(1)
+            if len(self.data_queue) >= 10:
+                with self.load_thread_condition:
+                    self.load_thread_condition.wait()
             self.data_queue.append((name, video, mask))
         print('Loading data thread finished')
             
@@ -120,6 +123,9 @@ class Minetto_Gen():
             print('Waiting on data')
             time.sleep(5)
         self.videos_left -= 1
+        if self.load_thread.is_alive():
+            with self.load_thread_condition:
+                self.load_thread_condition.notifyAll()
         return self.data_queue.pop(0)
 
     def has_data(self):

@@ -13,29 +13,8 @@ gpu_config.gpu_options.allow_growth = True
 
 # batch size and number of epochs
 batch_size = 2
-n_epochs = 20
-
-# whether to continue from last checkpoint or not
-continue_from_chkpt = False
 
 ann_type = 'word_ann' # 'char_ann' 'word_ann' 'line_ann' 'para_ann'
-
-# number of epochs to train in between validations
-n_eps_for_eval = 5
-
-# training accuracy threshold needed for validation to run
-acc_for_eval = 0.5
-
-# number of epochs until validation can start
-n_eps_until_eval = 0
-
-# learning rate and beta1 are used in the Adam optimizer.
-learning_rate, beta1 = 0.0001, 0.5
-
-# Used to prevent numerical instability (dividing by zero or log(0))
-epsilon = 1e-6
-
-use_c3d_weights = False
 
 # number of classes for the network to predict
 n_classes = 12
@@ -54,29 +33,14 @@ if not os.path.exists(network_save_dir):  # creates the directory if it does not
     os.mkdir(network_save_dir)
 save_file_name = network_save_dir + ('model_%d.ckpt' % model_num)
 
-# coefficient for the segmentation loss
-segment_coef = 0.0002
-
-# margin for classification loss, how much it is incremented by, and how often it is incremented by
-start_m = 0.2
-m_delta = 0.1
-n_eps_for_m = 5
-
 # number of frames to skip in the data
 frame_skip = 2
 
 # time to wait for data to load when dataloader is created
-wait_for_data = 5
+wait_for_data = 30
 
 # number of batches to train on before statistics are printed to stdio
 batches_until_print = 100
-
-# parameters for the EM-routing operation
-inv_temp = 0.5
-inv_temp_delta = 0.1
-
-# size of the pose matrix height and width
-pose_dimension = 4
 
 # determines if the network layers will be printed when network is initialized
 print_layers = True
