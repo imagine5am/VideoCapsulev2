@@ -1,4 +1,5 @@
 import config
+import gc
 import tensorflow as tf
 from caps_network import Caps3d
 from get_iou import iou
@@ -44,7 +45,7 @@ def train_network(gpu_config):
             data_gen = TrainDataGen(config.wait_for_data, frame_skip=config.frame_skip)
             margin_loss, seg_loss, acc = capsnet.train(sess, data_gen)
             config.write_output('Training\tCL: %.4f. SL: %.4f. Acc: %.4f.\n' % (margin_loss, seg_loss, acc))
-            
+
             del data_gen
             gc.collect()
                 

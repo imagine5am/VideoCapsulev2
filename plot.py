@@ -23,7 +23,7 @@ def parse():
     values = {'train': {'CL':[], 'SL':[], 'ACC':[]},
                 'val': {'CL':[], 'SL':[], 'ACC':[]},
              }
-    with open('output2.txt', 'r') as file:
+    with open('output7.txt', 'r') as file:
         num_training_samples = 10092
         batch_size = 8
         training_batches = num_training_samples // batch_size + min(num_training_samples % batch_size, 1)

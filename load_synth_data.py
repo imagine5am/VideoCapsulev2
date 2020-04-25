@@ -2,7 +2,7 @@ import os
 import time
 import numpy as np
 import random
-from threading import Thread
+from threading import Thread, Condition
 import h5py
 import sys
 from scipy.misc import imread
@@ -12,7 +12,7 @@ import config
 import traceback
 
 #dataset_dir = '../../data/SyntheticVideos/'
-dataset_dir = '../../SynthVideo/out/'
+dataset_dir = '../SynthVideo/out/'
 
 #bad_files = ['9410_tr_t_b_','9535_tr_l_r_']
 bad_files = []
@@ -160,30 +160,6 @@ def get_clip_det(video, bbox, clip_len=8, any_clip=False):
     return video[start_loc:start_loc+clip_len], bbox[start_loc:start_loc+clip_len]
 
 
-def crop_clip_det(clip, bbox_clip, crop_size=(112, 112), shuffle=True):
-    """
-    Crops the clip to a given spatial dimension
-
-    :param clip: the video clip
-    :param bbox_clip: the bounding box annotations clip
-    :param crop_size: the size which the clip will be cropped to
-    :param shuffle: If True, a random cropping will occur. If False, a center crop will be taken.
-    :return: returns the cropped clip and the cropped bounding box annotation clip
-    """
-
-    frames, h, w, _ = clip.shape
-    if not shuffle:
-        margin_h = h - crop_size[0]
-        h_crop_start = int(margin_h/2)
-        margin_w = w - crop_size[1]
-        w_crop_start = int(margin_w/2)
-    else:
-        h_crop_start = np.random.randint(0, h - crop_size[0])
-        w_crop_start = np.random.randint(0, w - crop_size[1])
-
-    return clip[:, h_crop_start:h_crop_start+crop_size[0], w_crop_start:w_crop_start+crop_size[1], :], \
-           bbox_clip[:, h_crop_start:h_crop_start+crop_size[0], w_crop_start:w_crop_start+crop_size[1], :]
-
 # The data generator for training. Outputs clips, bounding boxes, and labels for the training split.
 class SynthTrainDataGenDet(object):
     def __init__(self, sec_to_wait=5, frame_skip=2):
@@ -194,6 +170,7 @@ class SynthTrainDataGenDet(object):
 
         self.data_queue = []
 
+        self.load_thread_condition = Condition()
         self.load_thread = Thread(target=self.__load_and_process_data)
         self.load_thread.start()
 
@@ -203,15 +180,16 @@ class SynthTrainDataGenDet(object):
 
     def __load_and_process_data(self):
         while self.train_files:
-            while len(self.data_queue) >= 100:
-                time.sleep(1)
+            if len(self.data_queue) >= 100:
+                with self.load_thread_condition:
+                    self.load_thread_condition.wait()
             vid_name, anns = self.train_files.pop()
             while True:
                 try:
                     clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', 
                                                            anns, skip_frames=self.frame_skip, start_rand=True)
                     clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
-                    # clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(config.vid_h, config.vid_w), shuffle=True)
+
                     self.data_queue.append((clip/255., bbox_clip, label))
                     break
                 except Exception as e:
@@ -237,7 +215,11 @@ class SynthTrainDataGenDet(object):
             batch_x.append(vid)
             batch_bbox.append(bbox)
             batch_y.append(label)
-
+            
+        if self.load_thread.is_alive():
+            with self.load_thread_condition:
+                self.load_thread_condition.notifyAll()
+        
         return batch_x, batch_bbox, batch_y
 
     def has_data(self):
@@ -256,6 +238,7 @@ class SynthTestDataGenDet(object):
         self.videos_left = self.n_videos
         self.data_queue = []
 
+        self.load_thread_condition = Condition()
         self.load_thread = Thread(target=self.__load_and_process_data)
         self.load_thread.start()
 
@@ -265,14 +248,13 @@ class SynthTestDataGenDet(object):
 
     def __load_and_process_data(self):
         while self.test_files:
-            while len(self.data_queue) >= 50:
-                time.sleep(1)
+            if len(self.data_queue) >= 10:
+                with self.load_thread_condition:
+                    self.load_thread_condition.wait()
             vid_name, anns = self.test_files.pop(0)
             while True:
                 try:
                     clip, bbox_clip, label = get_video_det(self.frames_dir + vid_name + '/', anns, skip_frames=self.skip_frame, start_rand=False)
-                    # clip, bbox_clip = get_clip_det(clip, bbox_clip, any_clip=False)
-                    # clip, bbox_clip = crop_clip_det(clip, bbox_clip, crop_size=(config.vid_h, config.vid_w), shuffle=False)
                     self.data_queue.append((clip/255., bbox_clip, label))
                     break
                 except Exception as e:
@@ -290,7 +272,9 @@ class SynthTestDataGenDet(object):
         while len(self.data_queue) == 0:
             print('Waiting on data')
             time.sleep(self.sec_to_wait)
-
+        if self.load_thread.is_alive():
+            with self.load_thread_condition:
+                self.load_thread_condition.notifyAll()
         return self.data_queue.pop(0)
 
     def has_data(self):

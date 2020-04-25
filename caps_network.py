@@ -301,7 +301,7 @@ class Caps3d(object):
             if batch % 500 == 0:
                 print('Tested %d videos. %d(s) since start. Avg Accuracy is %.4f'
                       % (batch, time.time() - start_time, float(corrs) / batch))
-
+                
             del video, bbox, label
             gc.collect()
             

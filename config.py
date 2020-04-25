@@ -4,7 +4,7 @@ import tensorflow as tf
 # os.environ["CUDA_VISIBLE_DEVICES"]="3"
 gpu_config = tf.ConfigProto()
 #gpu_config.gpu_options.visible_device_list= '1,2,0,3'
-gpu_config.gpu_options.visible_device_list= '0'
+gpu_config.gpu_options.visible_device_list= '1'
 gpu_config.gpu_options.allow_growth = True
 #gpu_config.gpu_options.per_process_gpu_memory_fraction = 1.0
 #gpu_config.gpu_options.allocator_type = 'BFC'
@@ -17,7 +17,7 @@ n_epochs = 30
 
 # whether to continue from last checkpoint or not
 continue_from_chkpt = True
-prev_epochs = 6
+prev_epochs = 15
 
 ann_types = ['para_ann', 'line_ann', 'word_ann', 'char_ann']
 
