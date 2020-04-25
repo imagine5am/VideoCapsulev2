@@ -12,7 +12,7 @@ base_dir = '../../data/YVT/'
 ann_dir = 'annotations/'
 frames_dir = 'frames/'
 in_h, in_w = 405, 720
-out_h, out_w = 256, 480
+out_h, out_w = 128, 240
 split_type = 'test'        # 'train', 'test'
 
 

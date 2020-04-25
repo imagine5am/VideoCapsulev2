@@ -7,6 +7,7 @@ from load_synth_data import SynthTestDataGenDet as TestDataGen
 from tqdm import tqdm
 from datasets.minetto_gen import Minetto_Gen
 from datasets.icdar_gen import ICDAR_Gen
+from datasets.yvt_gen import YVT_Gen
 
 def iou():
     """
@@ -19,7 +20,8 @@ def iou():
         capsnet.load(sess, config.network_save_dir)
 
         # data_gen = Minetto_Gen()
-        data_gen = ICDAR_Gen()
+        # data_gen = ICDAR_Gen()
+        data_gen = YVT_Gen()
         
         # CHANGE 0 to correct label
         n_correct, n_vids, n_tot_frames = 0, np.zeros((config.n_classes, 1)), np.zeros((config.n_classes, 1))
