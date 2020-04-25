@@ -68,8 +68,8 @@ class YVT_Gen():
         self.load_thread.start()
         
         print('Running YVTGen...')
-        print('Waiting %d (s) to load data' % config.wait_for_data)
-        time.sleep(config.wait_for_data)
+        print('Waiting 30 (s) to load data')
+        time.sleep(30)
         
         
     def __load_and_process_data(self):
