@@ -65,7 +65,6 @@ def iou():
         for _ in tqdm(range(data_gen.n_videos)):
             _, video, bbox = data_gen.get_next_video()
             bbox = np.tile(np.expand_dims(bbox, axis=1), [1, 4, 1, 1, 1])
-            print(bbox.shape)
             label = 0   # CHANGE 0 to correct label
 
             f_skip = config.frame_skip
