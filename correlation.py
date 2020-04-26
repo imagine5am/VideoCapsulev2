@@ -41,8 +41,8 @@ def corr(x_batch):
         pred_caps = pred_caps[0][0,2]
         print('sec_caps.shape', sec_caps.shape)
         print('pred_caps.shape', pred_caps.shape)
-        np.save('pred_caps.mat', pred_caps)
-        np.save('sec_caps.mat', sec_caps)
+        np.save('pred_caps', pred_caps)
+        np.save('sec_caps', sec_caps)
     
     
 if __name__=='__main__':
