@@ -38,7 +38,7 @@ def corr(x_batch):
                                               capsnet.y_input: np.array([2], np.int32)})
         print('Label:', np.argmax(pred))
         sec_caps = np.mean(sec_caps[0], axis=(-3, -4, -5))
-        pred_caps = pred_caps[0][0,2]
+        pred_caps = pred_caps[0][0]
         print('sec_caps.shape', sec_caps.shape)
         print('pred_caps.shape', pred_caps.shape)
         np.save('pred_caps', pred_caps)
@@ -49,3 +49,22 @@ if __name__=='__main__':
     clip = preprocess()
     print('clip.shape', clip.shape)
     corr([clip])
+    
+'''
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+from numpy import linalg as LA
+pred_caps = np.load('pred_caps.npy')    # (12, 16)
+sec_caps = np.load('sec_caps.npy')[0]   # (32, 16)
+corr = np.zeros((12, 32))
+for i in range(12):
+    for j in range(32):
+        corr[i,j] = pred_caps[i] @ sec_caps[j]/(LA.norm(pred_caps[i], 2) * LA.norm(sec_caps[j], 2))
+
+sns.heatmap(corr, annot=True, fmt=".2f", yticklabels=['_tr_l_r_', '_tr_r_l_', '_tr_t_b_', '_tr_b_t_', '_roll_ac_', '_roll_c_', '_Pan1_', '_Panrev1_', '_tilt1_', '_tilt1rev_', '_zoomout_', '_zoomin_',], xticklabels=range(1,33))
+plt.title('Correlation between Poses')
+plt.xlabel('Secondary Capsules')
+plt.ylabel('Prediction Capsules')
+plt.show()
+'''
