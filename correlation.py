@@ -24,12 +24,13 @@ def preprocess():
 def corr(x_batch):
     capsnet = Caps3d()
     with tf.Session(graph=capsnet.graph, config=config.gpu_config) as sess:
-        print('All layers:')
-        op = sess.graph.get_operations()
-        print([m.values() for m in op][1])
-        
         tf.global_variables_initializer().run()
         capsnet.load(sess, config.network_save_dir)
+        
+        print('All layers:')
+        for i in tf.get_default_graph().get_operations():
+            print(i.name)
+        
         sec_caps_out = sess.run([sess.graph.get_tensor_by_name('sec_caps')], 
                                          feed_dict={capsnet.x_input: x_batch,
                                          capsnet.is_train: False,
