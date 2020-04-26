@@ -9,7 +9,7 @@ from scipy.misc import imread
 dataset_dir = '../SynthVideo/out/'
 
 def preprocess():
-    video_dir = dataset_dir + "Frames/" + '8/16916_tilt1_/'
+    video_dir = dataset_dir + "Frames/" + '0/15847_tr_l_r_/'
     n_frames = len(os.listdir(video_dir))
     video = np.zeros((n_frames, config.vid_h, config.vid_w, 3), dtype=np.uint8)
     for idx in range(n_frames):
@@ -38,8 +38,8 @@ def corr(x_batch):
                                               capsnet.y_input: np.array([-1], np.int32)})
         print('pred.shape: ', pred.shape)
         print('Label:', np.argmax(pred))
-        print('sec_caps.shape', sec_caps[0].get_shape())
-        print('pred_caps.shape', pred_caps[0].get_shape())
+        print('sec_caps.shape', sec_caps[0].shape)
+        print('pred_caps.shape', pred_caps[0].shape)
     
     
 if __name__=='__main__':
