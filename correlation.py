@@ -39,7 +39,7 @@ def corr(x_batch):
         print('Label:', np.argmax(pred))
         sec_caps = np.mean(sec_caps[0], axis=(-3, -4, -5))
         print('sec_caps.shape', sec_caps.shape)
-        print('pred_caps.shape', pred_caps[0][1,2].shape)
+        print('pred_caps.shape', pred_caps[0][0,2].shape)
     
     
 if __name__=='__main__':
