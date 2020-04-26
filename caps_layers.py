@@ -383,5 +383,4 @@ def layer_shape(layer):
     """
     Returns a string with the shape of a capsule layer (pose matrices and activations)
     """
-    print(layer.name)
     return str(layer[0].get_shape()) + ' ' + str(layer[1].get_shape())
