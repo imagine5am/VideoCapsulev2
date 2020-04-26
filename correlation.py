@@ -1,6 +1,7 @@
 import config2 as config
 import cv2
 import numpy as np
+import os
 import tensorflow as tf
 from caps_network import Caps3d
 from scipy.misc import imread
@@ -8,9 +9,8 @@ from scipy.misc import imread
 dataset_dir = '../SynthVideo/out/'
 
 def preprocess():
-    vid_dir = '8/16916_tilt1_'
-    n_frames = len(os.listdir(dataset_dir+'Frames/'+video_dir))
-    video_dir = dataset_dir + "Frames/"
+    video_dir = dataset_dir + "Frames/" + '8/16916_tilt1_'
+    n_frames = len(os.listdir(video_dir))
     video = np.zeros((n_frames, config.vid_h, config.vid_w, 3), dtype=np.uint8)
     for idx in range(n_frames):
         frame = imread(video_dir + ('frame_%d.jpg' % idx))
