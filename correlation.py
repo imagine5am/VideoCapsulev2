@@ -32,14 +32,13 @@ def corr(x_batch):
             for t in op.values():
                 print(t.name, t.shape)
         
-        sec_caps_out = sess.run([sess.graph.get_tensor_by_name('sec_caps')], 
+        sec_caps, pred_caps = sess.run([capsnet.sec_caps, capsnet.pred_caps], 
                                          feed_dict={capsnet.x_input: x_batch,
                                          capsnet.is_train: False,
                                          capsnet.y_input: np.array([-1], np.int32)})
-        print('sec_caps_out.shape', sec_caps_out.get_shape().as_list())
+        print('sec_caps.shape', sec_caps.get_shape().as_list())
+        print('pred_caps.shape', pred_caps.get_shape().as_list())
         print('All layers:')
-        op = sess.graph.get_operations()
-        print([m.values() for m in op][1])
     
     
 if __name__=='__main__':
