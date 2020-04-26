@@ -35,10 +35,11 @@ def corr(x_batch):
         sec_caps, pred_caps, pred = sess.run([capsnet.sec_caps, capsnet.pred_caps, capsnet.digit_preds], 
                                               feed_dict={capsnet.x_input: x_batch,
                                               capsnet.is_train: False,
-                                              capsnet.y_input: np.array([-1], np.int32)})
+                                              capsnet.y_input: np.array([2], np.int32)})
         print('Label:', np.argmax(pred))
-        print('sec_caps.shape', sec_caps[0].shape)
-        print('pred_caps.shape', pred_caps[0].shape)
+        sec_caps = np.mean(sec_caps[0], axis=(-3, -4, -5))
+        print('sec_caps.shape', sec_caps.shape)
+        print('pred_caps.shape', pred_caps[0][1,2].shape)
     
     
 if __name__=='__main__':
