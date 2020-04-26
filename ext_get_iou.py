@@ -49,7 +49,6 @@ def iou():
         # data_gen = ICDAR_Gen()
         # data_gen = YVT_Gen()
         
-        # CHANGE 0 to correct label
         n_correct, n_vids, n_tot_frames = 0, 0, 0
 
         frame_ious = np.zeros((20))
@@ -58,7 +57,7 @@ def iou():
 
         for _ in tqdm(range(data_gen.n_videos)):
             _, video, bbox = data_gen.get_next_video()
-            label = 0
+            label = -1      # REVIEW THIS
             f_skip = config.frame_skip
             clips = []
             n_frames = video.shape[0]

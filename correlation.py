@@ -9,7 +9,7 @@ from scipy.misc import imread
 dataset_dir = '../SynthVideo/out/'
 
 def preprocess():
-    video_dir = dataset_dir + "Frames/" + '0/15847_tr_l_r_/'
+    video_dir = dataset_dir + "Frames/" + '2/14451_tr_t_b_/'
     n_frames = len(os.listdir(video_dir))
     video = np.zeros((n_frames, config.vid_h, config.vid_w, 3), dtype=np.uint8)
     for idx in range(n_frames):
@@ -17,8 +17,8 @@ def preprocess():
         frame = cv2.resize(frame, (config.vid_w, config.vid_h))
         video[idx] = frame
     clip_len = 8
-    start_loc = np.random.randint(0, video.shape[0]-clip_len)
-    return video[start_loc:start_loc+clip_len]
+    start_loc = np.random.randint(0, video.shape[0]-clip_len*2)
+    return video[start_loc:start_loc+clip_len*2:2]
     
     
 def corr(x_batch):
@@ -36,7 +36,6 @@ def corr(x_batch):
                                               feed_dict={capsnet.x_input: x_batch,
                                               capsnet.is_train: False,
                                               capsnet.y_input: np.array([-1], np.int32)})
-        print('pred.shape: ', pred.shape)
         print('Label:', np.argmax(pred))
         print('sec_caps.shape', sec_caps[0].shape)
         print('pred_caps.shape', pred_caps[0].shape)
@@ -44,4 +43,5 @@ def corr(x_batch):
     
 if __name__=='__main__':
     clip = preprocess()
+    print('clip.shape', clip.shape)
     corr([clip])
