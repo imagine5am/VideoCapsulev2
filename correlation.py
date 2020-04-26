@@ -28,8 +28,9 @@ def corr(x_batch):
         capsnet.load(sess, config.network_save_dir)
         
         print('All layers:')
-        for i in tf.get_default_graph().get_operations():
-            print(i.name)
+        for op in tf.get_default_graph().get_operations():
+            for t in op.values():
+                print(t.name, t.shape)
         
         sec_caps_out = sess.run([sess.graph.get_tensor_by_name('sec_caps')], 
                                          feed_dict={capsnet.x_input: x_batch,
