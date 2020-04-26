@@ -26,19 +26,20 @@ def corr(x_batch):
     with tf.Session(graph=capsnet.graph, config=config.gpu_config) as sess:
         tf.global_variables_initializer().run()
         capsnet.load(sess, config.network_save_dir)
-        
+        '''
         print('All layers:')
         for op in tf.get_default_graph().get_operations():
             for t in op.values():
                 print(t.name, t.shape)
-        
-        sec_caps, pred_caps = sess.run([capsnet.sec_caps, capsnet.pred_caps], 
-                                         feed_dict={capsnet.x_input: x_batch,
-                                         capsnet.is_train: False,
-                                         capsnet.y_input: np.array([-1], np.int32)})
-        print('sec_caps.shape', sec_caps.get_shape().as_list())
-        print('pred_caps.shape', pred_caps.get_shape().as_list())
-        print('All layers:')
+        '''
+        sec_caps, pred_caps, pred = sess.run([capsnet.sec_caps, capsnet.pred_caps, capsnet.digit_preds], 
+                                              feed_dict={capsnet.x_input: x_batch,
+                                              capsnet.is_train: False,
+                                              capsnet.y_input: np.array([-1], np.int32)})
+        print('pred.shape: ', pred.shape)
+        print('Label:', np.argmax(pred))
+        print('sec_caps.shape', sec_caps[0].get_shape())
+        print('pred_caps.shape', pred_caps[0].get_shape())
     
     
 if __name__=='__main__':
