@@ -177,30 +177,6 @@ def get_clip_det(video, bbox, clip_len=8, any_clip=False):
     return video[start_loc:start_loc+clip_len], bbox[start_loc:start_loc+clip_len]
 
 
-def crop_clip_det(clip, bbox_clip, crop_size=(112, 112), shuffle=True):
-    """
-    Crops the clip to a given spatial dimension
-
-    :param clip: the video clip
-    :param bbox_clip: the bounding box annotations clip
-    :param crop_size: the size which the clip will be cropped to
-    :param shuffle: If True, a random cropping will occur. If False, a center crop will be taken.
-    :return: returns the cropped clip and the cropped bounding box annotation clip
-    """
-
-    frames, h, w, _ = clip.shape
-    if not shuffle:
-        margin_h = h - crop_size[0]
-        h_crop_start = int(margin_h/2)
-        margin_w = w - crop_size[1]
-        w_crop_start = int(margin_w/2)
-    else:
-        h_crop_start = np.random.randint(0, h - crop_size[0])
-        w_crop_start = np.random.randint(0, w - crop_size[1])
-
-    return clip[:, h_crop_start:h_crop_start+crop_size[0], w_crop_start:w_crop_start+crop_size[1], :], \
-           bbox_clip[:, h_crop_start:h_crop_start+crop_size[0], w_crop_start:w_crop_start+crop_size[1], :]
-
 # The data generator for training. Outputs clips, bounding boxes, and labels for the training split.
 class SynthTrainDataGenDet(object):
     def __init__(self, sec_to_wait=5, frame_skip=2):
