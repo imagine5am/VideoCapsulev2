@@ -8,6 +8,7 @@ from tqdm import tqdm
 
 
 def output_correlation(mat):
+    print('Writing correlation.csv...')
     np.save('pred_activations', mat)
     corr_mat = np.corrcoef(mat, rowvar=False)
     np.savetxt("correlation.csv", corr_mat, delimiter=",", fmt='%.2f')
@@ -15,6 +16,7 @@ def output_correlation(mat):
     
 def output_conf(conf):
     try: 
+        print('Writing confusion.csv...')
         output_log = open('confusion.csv', 'w')
 
         output_log.write('Label\\Pred, ')
