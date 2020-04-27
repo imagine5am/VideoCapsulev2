@@ -7,6 +7,7 @@ from load_synth_data import SynthTestDataGenDet as TestDataGen
 from tqdm import tqdm
 
 def output_correlation(mat):
+    np.save('pred_activations', mat)
     corr_mat = np.corrcoef(mat, rowvar=False)
     np.savetxt("correlation.csv", corr_mat, delimiter=",", fmt='%.2f')
     
@@ -49,8 +50,8 @@ def iou():
         video_ious = np.zeros((config.n_classes, 20))
         iou_threshs = np.arange(0, 20, dtype=np.float32)/20
         conf = np.zeros((config.n_classes, config.n_classes), dtype=np.int)
-        # pred_activations = np.zeros((data_gen.n_videos, 12), dtype=np.int)
-        pred_activations = np.zeros((100, 12), dtype=np.int)
+        # pred_activations = np.zeros((data_gen.n_videos, config.n_classes), dtype=np.int)
+        pred_activations = np.zeros((100, config.n_classes), dtype=np.int)
 
         for video_idx in tqdm(range(data_gen.n_videos)):
             if video_idx == 100:
