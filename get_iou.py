@@ -1,10 +1,35 @@
 import numpy as np
 import tensorflow as tf
 import config
+import traceback
 from caps_network import Caps3d
 from load_synth_data import SynthTestDataGenDet as TestDataGen
 from tqdm import tqdm
 
+def output_correlation(mat):
+    corr_mat = np.corrcoef(mat, rowvar=False)
+    np.savetxt("correlation.csv", corr_mat, delimiter=",", fmt='%.2f')
+    
+    
+def output_conf(conf):
+    try: 
+        output_log = open('confusion.csv', 'w')
+
+        output_log.write('Label\\Pred, ')
+        for i in range(config.n_classes):
+            output_log.write('%s, ' % config.labels[i])
+        output_log.write('Accuracy\n')
+
+        for i in range(config.n_classes):
+            output_log.write('%s, ' % config.labels[i])
+            for j in range(config.n_classes):
+                output_log.write('%d, ' % conf[i,j])
+            output_log.write('%.2f%%\n' % (conf[i,i] * 100 / np.sum(conf[i])))
+
+        output_log.close()
+    except:
+        print('Unable to save to split_results.csv')
+        print(traceback.format_exc())
 
 def iou():
     """
@@ -23,8 +48,10 @@ def iou():
         frame_ious = np.zeros((config.n_classes, 20))
         video_ious = np.zeros((config.n_classes, 20))
         iou_threshs = np.arange(0, 20, dtype=np.float32)/20
+        conf = np.zeros((config.n_classes, config.n_classes), dtype=np.int)
+        pred_activations = np.zeros((data_gen.n_videos, 12), dtype=np.int)
 
-        for _ in tqdm(range(data_gen.n_videos)):
+        for video_idx in tqdm(range(data_gen.n_videos)):
             video, bbox, label = data_gen.get_next_video()
 
             f_skip = config.frame_skip
@@ -76,7 +103,9 @@ def iou():
             predictions = predictions.reshape((-1, config.n_classes))
             fin_pred = np.mean(predictions, axis=0)
 
+            pred_activations[video_idx] = fin_pred
             fin_pred = np.argmax(fin_pred)
+            conf[label, fin_pred] += 1
             if fin_pred == label:
                 n_correct += 1
 
@@ -138,5 +167,9 @@ def iou():
         config.write_output(str(vAP[:, 10]) + '\n')
         print(vAP[:, 10])
 
+        output_conf(conf)
+        output_correlation(pred_activations)
 
-#iou()
+
+if __name__ == "__main__":
+    iou()
