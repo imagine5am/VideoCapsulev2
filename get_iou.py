@@ -51,7 +51,7 @@ def iou():
         iou_threshs = np.arange(0, 20, dtype=np.float32)/20
         conf = np.zeros((config.n_classes, config.n_classes), dtype=np.int)
         # pred_activations = np.zeros((data_gen.n_videos, config.n_classes), dtype=np.int)
-        pred_activations = np.zeros((100, config.n_classes), dtype=np.int)
+        pred_activations = np.zeros((100, config.n_classes), dtype=np.float32)
 
         for video_idx in tqdm(range(data_gen.n_videos)):
             if video_idx == 100:
