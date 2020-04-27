@@ -1,9 +1,38 @@
 import numpy as np
 import tensorflow as tf
+import traceback
 import config as config
 from caps_network import Caps3d
 from load_synth_data import SynthTestDataGenDet as TestDataGen
 from tqdm import tqdm
+
+
+def output_correlation(mat):
+    np.save('pred_activations', mat)
+    corr_mat = np.corrcoef(mat, rowvar=False)
+    np.savetxt("correlation.csv", corr_mat, delimiter=",", fmt='%.2f')
+    
+    
+def output_conf(conf):
+    try: 
+        output_log = open('confusion.csv', 'w')
+
+        output_log.write('Label\\Pred, ')
+        for i in range(config.n_classes):
+            output_log.write('%s, ' % config.labels[i])
+        output_log.write('Accuracy\n')
+
+        for i in range(config.n_classes):
+            output_log.write('%s, ' % config.labels[i])
+            for j in range(config.n_classes):
+                output_log.write('%d, ' % conf[i,j])
+            output_log.write('%.2f%%\n' % (conf[i,i] * 100 / np.sum(conf[i])))
+
+        output_log.close()
+    except:
+        print('Unable to save to split_results.csv')
+        print(traceback.format_exc())
+
 
 def output_iou(n_vids, n_tot_frames, n_correct, iou_threshs, video_ious, frame_ious):
     print('Label Prediction Accuracy:', n_correct / np.sum(n_vids))
@@ -49,13 +78,17 @@ def iou():
         n_correct, n_vids, n_tot_frames = 0, np.zeros((config.n_classes, 1)), np.zeros((config.n_classes, 1))
         iou_threshs = np.arange(0, 20, dtype=np.float32) / 20
         
+        conf = np.zeros((config.n_classes, config.n_classes), dtype=np.int)
+        pred_activations = np.zeros((data_gen.n_videos, config.n_classes), dtype=np.float32)
+
+        
         frame_ious, video_ious = {}, {}
         for ann_type in config.ann_types: 
             frame_ious[ann_type] = np.zeros((config.n_classes, 20))
             video_ious[ann_type] = np.zeros((config.n_classes, 20))
             
 
-        for _ in tqdm(range(data_gen.n_videos)):
+        for video_idx in tqdm(range(data_gen.n_videos)):
             video, bbox, label = data_gen.get_next_video()
 
             f_skip = config.frame_skip
@@ -117,8 +150,10 @@ def iou():
             predictions = np.concatenate(predictions, axis=0)
             predictions = predictions.reshape((-1, config.n_classes))
             fin_pred = np.mean(predictions, axis=0)
-
+            pred_activations[video_idx] = fin_pred
             fin_pred = np.argmax(fin_pred)
+            conf[label, fin_pred] += 1
+
             if fin_pred == label:
                 n_correct += 1
             n_vids[label] += 1
@@ -161,6 +196,8 @@ def iou():
                 print('Finished %d videos' % np.sum(n_vids))
                     
     output_iou(n_vids, n_tot_frames, n_correct, iou_threshs, video_ious, frame_ious)
+    output_conf(conf)
+    output_correlation(pred_activations)
 
 if __name__=='__main__':
     iou()
