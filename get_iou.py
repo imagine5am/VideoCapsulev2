@@ -49,9 +49,13 @@ def iou():
         video_ious = np.zeros((config.n_classes, 20))
         iou_threshs = np.arange(0, 20, dtype=np.float32)/20
         conf = np.zeros((config.n_classes, config.n_classes), dtype=np.int)
-        pred_activations = np.zeros((data_gen.n_videos, 12), dtype=np.int)
+        # pred_activations = np.zeros((data_gen.n_videos, 12), dtype=np.int)
+        pred_activations = np.zeros((100, 12), dtype=np.int)
 
         for video_idx in tqdm(range(data_gen.n_videos)):
+            if video_idx == 100:
+                break
+            
             video, bbox, label = data_gen.get_next_video()
 
             f_skip = config.frame_skip
@@ -102,7 +106,7 @@ def iou():
             predictions = np.concatenate(predictions, axis=0)
             predictions = predictions.reshape((-1, config.n_classes))
             fin_pred = np.mean(predictions, axis=0)
-
+            print(fin_pred)
             pred_activations[video_idx] = fin_pred
             fin_pred = np.argmax(fin_pred)
             conf[label, fin_pred] += 1
