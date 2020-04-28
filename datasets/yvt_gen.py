@@ -2,6 +2,7 @@ import cv2
 import os
 import numpy as np
 import pandas as pd
+import random
 import time
 
 from threading import Thread, Condition
@@ -13,7 +14,6 @@ ann_dir = 'annotations/'
 frames_dir = 'frames/'
 in_h, in_w = 405, 720
 out_h, out_w = 256, 480
-split_type = 'test'        # 'train', 'test'
 
 
 def save_masked_video(name, video, mask):
@@ -57,9 +57,9 @@ def create_mask(pts):
 
 
 class YVT_Gen():
-    def __init__(self):
-        # self.n_videos = 63 if split_type=='train' else 59   #num of tracks
-        self.n_videos = len(os.listdir(base_dir+frames_dir+split_type))
+    def __init__(self, split_type='train'): # 'train', 'test'
+        self.split_type = split_type
+        self.n_videos = len(os.listdir(base_dir+frames_dir+self.split_type))
         self.videos_left = self.n_videos
         self.data_queue = []
         
@@ -82,11 +82,14 @@ class YVT_Gen():
             
             
     def get_vid_and_mask(self):
-        for video_dir in os.listdir(base_dir+frames_dir+split_type):
-            ann_file = base_dir+ann_dir+split_type+'/'+video_dir+'.txt'
+        allfiles = os.listdir(base_dir+frames_dir+self.split_type)
+        if self.split_type == 'train':
+            random.shuffle(allfiles)
+        for video_dir in allfiles:
+            ann_file = base_dir+ann_dir+self.split_type+'/'+video_dir+'.txt'
             df = parse_ann(ann_file)
 
-            base_track_dir = base_dir+frames_dir+split_type+'/'+video_dir+'/0/'
+            base_track_dir = base_dir+frames_dir+self.split_type+'/'+video_dir+'/0/'
             num_tracks = len(os.listdir(base_track_dir))
             frame_num, n_frames = 0, 0
             for track_num in range(num_tracks):
@@ -125,5 +128,14 @@ class YVT_Gen():
                 self.load_thread_condition.notifyAll()
         return self.data_queue.pop(0)
 
+
     def has_data(self):
         return self.videos_left > 0
+
+
+if __name__ == "__main__":
+    yvt_gen = YVT_Gen()
+    while yvt_gen.has_data():
+        name, video, mask = yvt_gen.get_next_video()
+        print(name)
+        save_masked_video(name, video, mask)

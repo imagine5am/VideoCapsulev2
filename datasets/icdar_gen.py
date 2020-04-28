@@ -1,15 +1,22 @@
 import cv2
 import numpy as np
 import os
+import random
 import skvideo.io  
 import time
 import xml.etree.ElementTree as ET
 
 from threading import Thread, Condition
 from PIL import Image, ImageDraw 
+from skvideo.io import vwrite
 
-base_dir = '/mnt/data/Rohit/ICDARVideoDataset/text_in_Video/ch3_test/'
-# base_dir = '/mnt/data/Rohit/ICDARVideoDataset/text_in_Video/ch3_train/'
+
+def save_masked_video(name, video, mask):
+    alpha = 0.5
+    color = np.zeros((3,)) + [0.0, 0, 1.0]
+    masked_vid = np.where(np.tile(mask, [1, 1, 3]) == 1, video * (1 - alpha) + alpha * color, video)
+    vwrite(name+'_segmented.avi', (masked_vid * 255).astype(np.uint8))
+
 out_h, out_w = 256, 480
 
 def resize_and_pad(shape, im):
@@ -67,8 +74,14 @@ def list_vids(dir):
 
 
 class ICDAR_Gen():
-    def __init__(self):
-        self.n_videos = len(list_vids(base_dir))
+    def __init__(self, split_type='train'):
+        self.split_type = split_type
+        if split_type=='train':
+            self.base_dir = '/mnt/data/Rohit/ICDARVideoDataset/text_in_Video/ch3_train/'
+        elif split_type=='test':
+            self.base_dir = '/mnt/data/Rohit/ICDARVideoDataset/text_in_Video/ch3_test/'
+
+        self.n_videos = len(list_vids(self.base_dir))
         self.videos_left = self.n_videos
         self.data_queue = []
         
@@ -89,11 +102,13 @@ class ICDAR_Gen():
         print('Loading data thread finished')
             
     def get_vid_and_mask(self):
-        for video_name in list_vids(base_dir):
-            ann_file = base_dir+video_name[:-4]+'_GT.xml'
+        allfiles = list_vids(self.base_dir)
+        random.shuffle(allfiles)
+        for video_name in allfiles:
+            ann_file = self.base_dir+video_name[:-4]+'_GT.xml'
             ann = parse_ann(ann_file)
 
-            video_orig = skvideo.io.vread(base_dir+video_name)
+            video_orig = skvideo.io.vread(self.base_dir+video_name)
             n_frames, h, w, ch = video_orig.shape
             video = np.zeros((n_frames, out_h, out_w, 3), dtype=np.uint8)
             mask = np.zeros((n_frames, out_h, out_w, 1), dtype=np.uint8)
@@ -121,3 +136,11 @@ class ICDAR_Gen():
 
     def has_data(self):
         return self.videos_left > 0
+
+
+if __name__ == "__main__":
+    icdar_gen = ICDAR_Gen()
+    while icdar_gen.has_data():
+        name, video, mask = icdar_gen.get_next_video()
+        print(name)
+        save_masked_video(name, video, mask)

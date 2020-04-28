@@ -6,11 +6,18 @@ import xml.etree.ElementTree as ET
 
 from threading import Thread, Condition
 from PIL import Image, ImageDraw 
+from skvideo.io import vwrite
 
 base_dir = '../../data/minetto/'
 rect_prop_list = ['x', 'y', 'w', 'h', 'text', 'vfr']
 in_h, in_w = 480, 640
 out_h, out_w = 256, 480
+
+def save_masked_video(name, video, mask):
+    alpha = 0.5
+    color = np.zeros((3,)) + [0.0, 0, 1.0]
+    masked_vid = np.where(np.tile(mask, [1, 1, 3]) == 1, video * (1 - alpha) + alpha * color, video)
+    vwrite(name+'_segmented.avi', (masked_vid * 255).astype(np.uint8))
 
 def resize_and_pad(im):
     if out_w / out_h > in_w / in_h:
@@ -130,5 +137,13 @@ class Minetto_Gen():
 
     def has_data(self):
         return self.videos_left > 0
+    
+if __name__ == "__main__":
+    minetto_gen = Minetto_Gen()
+    while minetto_gen.has_data():
+        name, video, mask = minetto_gen.get_next_video()
+        print(name)
+        save_masked_video(name, video, mask)
+    
 
     
