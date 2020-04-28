@@ -64,7 +64,7 @@ def create_mask(pts):
     mask = Image.fromarray(mask, 'L')
     draw = ImageDraw.Draw(mask)
     for pt in pts:
-        draw.rectangle(pt.tolist(), fill=1)
+        draw.polygon(pt.tolist(), fill=1)
     del draw
     mask = np.asarray(mask).copy()
     return mask
@@ -75,7 +75,10 @@ def get_pts_for_rectangles(rectangles):
     rect_pts = np.zeros((num_rectangles, 4,), dtype=np.int32)
     idx = 0
     for _, rect_prop in rectangles.items():
-        rect_pts[idx] = rect_prop['x'], rect_prop['y'], rect_prop['x']+rect_prop['w'], rect_prop['y']+rect_prop['h']
+        rect_pts[idx] = [(rect_prop['x'], rect_prop['y']), 
+                         (rect_prop['x']+rect_prop['w'], rect_prop['y']), 
+                         (rect_prop['x']+rect_prop['w'], rect_prop['y']+rect_prop['h']), 
+                         (rect_prop['x'], rect_prop['y']+rect_prop['h'])] 
         idx += 1
     return rect_pts
         
@@ -100,7 +103,7 @@ class Minetto_Gen():
                 with self.load_thread_condition:
                     self.load_thread_condition.wait()
             self.data_queue.append((name, video, mask))
-        print('Loading data thread finished')
+        print('[MinettoGen] Loading data thread finished')
             
     def get_vid_and_mask(self):
         for video_dir in filter(lambda x: os.path.isdir(base_dir+x),os.listdir(base_dir)):
@@ -127,7 +130,7 @@ class Minetto_Gen():
             
     def get_next_video(self):
         while len(self.data_queue) == 0:
-            print('Waiting on data')
+            print('[MinettoGen] Waiting on data')
             time.sleep(5)
         self.videos_left -= 1
         if self.load_thread.is_alive():

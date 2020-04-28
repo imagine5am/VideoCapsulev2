@@ -50,7 +50,7 @@ def create_mask(pts):
     mask = Image.fromarray(mask, 'L')
     draw = ImageDraw.Draw(mask)
     for pt in pts:
-        draw.rectangle(pt.tolist(), fill=1)
+        draw.polygon(pt.tolist(), fill=1)
     del draw
     mask = np.asarray(mask).copy()
     return mask
@@ -78,7 +78,7 @@ class YVT_Gen():
                 with self.load_thread_condition:
                     self.load_thread_condition.wait()
             self.data_queue.append((name, video, mask))
-        print('Loading data thread finished')
+        print('[YVTGen] Loading data thread finished')
             
             
     def get_vid_and_mask(self):
@@ -110,6 +110,7 @@ class YVT_Gen():
                     pts = df[(df['frame']==frame_num) & (df['lost']!=1) & (df['occluded']!=1)] \
                             [['xmin','ymin','xmax','ymax']].to_numpy()
                     if pts.size != 0:
+                        pts = [(pts[0], pts[1], (pts[2], pts[1]),(pts[2], pts[3]), (pts[0], pts[3]))]
                         frame_mask = create_mask(pts)
                         mask_resized = resize_and_pad(frame_mask)
                         mask[frame_num] = np.expand_dims(mask_resized, axis=-1)  
@@ -120,7 +121,7 @@ class YVT_Gen():
             
     def get_next_video(self):
         while len(self.data_queue) == 0:
-            print('Waiting on data')
+            print('[YVTGen] Waiting on data')
             time.sleep(5)
         self.videos_left -= 1
         if self.load_thread.is_alive():
