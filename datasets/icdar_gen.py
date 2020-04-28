@@ -12,6 +12,16 @@ from skvideo.io import vwrite
 from scipy.spatial import distance as dist
 
 
+def save_to_h5(polygon_ann):
+    with h5py.File(ann_dir+'synthvid_ann.hdf5', 'w') as hf:
+        for k,v in polygon_ann.iteritems():
+            g = hf.create_group(str(v['label']) + '/' + k)
+            g.create_dataset('char_ann', data=v['char_ann'], compression="gzip", compression_opts=9)
+            g.create_dataset('word_ann', data=v['word_ann'], compression="gzip", compression_opts=9)
+            g.create_dataset('line_ann', data=v['line_ann'], compression="gzip", compression_opts=9)
+            g.create_dataset('para_ann', data=v['para_ann'], compression="gzip", compression_opts=9)
+
+
 def save_masked_video(name, video, mask):
     alpha = 0.5
     color = np.zeros((3,)) + [0.0, 0, 1.0]
@@ -37,8 +47,10 @@ def order_points(pts):
 	# top-left and right-most points; by the Pythagorean
 	# theorem, the point with the largest distance will be
 	# our bottom-right point
-	D = dist.cdist(tl[np.newaxis], rightMost, "euclidean")[0]
-	(br, tr) = rightMost[np.argsort(D)[::-1], :]
+	rightMost = rightMost[np.argsort(rightMost[: 1]), :]
+	(tr, br) = rightMost
+	# D = dist.cdist(tl[np.newaxis], rightMost, "euclidean")[0]
+	# (br, tr) = rightMost[np.argsort(D)[::-1], :]
 	# return the coordinates in top-left, top-right,
 	# bottom-right, and bottom-left order
 	return np.array([tl, tr, br, bl], dtype="int32").flatten().tolist()
