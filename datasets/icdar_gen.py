@@ -31,6 +31,7 @@ def save_masked_video(name, video, mask):
 out_h, out_w = 256, 480
 
 def order_points(pts):
+	print(pts.tolist())
 	# sort the points based on their x-coordinates
 	xSorted = pts[np.argsort(pts[:, 0]), :]
 	# grab the left-most and right-most points from the sorted
@@ -47,8 +48,7 @@ def order_points(pts):
 	# top-left and right-most points; by the Pythagorean
 	# theorem, the point with the largest distance will be
 	# our bottom-right point
-	rightMost = rightMost[np.argsort(rightMost[: 1]), :]
-	(tr, br) = rightMost
+	(tr, br) = rightMost[np.argsort(rightMost[:, 1]), :]
 	# D = dist.cdist(tl[np.newaxis], rightMost, "euclidean")[0]
 	# (br, tr) = rightMost[np.argsort(D)[::-1], :]
 	# return the coordinates in top-left, top-right,
