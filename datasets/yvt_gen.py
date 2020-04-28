@@ -108,9 +108,8 @@ class YVT_Gen():
                     video[frame_num] = frame_resized
                     
                     pts = df[(df['frame']==frame_num) & (df['lost']!=1) & (df['occluded']!=1)] \
-                            [['xmin','ymin','xmax','ymax']].to_numpy()
+                            [['xmin','ymin', 'xmax', 'ymin', 'xmax','ymax', 'xmin', 'ymax']].to_numpy()
                     if pts.size != 0:
-                        pts = [(pts[0], pts[1], (pts[2], pts[1]),(pts[2], pts[3]), (pts[0], pts[3]))]
                         frame_mask = create_mask(pts)
                         mask_resized = resize_and_pad(frame_mask)
                         mask[frame_num] = np.expand_dims(mask_resized, axis=-1)  

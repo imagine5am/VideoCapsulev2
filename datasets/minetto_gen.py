@@ -72,13 +72,13 @@ def create_mask(pts):
 
 def get_pts_for_rectangles(rectangles):
     num_rectangles = len(rectangles)
-    rect_pts = np.zeros((num_rectangles, 4,), dtype=np.int32)
+    rect_pts = np.zeros((num_rectangles, 8,), dtype=np.int32)
     idx = 0
     for _, rect_prop in rectangles.items():
-        rect_pts[idx] = [(rect_prop['x'], rect_prop['y']), 
-                         (rect_prop['x']+rect_prop['w'], rect_prop['y']), 
-                         (rect_prop['x']+rect_prop['w'], rect_prop['y']+rect_prop['h']), 
-                         (rect_prop['x'], rect_prop['y']+rect_prop['h'])] 
+        rect_pts[idx] = [rect_prop['x'], rect_prop['y'], 
+                         rect_prop['x']+rect_prop['w'], rect_prop['y'], 
+                         rect_prop['x']+rect_prop['w'], rect_prop['y']+rect_prop['h'], 
+                         rect_prop['x'], rect_prop['y']+rect_prop['h']] 
         idx += 1
     return rect_pts
         
