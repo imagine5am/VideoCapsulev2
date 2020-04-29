@@ -12,16 +12,6 @@ from skvideo.io import vwrite
 from scipy.spatial import distance as dist
 
 
-def save_to_h5(polygon_ann):
-    with h5py.File(ann_dir+'synthvid_ann.hdf5', 'w') as hf:
-        for k,v in polygon_ann.iteritems():
-            g = hf.create_group(str(v['label']) + '/' + k)
-            g.create_dataset('char_ann', data=v['char_ann'], compression="gzip", compression_opts=9)
-            g.create_dataset('word_ann', data=v['word_ann'], compression="gzip", compression_opts=9)
-            g.create_dataset('line_ann', data=v['line_ann'], compression="gzip", compression_opts=9)
-            g.create_dataset('para_ann', data=v['para_ann'], compression="gzip", compression_opts=9)
-
-
 def save_masked_video(name, video, mask):
     alpha = 0.5
     color = np.zeros((3,)) + [0.0, 0, 1.0]
@@ -30,13 +20,30 @@ def save_masked_video(name, video, mask):
 
 out_h, out_w = 256, 480
 
-def order_points(pts):
+def order_points_my(pts):
     xSorted = pts[np.argsort(pts[:, 0]), :]
     leftMost = xSorted[:2, :]
     rightMost = xSorted[2:, :]
     (tl, bl) = leftMost[np.argsort(leftMost[:, 1]), :]
     (tr, br) = rightMost[np.argsort(rightMost[:, 1]), :]
     return np.array([tl, tr, br, bl], dtype="int32").flatten().tolist()
+
+def order_points(pts):
+    # bottom-right, and the fourth is the bottom-left
+    rect = np.zeros((4, 2), dtype = "int32")
+
+    # the bottom-right point will have the largest sum
+    s = pts.sum(axis = 1)
+    rect[0] = pts[np.argmin(s)]
+    rect[2] = pts[np.argmax(s)]
+
+    # whereas the bottom-left will have the largest difference
+    diff = np.diff(pts, axis = 1)
+    rect[1] = pts[np.argmin(diff)]
+    rect[3] = pts[np.argmax(diff)]
+
+    # return the ordered coordinates
+    return rect.flatten.tolist()
 
 def resize_and_pad(shape, im):
     in_h, in_w = shape[0], shape[1]
