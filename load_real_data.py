@@ -47,6 +47,8 @@ class ExternalTrainDataLoader():
         self.load_thread_condition = Condition()
         self.load_thread = Thread(target=self.__load_and_process_data)
         self.load_thread.start()
+        
+        self.choice_oscilattor = random.randint(0,1)
         print('[ExternalTrainDataLoader] Waiting 120 (s) to load data')
         time.sleep(120)
        
@@ -111,6 +113,14 @@ class ExternalTrainDataLoader():
             
     
     def get_next_video(self):
+        choice = self.choice_oscilattor
+        self.choice_oscilattor = 1 - self.choice_oscilattor
+        self.videos_left -= 1
+        if choice == 1 and self.icdar_gen.has_data:
+            return self.icdar_gen.get_next_video()
+        else:
+            return self.yvt_gen.get_next_video()
+        '''
         if self.videos_left == 1:
             return self.icdar_gen.get_next_video() if self.icdar_gen.has_data() else self.yvt_gen.get_next_video()
         
@@ -123,7 +133,7 @@ class ExternalTrainDataLoader():
         else:
             print('yvt_gen chosen.')
             return self.yvt_gen.get_next_video()
-            
+        '''   
             
     def has_data(self):
         return len(self.data_queue) > 0 or self.videos_left > 0
