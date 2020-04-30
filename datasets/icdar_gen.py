@@ -11,6 +11,7 @@ from PIL import Image, ImageDraw
 from skvideo.io import vwrite
 from scipy.spatial import distance as dist
 
+out_h, out_w = 256, 480
 
 def save_masked_video(name, video, mask):
     alpha = 0.5
@@ -18,7 +19,6 @@ def save_masked_video(name, video, mask):
     masked_vid = np.where(np.tile(mask, [1, 1, 3]) == 1, video * (1 - alpha) + alpha * color, video)
     vwrite(name+'_segmented.avi', (masked_vid * 255).astype(np.uint8))
 
-out_h, out_w = 256, 480
 
 def order_points_my(pts):
     xSorted = pts[np.argsort(pts[:, 0]), :]
@@ -43,7 +43,7 @@ def order_points(pts):
     rect[3] = pts[np.argmax(diff)]
 
     # return the ordered coordinates
-    return rect.flatten.tolist()
+    return rect.flatten().tolist()
 
 def resize_and_pad(shape, im):
     in_h, in_w = shape[0], shape[1]
