@@ -48,7 +48,7 @@ class ExternalTrainDataLoader():
         self.load_thread = Thread(target=self.__load_and_process_data)
         self.load_thread.start()
         
-        self.choice_oscilattor = random.randint(0,1)
+        self.choice_oscillator = random.randint(0,1)
         print('[ExternalTrainDataLoader] Waiting 120 (s) to load data')
         time.sleep(120)
        
@@ -113,8 +113,8 @@ class ExternalTrainDataLoader():
             
     
     def get_next_video(self):
-        choice = self.choice_oscilattor
-        self.choice_oscilattor = 1 - self.choice_oscilattor
+        choice = self.choice_oscillator
+        self.choice_oscillator = 1 - self.choice_oscillator
         self.videos_left -= 1
         if choice == 1 and self.icdar_gen.has_data:
             return self.icdar_gen.get_next_video()
