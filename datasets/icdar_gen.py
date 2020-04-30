@@ -151,6 +151,7 @@ class ICDAR_Gen():
                 self.load_thread_condition.notifyAll()
         return self.data_queue.pop(0)
 
+
     def has_data(self):
         return self.videos_left > 0
 
