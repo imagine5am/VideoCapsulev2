@@ -115,9 +115,12 @@ class ExternalTrainDataLoader():
         
         choice = random.randint(1, self.videos_left)
         self.videos_left -= 1
+        print('choice', choice)
         if choice <= self.icdar_gen.videos_left:
+            print('icdar_gen chosen.')
             return self.icdar_gen.get_next_video()
         else:
+            print('yvt_gen chosen.')
             return self.yvt_gen.get_next_video()
             
             
