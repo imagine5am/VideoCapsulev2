@@ -54,7 +54,7 @@ class ExternalTrainDataLoader():
     def __load_and_process_data(self):
         clip_len = 8
         while self.videos_left > 0:
-            if len(self.data_queue) >= 10:
+            if len(self.data_queue) >= 100:
                 with self.load_thread_condition:
                     self.load_thread_condition.wait()
                     
