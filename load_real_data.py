@@ -97,7 +97,9 @@ class ExternalTrainDataLoader():
         for _ in range(batch_size):
             vid, bbox = self.data_queue.pop(0)
             batch_x.append(vid)
+            print('bbox batch shape:', bbox.shape)
             bbox = np.tile(np.expand_dims(bbox, axis=1), [1, 4, 1, 1, 1])
+            print('bbox1 batch shape:', bbox.shape)
             batch_bbox.append(bbox)
             batch_y.append(-1)
                     
