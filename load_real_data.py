@@ -79,6 +79,11 @@ class ExternalTrainDataLoader():
                 except:
                     clip = skip_vid[clip_start:]
                     bbox = skip_bbox[clip_start:]
+                    remaining_frames = clip_len - clip.shape[0]
+                    for _ in range(remaining_frames):
+                        clip.append(np.zeros_like(clip[-1]))
+                        bbox.append(np.zeros_like(bbox[-1]))
+                        
                 if np.any(np.sum(bbox, axis=(1, 2, 3)) > 0):
                     self.data_queue.append((clip, bbox))
         print('[ExternalTrainDataLoader] Data Loading complete...')

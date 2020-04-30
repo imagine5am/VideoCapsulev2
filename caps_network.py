@@ -261,7 +261,7 @@ class Caps3d(object):
             x_batch, bbox_batch, y_batch = data_gen.get_batch(config.batch_size)
             print('type(x_batch), type(bb_batch), type(y_batch): ', type(x_batch), type(bbox_batch), type(y_batch))
             print('type(x_batch[0]), type(bbox_batch[0]), type(y_batch[0]):', type(x_batch[0]), type(bbox_batch[0]), type(y_batch[0]))
-            for idx in len(x_batch):
+            for idx in range(len(x_batch)):
                 print('x_batch[idx].shape, bbox_batch[idx].shape, y_batch[idx]', x_batch[idx].shape, bbox_batch[idx].shape, y_batch[idx])
             
             # runs network on batch
