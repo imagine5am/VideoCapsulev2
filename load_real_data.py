@@ -73,19 +73,17 @@ class ExternalTrainDataLoader():
             # Process the video into 8 frame clips
             n_frames = skip_vid.shape[0]
             for clip_start in range(0, n_frames, clip_len):
-                try:
-                    clip = skip_vid[clip_start:clip_start+clip_len]
-                    bbox = skip_bbox[clip_start:clip_start+clip_len]
-                except:
-                    clip = skip_vid[clip_start:]
-                    bbox = skip_bbox[clip_start:]
+                clip = skip_vid[clip_start:clip_start+clip_len]
+                bbox = skip_bbox[clip_start:clip_start+clip_len]
+                
+                if clip.shape[0] != clip_len:
                     print('1. clip.shape, bbox.shape', clip.shape, bbox.shape)
                     remaining_frames = clip_len - clip.shape[0]
                     for _ in range(remaining_frames):
                         clip = np.append(clip, np.zeros_like(clip[-1]))
                         bbox = np.append(bbox, np.zeros_like(bbox[-1]))
                     print('2. clip.shape, bbox.shape', clip.shape, bbox.shape)
-                print('np.sum(bbox, axis=(1, 2, 3)', np.sum(bbox, axis=(1, 2, 3)))
+                    
                 if np.any(np.sum(bbox, axis=(1, 2, 3)) > 0):
                     self.data_queue.append((clip, bbox))
         print('[ExternalTrainDataLoader] Data Loading complete...')
