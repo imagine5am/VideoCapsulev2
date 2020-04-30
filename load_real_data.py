@@ -108,8 +108,10 @@ class ExternalTrainDataLoader():
             
     
     def get_next_video(self):
-        self.videos_left -= 1
+        if self.videos_left == 1:
+            return self.icdar_gen.get_next_video() if self.icdar_gen.has_data() else self.yvt_gen.get_next_video()
         choice = random.randint(1, self.videos_left)
+        self.videos_left -= 1
         if choice <= self.icdar_gen.videos_left:
             return self.icdar_gen.get_next_video()
         else:
