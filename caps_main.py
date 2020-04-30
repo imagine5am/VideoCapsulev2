@@ -37,7 +37,12 @@ def train_network(gpu_config):
         get_num_params()
         
         n_eps_after_acc, best_loss = -1, 100000
-        print('Training on Synthetic Videos')
+        
+        if config.data_type == 'synth':
+            print('Training on Synthetic Videos')
+        elif config.data_type == 'real':
+            print('Training on Real Videos')
+        
         for ep in range(1, config.n_epochs+1):
             print(20 * '*', 'epoch', ep, 20 * '*')
 

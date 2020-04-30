@@ -114,7 +114,7 @@ class ExternalTrainDataLoader():
             
             
     def has_data(self):
-        return self.data_queue > 0 or self.load_thread.is_alive()
+        return self.data_queue or self.load_thread.is_alive()
             
                 
         
