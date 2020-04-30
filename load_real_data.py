@@ -42,13 +42,13 @@ class ExternalTrainDataLoader():
         self.icdar_gen = ICDAR_Gen()
         self.yvt_gen = YVT_Gen()
         self.videos_left = self.n_videos = self.icdar_gen.n_videos + self.yvt_gen.n_videos
+        self.choice_oscillator = random.randint(0,1)
             
         self.data_queue = []
         self.load_thread_condition = Condition()
         self.load_thread = Thread(target=self.__load_and_process_data)
         self.load_thread.start()
         
-        self.choice_oscillator = random.randint(0,1)
         print('[ExternalTrainDataLoader] Waiting 120 (s) to load data')
         time.sleep(120)
        
