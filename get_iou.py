@@ -4,6 +4,7 @@ import traceback
 import config as config
 from caps_network import Caps3d
 from load_synth_data import SynthTestDataGenDet as TestDataGen
+from load_real_data import ExternalTrainDataLoader, ExternalTestDataLoader
 from tqdm import tqdm
 
 
@@ -75,7 +76,11 @@ def iou():
         tf.global_variables_initializer().run()
         capsnet.load(sess, config.network_save_dir)
 
-        data_gen = TestDataGen(config.wait_for_data)
+        if config.data_type == 'synth':
+                data_gen = data_gen = TestDataGen(config.wait_for_data)
+        elif config.data_type == 'real':
+            data_gen = ExternalTestDataLoader()
+                
 
         n_correct, n_vids, n_tot_frames = 0, np.zeros((config.n_classes, 1)), np.zeros((config.n_classes, 1))
         iou_threshs = np.arange(0, 20, dtype=np.float32) / 20
@@ -142,7 +147,8 @@ def iou():
                                                                          capsnet.digit_preds],
                                                                       feed_dict={capsnet.x_input: x_batch, 
                                                                                  capsnet.y_input: y_batch,
-                                                                                 capsnet.m: 0.9, capsnet.is_train: False})
+                                                                                 capsnet.m: 0.9, capsnet.is_train: False,
+                                                                                 capsnet.is_real: capsnet.real_data_flag})
                 segmentations['para_ann'].append(seg_para)
                 segmentations['line_ann'].append(seg_line)
                 segmentations['word_ann'].append(seg_word)

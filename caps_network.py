@@ -40,7 +40,9 @@ class Caps3d(object):
             self.y_input = tf.placeholder(dtype=tf.int32, shape=[None])
             self.y_bbox = tf.placeholder(dtype=tf.float32, shape=(None, 8, len(config.ann_types), config.vid_h, config.vid_w, 1))
             self.is_train = tf.placeholder(tf.bool)
+            self.is_real = tf.placeholder(tf.bool)
             self.m = tf.placeholder(tf.float32, shape=())
+            self.real_data_flag = True if config.data_type=='real' else False
 
             # initializes the network
             self.init_network()
@@ -132,7 +134,7 @@ class Caps3d(object):
         n_classes, dim = map(int, [n_classes, dim])
 
         # masks the capsules that are not the ground truth (training) or the prediction (testing)
-        vec_to_use = tf.cond(self.is_train, lambda: self.y_input, lambda: self.predictions)
+        vec_to_use = tf.cond(tf.math.logical_or(self.is_train, self.is_real), lambda: self.y_input, lambda: self.predictions)
         vec_to_use = tf.one_hot(vec_to_use, depth=n_classes)
         vec_to_use = tf.tile(tf.reshape(vec_to_use, (batch_size, n_classes, 1)), multiples=[1, 1, dim])
         masked_caps = pred_caps_poses * tf.cast(vec_to_use, dtype=tf.float32)
@@ -171,7 +173,7 @@ class Caps3d(object):
 
         deconv4 = tf.layers.conv3d_transpose(deconv3, 256, kernel_size=[1, 3, 3], strides=[1, 2, 2], padding='SAME',
                                              use_bias=False, activation=tf.nn.relu, name='deconv4')
-        #with tf.device('/gpu:2'):
+        
         deconv5 = tf.layers.conv3d_transpose(deconv4, 256, kernel_size=[1, 3, 3], strides=[1, 2, 2], padding='SAME',
                                              use_bias=False, activation=tf.nn.relu, name='deconv5')
         
@@ -196,17 +198,20 @@ class Caps3d(object):
 
 
     def init_loss_and_opt(self):
-        y_onehot = tf.one_hot(indices=self.y_input, depth=config.n_classes)
+        if config.data_type == 'synth':
+            y_onehot = tf.one_hot(indices=self.y_input, depth=config.n_classes)
 
-        # get a_t
-        a_i = tf.expand_dims(self.digit_preds, axis=1)
-        y_onehot2 = tf.expand_dims(y_onehot, axis=2)
-        a_t = tf.matmul(a_i, y_onehot2)
+            # get a_t
+            a_i = tf.expand_dims(self.digit_preds, axis=1)
+            y_onehot2 = tf.expand_dims(y_onehot, axis=2)
+            a_t = tf.matmul(a_i, y_onehot2)
 
-        # calculate spread loss
-        spread_loss = tf.square(tf.maximum(0.0, self.m - (a_t - a_i)))
-        spread_loss = tf.matmul(spread_loss, 1. - y_onehot2)
-        self.class_loss = tf.reduce_sum(tf.reduce_sum(spread_loss, axis=[1, 2]))
+            # calculate spread loss
+            spread_loss = tf.square(tf.maximum(0.0, self.m - (a_t - a_i)))
+            spread_loss = tf.matmul(spread_loss, 1. - y_onehot2)
+            self.class_loss = tf.reduce_sum(tf.reduce_sum(spread_loss, axis=[1, 2]))
+        else:
+            self.class_loss = 0
         
         '''
         # segmentation loss
@@ -228,12 +233,19 @@ class Caps3d(object):
         self.segmentation_loss = config.segment_coef * self.segmentation_loss
 
         # accuracy of a given batch
-        correct = tf.cast(tf.equal(self.predictions, self.y_input), tf.float32)
-        self.tot_correct = tf.reduce_sum(correct)
-        self.accuracy = tf.reduce_mean(correct)
+        if config.data_type == 'synth':
+            correct = tf.cast(tf.equal(self.predictions, self.y_input), tf.float32)
+            self.tot_correct = tf.reduce_sum(correct)
+            self.accuracy = tf.reduce_mean(correct)
+        else:
+            self.tot_correct = tf.shape(self.y_input)[0]
+            self.accuracy = 1
 
-        self.total_loss = self.class_loss + self.segmentation_loss
-
+        if config.data_type == 'synth':
+            self.total_loss = self.class_loss + self.segmentation_loss
+        else:
+            self.total_loss = self.segmentation_loss
+        
         optimizer = tf.train.AdamOptimizer(learning_rate=config.learning_rate, beta1=config.beta1, name='Adam',
                                            epsilon=config.epsilon)
 
@@ -253,7 +265,7 @@ class Caps3d(object):
                                                feed_dict={self.x_input: x_batch, 
                                                           self.y_input: y_batch,
                                                           self.m: self.cur_m, self.is_train: True,
-                                                          self.y_bbox: bbox_batch})
+                                                          self.is_real: self.real_data_flag, self.y_bbox: bbox_batch})
 
             # accumulates loses and accuracies
             acc += np.count_nonzero(np.argmax(preds, axis=1) == np.array(y_batch))/config.batch_size
@@ -291,7 +303,10 @@ class Caps3d(object):
             mloss, sloss, pred = self.eval_on_vid(sess, video, bbox, label, validation)
 
             # accumulates video statistics
-            conf_matrix[label, pred] += 1
+            if self.real_data_flag:
+                conf_matrix[label, pred] += 1
+            else:    
+                conf_matrix[pred, pred] += 1
             mlosses.append(mloss)
             slosses.append(sloss)
             corrs += (1 if pred == label else 0)
@@ -357,11 +372,12 @@ class Caps3d(object):
 
         # runs the network on the clips
         n_clips = 0
+        
         for x_batch, bbox_batch, y_batch in batches:
             loss, sloss, norm = sess.run([self.class_loss, self.segmentation_loss, self.digit_preds],
                                          feed_dict={self.x_input: x_batch, self.y_input: y_batch,
                                                     self.m: 0.9, self.is_train: False,
-                                                    self.y_bbox: bbox_batch})
+                                                    self.is_real: self.real_data_flag, self.y_bbox: bbox_batch})
 
             n_clips_in_batch = len(x_batch)
             losses.append(loss * n_clips_in_batch)
@@ -383,11 +399,13 @@ class Caps3d(object):
 
         return fin_mloss, fin_sloss, pred
 
+
     def save(self, sess, file_name, ep):
         # saves the model
         save_path = self.saver.save(sess, file_name, global_step=ep, write_meta_graph=False)  # +25
         # save_path = self.saver.save(sess, file_name)
         print("Model saved in file: %s" % save_path)
+
 
     def load(self, sess, file_dir):
         # loads the model

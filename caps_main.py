@@ -4,7 +4,7 @@ import tensorflow as tf
 from caps_network import Caps3d
 from get_iou import iou
 from load_synth_data import SynthTrainDataGenDet as TrainDataGen, SynthTestDataGenDet as TestDataGen
-import gc
+from load_real_data import ExternalTrainDataLoader, ExternalTestDataLoader
 
 
 def get_num_params():
@@ -42,7 +42,11 @@ def train_network(gpu_config):
             print(20 * '*', 'epoch', ep, 20 * '*')
 
             # trains network for one epoch
-            data_gen = TrainDataGen(config.wait_for_data, frame_skip=config.frame_skip)
+            if config.data_type == 'synth':
+                data_gen = TrainDataGen(config.wait_for_data, frame_skip=config.frame_skip)
+            elif config.data_type == 'real':
+                data_gen = ExternalTrainDataLoader()
+                
             margin_loss, seg_loss, acc = capsnet.train(sess, data_gen)
             config.write_output('Training\tCL: %.4f. SL: %.4f. Acc: %.4f.\n' % (margin_loss, seg_loss, acc))
 
@@ -50,7 +54,11 @@ def train_network(gpu_config):
             gc.collect()
                 
             # validates the network
-            data_gen = TestDataGen(config.wait_for_data, frame_skip=1)
+            if config.data_type == 'synth':
+                data_gen = TestDataGen(config.wait_for_data, frame_skip=1)
+            elif config.data_type == 'real':
+                data_gen = ExternalTestDataLoader()
+                
             margin_loss, seg_loss, accuracy, _ = capsnet.eval(sess, data_gen, validation=True)
             config.write_output('Validation\tCL: %.4f. SL: %.4f. Acc: %.4f.\n' %
                                     (margin_loss, seg_loss, accuracy))
