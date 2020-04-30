@@ -83,7 +83,8 @@ class ExternalTrainDataLoader():
                     self.data_queue.append((clip, bbox))
         print('[ExternalTrainDataLoader] Data Loading complete...')
         
-    def get_batch(self, batch_size):
+        
+    def get_batch(self, batch_size=5):
         while self.data_queue == 0:
             print('[ExternalTrainDataLoader] Waiting on data')
             time.sleep(5)

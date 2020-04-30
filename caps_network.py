@@ -259,6 +259,9 @@ class Caps3d(object):
         # mlosses, slosses, corrs = [], [], 0
         while data_gen.has_data():
             x_batch, bbox_batch, y_batch = data_gen.get_batch(config.batch_size)
+            print(len(bbox_batch))
+            if bbox_batch:
+                print(bbox_batch[0].shape)
 
             # runs network on batch
             _, loss, s_loss, preds = sess.run([self.train_op, self.class_loss, 
