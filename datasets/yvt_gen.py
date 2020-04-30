@@ -74,7 +74,7 @@ class YVT_Gen():
         
     def __load_and_process_data(self):
         for name, video, mask in self.get_vid_and_mask():
-            if len(self.data_queue) >= 4:
+            if len(self.data_queue) >= 6:
                 with self.load_thread_condition:
                     self.load_thread_condition.wait()
             self.data_queue.append((name, video, mask))
@@ -113,7 +113,7 @@ class YVT_Gen():
             
     def get_next_video(self):
         while len(self.data_queue) == 0:
-            print('[YVTGen] Waiting on data')
+            # print('[YVTGen] Waiting on data')
             time.sleep(5)
         self.videos_left -= 1
         if self.load_thread.is_alive():
