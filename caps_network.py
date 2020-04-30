@@ -134,8 +134,8 @@ class Caps3d(object):
         n_classes, dim = map(int, [n_classes, dim])
 
         # masks the capsules that are not the ground truth (training) or the prediction (testing)
-        # vec_to_use = tf.cond(tf.math.logical_or(self.is_train, self.is_real), lambda: self.y_input, lambda: self.predictions)
-        vec_to_use = tf.cond(self.is_train, lambda: self.y_input, lambda: self.predictions)
+        vec_to_use = tf.cond(tf.logical_or(self.is_train, self.is_real), lambda: self.y_input, lambda: self.predictions)
+        # vec_to_use = tf.cond(self.is_train, lambda: self.y_input, lambda: self.predictions)
         vec_to_use = tf.one_hot(vec_to_use, depth=n_classes)
         vec_to_use = tf.tile(tf.reshape(vec_to_use, (batch_size, n_classes, 1)), multiples=[1, 1, dim])
         masked_caps = pred_caps_poses * tf.cast(vec_to_use, dtype=tf.float32)

@@ -36,8 +36,6 @@ def train_network(gpu_config):
 
         get_num_params()
         
-        capsnet.save(sess, config.save_file_name, 50) 
-        
         n_eps_after_acc, best_loss = -1, 100000
         print('Training on Synthetic Videos')
         for ep in range(1, config.n_epochs+1):
