@@ -80,8 +80,8 @@ class ExternalTrainDataLoader():
                     print('1. clip.shape, bbox.shape', clip.shape, bbox.shape)
                     remaining_frames = clip_len - clip.shape[0]
                     for _ in range(remaining_frames):
-                        clip = np.append(clip, np.zeros_like(clip[-1]))
-                        bbox = np.append(bbox, np.zeros_like(bbox[-1]))
+                        clip = np.append(clip, np.zeros_like(clip[-1]), axis=0)
+                        bbox = np.append(bbox, np.zeros_like(bbox[-1]), axis=0)
                     print('2. clip.shape, bbox.shape', clip.shape, bbox.shape)
                     
                 if np.any(np.sum(bbox, axis=(1, 2, 3)) > 0):
