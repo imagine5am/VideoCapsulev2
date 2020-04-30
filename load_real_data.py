@@ -92,7 +92,7 @@ class ExternalTrainDataLoader():
         if self.load_thread.is_alive():
                 with self.load_thread_condition:
                     self.load_thread_condition.notify_all()
-                    
+        
         batch_size = min(batch_size, len(self.data_queue))
         batch_x, batch_bbox, batch_y = [], [], []
         for _ in range(batch_size):
@@ -117,6 +117,7 @@ class ExternalTrainDataLoader():
             
             
     def has_data(self):
+        print('len(self.data_queue):', len(self.data_queue))
         return self.data_queue or self.load_thread.is_alive()
             
                 

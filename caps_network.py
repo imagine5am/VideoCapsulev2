@@ -259,7 +259,9 @@ class Caps3d(object):
         # mlosses, slosses, corrs = [], [], 0
         while data_gen.has_data():
             x_batch, bbox_batch, y_batch = data_gen.get_batch(config.batch_size)
-            print(len(bbox_batch))
+            print('len(x_batch):', len(x_batch))
+            print('len(bbox_batch):', len(bbox_batch))
+            print('len(y_batch):', len(y_batch))
             if bbox_batch:
                 print(bbox_batch[0].shape)
 
