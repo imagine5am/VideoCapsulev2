@@ -259,11 +259,6 @@ class Caps3d(object):
         # mlosses, slosses, corrs = [], [], 0
         while data_gen.has_data():
             x_batch, bbox_batch, y_batch = data_gen.get_batch(config.batch_size)
-            print('len(x_batch):', len(x_batch))
-            print('len(bbox_batch):', len(bbox_batch))
-            print('len(y_batch):', len(y_batch))
-            if bbox_batch:
-                print(bbox_batch[0].shape)
 
             # runs network on batch
             _, loss, s_loss, preds = sess.run([self.train_op, self.class_loss, 
@@ -271,7 +266,7 @@ class Caps3d(object):
                                                feed_dict={self.x_input: x_batch, 
                                                           self.y_input: y_batch,
                                                           self.m: self.cur_m, self.is_train: True,
-                                                          self.is_real: self.real_data_flag, self.y_bbox: bbox_batch})
+                                                          self.is_real: True, self.y_bbox: bbox_batch})
 
             # accumulates loses and accuracies
             acc += np.count_nonzero(np.argmax(preds, axis=1) == np.array(y_batch))/config.batch_size
@@ -313,6 +308,7 @@ class Caps3d(object):
                 conf_matrix[label, pred] += 1
             else:    
                 conf_matrix[pred, pred] += 1
+                
             mlosses.append(mloss)
             slosses.append(sloss)
             corrs += (1 if pred == label else 0)

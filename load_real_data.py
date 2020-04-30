@@ -85,7 +85,6 @@ class ExternalTrainDataLoader():
         
         
     def get_batch(self, batch_size=5):
-        print('No waiting')
         while len(self.data_queue) == 0:
             print('[ExternalTrainDataLoader] Waiting on data')
             time.sleep(5)
@@ -99,9 +98,7 @@ class ExternalTrainDataLoader():
         for _ in range(batch_size):
             vid, bbox = self.data_queue.pop(0)
             batch_x.append(vid)
-            print('bbox batch shape:', bbox.shape)
             bbox = np.tile(np.expand_dims(bbox, axis=1), [1, 4, 1, 1, 1])
-            print('bbox1 batch shape:', bbox.shape)
             batch_bbox.append(bbox)
             batch_y.append(-1)
                     
@@ -118,7 +115,6 @@ class ExternalTrainDataLoader():
             
             
     def has_data(self):
-        print('len(self.data_queue):', len(self.data_queue))
         return len(self.data_queue) > 0 or self.videos_left > 0
             
                 
