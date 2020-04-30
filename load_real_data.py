@@ -119,7 +119,7 @@ class ExternalTrainDataLoader():
             
     def has_data(self):
         print('len(self.data_queue):', len(self.data_queue))
-        return len(self.data_queue) > 0
+        return len(self.data_queue) > 0 or self.videos_left > 0
             
                 
         
