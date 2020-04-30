@@ -89,31 +89,24 @@ class YVT_Gen():
             ann_file = base_dir+ann_dir+self.split_type+'/'+video_dir+'.txt'
             df = parse_ann(ann_file)
 
-            base_track_dir = base_dir+frames_dir+self.split_type+'/'+video_dir+'/0/'
-            num_tracks = len(os.listdir(base_track_dir))
-            frame_num, n_frames = 0, 0
-            for track_num in range(num_tracks):
-                n_frames += len(os.listdir(base_track_dir+str(track_num)+'/'))
+            video_dir = base_dir+frames_dir+self.split_type+'/'+video_dir
+            n_frames = len(os.listdir(video_dir))
                 
             video = np.zeros((n_frames, out_h, out_w, 3), dtype=np.uint8)
             mask = np.zeros((n_frames, out_h, out_w, 1), dtype=np.uint8)
             
-            for track_num in range(num_tracks):
-                num_track_frames = len(os.listdir(base_track_dir+str(track_num)+'/'))    
+            for frame_num in range(n_frames):
+                frame_loc = video_dir+'/%d.jpg' % frame_num
+                frame = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
+                frame_resized = resize_and_pad(frame)
+                video[frame_num] = frame_resized
                 
-                for frame_num in range(frame_num, frame_num+num_track_frames):
-                    frame_loc = base_track_dir+str(track_num)+'/%d.jpg' % frame_num
-                    frame = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
-                    frame_resized = resize_and_pad(frame)
-                    video[frame_num] = frame_resized
-                    
-                    pts = df[(df['frame']==frame_num) & (df['lost']!=1) & (df['occluded']!=1)] \
-                            [['xmin','ymin', 'xmax', 'ymin', 'xmax','ymax', 'xmin', 'ymax']].to_numpy()
-                    if pts.size != 0:
-                        frame_mask = create_mask(pts)
-                        mask_resized = resize_and_pad(frame_mask)
-                        mask[frame_num] = np.expand_dims(mask_resized, axis=-1)  
-                frame_num += 1
+                pts = df[(df['frame']==frame_num) & (df['lost']!=1) & (df['occluded']!=1)] \
+                        [['xmin','ymin', 'xmax', 'ymin', 'xmax','ymax', 'xmin', 'ymax']].to_numpy()
+                if pts.size != 0:
+                    frame_mask = create_mask(pts)
+                    mask_resized = resize_and_pad(frame_mask)
+                    mask[frame_num] = np.expand_dims(mask_resized, axis=-1)  
             # save_masked_video(video_dir[:-4], video/255., mask)
             yield video_dir[:-4], video/255., mask    
             
