@@ -15,6 +15,8 @@ gpu_config.gpu_options.allow_growth = True
 batch_size = 2
 n_epochs = 30
 
+data = 'real' # 'real', 'synth'
+
 # whether to continue from last checkpoint or not
 continue_from_chkpt = True
 prev_epochs = 15

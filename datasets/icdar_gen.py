@@ -19,15 +19,6 @@ def save_masked_video(name, video, mask):
     masked_vid = np.where(np.tile(mask, [1, 1, 3]) == 1, video * (1 - alpha) + alpha * color, video)
     vwrite(name+'_segmented.avi', (masked_vid * 255).astype(np.uint8))
 
-
-def order_points_my(pts):
-    xSorted = pts[np.argsort(pts[:, 0]), :]
-    leftMost = xSorted[:2, :]
-    rightMost = xSorted[2:, :]
-    (tl, bl) = leftMost[np.argsort(leftMost[:, 1]), :]
-    (tr, br) = rightMost[np.argsort(rightMost[:, 1]), :]
-    return np.array([tl, tr, br, bl], dtype="int32").flatten().tolist()
-
 def order_points(pts):
     # bottom-right, and the fourth is the bottom-left
     rect = np.zeros((4, 2), dtype = "int32")
