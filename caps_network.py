@@ -212,7 +212,7 @@ class Caps3d(object):
             spread_loss = tf.matmul(spread_loss, 1. - y_onehot2)
             self.class_loss = tf.reduce_sum(tf.reduce_sum(spread_loss, axis=[1, 2]))
         else:
-            self.class_loss = 0
+            self.class_loss = tf.constant(0.0)
         
         '''
         # segmentation loss
@@ -240,7 +240,7 @@ class Caps3d(object):
             self.accuracy = tf.reduce_mean(correct)
         else:
             self.tot_correct = tf.shape(self.y_input)[0]
-            self.accuracy = 1
+            self.accuracy = tf.constant(.99)
 
         if config.data_type == 'synth':
             self.total_loss = self.class_loss + self.segmentation_loss
