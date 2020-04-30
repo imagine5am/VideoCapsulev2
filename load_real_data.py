@@ -85,7 +85,8 @@ class ExternalTrainDataLoader():
         
         
     def get_batch(self, batch_size=5):
-        while self.data_queue == 0:
+        print('No waiting')
+        while len(self.data_queue) == 0:
             print('[ExternalTrainDataLoader] Waiting on data')
             time.sleep(5)
             
@@ -118,7 +119,7 @@ class ExternalTrainDataLoader():
             
     def has_data(self):
         print('len(self.data_queue):', len(self.data_queue))
-        return self.data_queue or self.load_thread.is_alive()
+        return len(self.data_queue) > 0
             
                 
         
