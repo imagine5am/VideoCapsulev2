@@ -77,11 +77,9 @@ class ExternalTrainDataLoader():
                 bbox = skip_bbox[clip_start:clip_start+clip_len]
                 
                 if clip.shape[0] != clip_len:
-                    print('1. clip.shape, bbox.shape', clip.shape, bbox.shape)
                     remaining_frames = clip_len - clip.shape[0]
                     clip = np.append(clip, np.zeros([remaining_frames] + list(clip.shape[1:])), axis=0)
                     bbox = np.append(bbox, np.zeros([remaining_frames] + list(bbox.shape[1:])), axis=0)
-                    print('2. clip.shape, bbox.shape', clip.shape, bbox.shape)
                     
                 if np.any(np.sum(bbox, axis=(1, 2, 3)) > 0):
                     self.data_queue.append((clip, bbox))
