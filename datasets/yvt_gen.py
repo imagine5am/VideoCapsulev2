@@ -57,24 +57,25 @@ def create_mask(pts):
 
 
 class YVT_Gen():
-    def __init__(self, split_type='train'): # 'train', 'test'
+    def __init__(self, split_type='train', data_queue_length=4, sec_to_wait=5): # 'train', 'test'
         self.split_type = split_type
         self.n_videos = len(os.listdir(base_dir+frames_dir+self.split_type))
         self.videos_left = self.n_videos
         self.data_queue = []
+        self.data_queue_length = data_queue_length
         
         self.load_thread_condition = Condition()
         self.load_thread = Thread(target=self.__load_and_process_data)
         self.load_thread.start()
         
         print('Running YVTGen...')
-        print('Waiting 5 (s) to load data')
-        time.sleep(5)
+        print('Waiting %d (s) to load data' % sec_to_wait)
+        time.sleep(sec_to_wait)
         
         
     def __load_and_process_data(self):
         for name, video, mask in self.get_vid_and_mask():
-            if len(self.data_queue) >= 4:
+            if len(self.data_queue) >= self.data_queue_length:
                 with self.load_thread_condition:
                     self.load_thread_condition.wait()
             self.data_queue.append((name, video, mask))
@@ -113,7 +114,7 @@ class YVT_Gen():
             
     def get_next_video(self):
         while len(self.data_queue) == 0:
-            # print('[YVTGen] Waiting on data')
+            print('[YVTGen] Waiting on data')
             time.sleep(5)
         self.videos_left -= 1
         if self.load_thread.is_alive():

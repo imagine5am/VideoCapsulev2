@@ -13,7 +13,7 @@ class ExternalTestDataLoader():
         print('Running ExternalTestDataLoader...')
         
         self.minetto_gen = Minetto_Gen()
-        self.icdar_gen = ICDAR_Gen(split_type='test')
+        self.icdar_gen = ICDAR_Gen(split_type='test', data_queue_length=6)
         self.yvt_gen = YVT_Gen(split_type='test')
         
         self.n_videos = self.icdar_gen.n_videos + self.yvt_gen.n_videos + self.minetto_gen.n_videos
@@ -25,8 +25,8 @@ class ExternalTestDataLoader():
         self.load_thread = Thread(target=self.__load_and_process_data)
         self.load_thread.start()
         
-        print('[ExternalTestDataLoader] Waiting 60 (s) to load data')
-        time.sleep(60)
+        print('[ExternalTestDataLoader] Waiting 30 (s) to load data')
+        time.sleep(30)
             
     
     def __load_and_process_data(self):

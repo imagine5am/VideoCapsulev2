@@ -84,22 +84,23 @@ def get_pts_for_rectangles(rectangles):
         
 
 class Minetto_Gen():
-    def __init__(self):
+    def __init__(self, data_queue_length=2, sec_to_wait=5):
         self.n_videos = len([x for x in filter(lambda x: os.path.isdir(base_dir+x),os.listdir(base_dir))])
         self.videos_left = self.n_videos
         self.data_queue = []
+        self.data_queue_length = data_queue_length
         
         self.load_thread_condition = Condition()
         self.load_thread = Thread(target=self.__load_and_process_data)
         self.load_thread.start()
         
         print('Running MinettoGen...')
-        print('Waiting 5 (s) to load data')
-        time.sleep(5)
+        print('Waiting %d (s) to load data' % sec_to_wait)
+        time.sleep(sec_to_wait)
         
     def __load_and_process_data(self):
         for name, video, mask in self.get_vid_and_mask():
-            if len(self.data_queue) >= 2:
+            if len(self.data_queue) >= self.data_queue_length:
                 with self.load_thread_condition:
                     self.load_thread_condition.wait()
             self.data_queue.append((name, video, mask))
@@ -130,7 +131,7 @@ class Minetto_Gen():
             
     def get_next_video(self):
         while len(self.data_queue) == 0:
-            # print('[MinettoGen] Waiting on data')
+            print('[MinettoGen] Waiting on data')
             time.sleep(5)
         self.videos_left -= 1
         if self.load_thread.is_alive():

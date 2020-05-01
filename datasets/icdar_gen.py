@@ -91,7 +91,7 @@ def list_vids(dir):
 
 
 class ICDAR_Gen():
-    def __init__(self, split_type='train'):
+    def __init__(self, split_type='train', data_queue_length=4, sec_to_wait=5):
         self.split_type = split_type
         if split_type=='train':
             self.base_dir = '/mnt/data/Rohit/ICDARVideoDataset/text_in_Video/ch3_train/'
@@ -101,18 +101,19 @@ class ICDAR_Gen():
         self.n_videos = len(list_vids(self.base_dir))
         self.videos_left = self.n_videos
         self.data_queue = []
+        self.data_queue_length = data_queue_length
         
         self.load_thread_condition = Condition()
         self.load_thread = Thread(target=self.__load_and_process_data)
         self.load_thread.start()
         
         print('Running ICDARGen...')
-        print('Waiting 5 (s) to load data')
-        time.sleep(5)
+        print('Waiting %d (s) to load data' % sec_to_wait)
+        time.sleep(sec_to_wait)
         
     def __load_and_process_data(self):
         for name, video, mask in self.get_vid_and_mask():
-            if len(self.data_queue) >= 6:
+            if len(self.data_queue) >= self.data_queue_length:
                 with self.load_thread_condition:
                     self.load_thread_condition.wait()
             self.data_queue.append((name, video, mask))
@@ -143,7 +144,7 @@ class ICDAR_Gen():
             
     def get_next_video(self):
         while len(self.data_queue) == 0:
-            # print('[ICDARGen] Waiting on data')
+            print('[ICDARGen] Waiting on data')
             time.sleep(5)
         self.videos_left -= 1
         if self.load_thread.is_alive():
