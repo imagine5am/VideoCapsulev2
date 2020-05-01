@@ -11,7 +11,6 @@ from load_real_data import ExternalTrainDataLoader, ExternalTestDataLoader
 from tqdm import tqdm
 
 
-
 def get_precision_recall():
     """
     Calculates the Precision, Recall and F1-measure over the test set

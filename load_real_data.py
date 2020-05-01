@@ -76,7 +76,7 @@ class ExternalTestDataLoader():
 class ExternalTrainDataLoader():
     def __init__(self):
         print('Running ExternalTrainDataLoader...')
-        self.icdar_gen = ICDAR_Gen()
+        self.icdar_gen = ICDAR_Gen(data_queue_length=6, sec_to_wait=10)
         self.yvt_gen = YVT_Gen()
         self.videos_left = self.n_videos = self.icdar_gen.n_videos + self.yvt_gen.n_videos
         self.choice_oscillator = random.randint(0,1)
