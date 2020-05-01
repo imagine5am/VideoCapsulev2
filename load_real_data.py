@@ -86,8 +86,8 @@ class ExternalTrainDataLoader():
         self.load_thread = Thread(target=self.__load_and_process_data)
         self.load_thread.start()
         
-        print('[ExternalTrainDataLoader] Waiting 60 (s) to load data')
-        time.sleep(60)
+        print('[ExternalTrainDataLoader] Waiting 30 (s) to load data')
+        time.sleep(30)
        
         
     def __load_and_process_data(self):
