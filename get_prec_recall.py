@@ -3,7 +3,6 @@ import tensorflow as tf
 import traceback
 import config as config
 from caps_network import Caps3d
-from collections import OrderedDict 
 from datasets.icdar_gen import ICDAR_Gen
 from datasets.minetto_gen import Minetto_Gen
 from datasets.yvt_gen import YVT_Gen
@@ -23,10 +22,10 @@ def get_precision_recall():
         tf.global_variables_initializer().run()
         capsnet.load(sess, config.network_save_dir)
 
-        data_gens = OrderedDict({'Minetto': Minetto_Gen(data_queue_length=3, sec_to_wait=20),
-                                 'YVT': YVT_Gen(split_type='test', data_queue_length=8),
-                                 'ICDAR': ICDAR_Gen(split_type='test', data_queue_length=10),
-                                })
+        data_gens = {'ICDAR': ICDAR_Gen(split_type='test', data_queue_length=10, sec_to_wait=20),
+                     'Minetto': Minetto_Gen(data_queue_length=3, sec_to_wait=20),
+                     'YVT': YVT_Gen(split_type='test', data_queue_length=8, sec_to_wait=20),
+                    }
         for dataset_name, data_gen in data_gens.items():
             tp, fn, fp = {}, {}, {}
             for ann_type in config.ann_types: 
