@@ -116,6 +116,8 @@ class ExternalTrainDataLoader():
         choice = self.choice_oscillator
         self.choice_oscillator = 1 - self.choice_oscillator
         self.videos_left -= 1
+        print('len(self.data_queue), self.videos_left', len(self.data_queue), self.videos_left)
+        print('self.icdar_gen.videos_left, self.yvt_gen.videos_left', self.icdar_gen.videos_left, self.yvt_gen.videos_left)
         if choice == 1 and self.icdar_gen.has_data:
             return self.icdar_gen.get_next_video()
         else:
