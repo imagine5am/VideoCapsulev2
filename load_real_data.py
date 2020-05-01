@@ -113,22 +113,16 @@ class ExternalTrainDataLoader():
             
     
     def get_next_video(self):
-        choice = self.choice_oscillator
-        self.choice_oscillator = 1 - self.choice_oscillator
-        
         print('len(self.data_queue), self.videos_left', len(self.data_queue), self.videos_left)
         print('self.icdar_gen.videos_left, self.yvt_gen.videos_left', self.icdar_gen.videos_left, self.yvt_gen.videos_left)
-        self.videos_left -= 1
-        if choice == 1 and self.icdar_gen.has_data:
-            return self.icdar_gen.get_next_video()
-        else:
-            return self.yvt_gen.get_next_video()
-        '''
-        if self.videos_left == 1:
-            return self.icdar_gen.get_next_video() if self.icdar_gen.has_data() else self.yvt_gen.get_next_video()
+        print('len(self.icdar_gen.data_queue), len(self.yvt_gen.data_queue):', len(self.icdar_gen.data_queue), len(self.yvt_gen.data_queue))
         
         choice = random.randint(1, self.videos_left)
         self.videos_left -= 1
+        
+        if self.videos_left == 0:
+            return self.icdar_gen.get_next_video() if self.icdar_gen.has_data() else self.yvt_gen.get_next_video()
+    
         print('choice', choice)
         if choice <= self.icdar_gen.videos_left:
             print('icdar_gen chosen.')
@@ -136,7 +130,7 @@ class ExternalTrainDataLoader():
         else:
             print('yvt_gen chosen.')
             return self.yvt_gen.get_next_video()
-        '''   
+           
             
     def has_data(self):
         return len(self.data_queue) > 0 or self.videos_left > 0
