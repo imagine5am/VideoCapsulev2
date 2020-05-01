@@ -143,7 +143,7 @@ class ICDAR_Gen():
             
     def get_next_video(self):
         while len(self.data_queue) == 0:
-            print('[ICDARGen] Waiting on data')
+            # print('[ICDARGen] Waiting on data')
             time.sleep(5)
         self.videos_left -= 1
         if self.load_thread.is_alive():
