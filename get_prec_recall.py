@@ -22,11 +22,11 @@ def get_precision_recall():
         tf.global_variables_initializer().run()
         capsnet.load(sess, config.network_save_dir)
 
-        data_gens = {'ICDAR': ICDAR_Gen(split_type='test', data_queue_length=10, sec_to_wait=20),
-                     'Minetto': Minetto_Gen(data_queue_length=3, sec_to_wait=20),
-                     'YVT': YVT_Gen(split_type='test', data_queue_length=8, sec_to_wait=20),
-                    }
-        for dataset_name, data_gen in data_gens.items():
+        data_gens = [('ICDAR', ICDAR_Gen(split_type='test', data_queue_length=10, sec_to_wait=30)),
+                     ('Minetto', Minetto_Gen(data_queue_length=3)),
+                     ('YVT', YVT_Gen(split_type='test', data_queue_length=8))
+                    ]
+        for dataset_name, data_gen in data_gens:
             tp, fn, fp = {}, {}, {}
             for ann_type in config.ann_types: 
                 tp[ann_type] = 0
@@ -116,11 +116,11 @@ def get_precision_recall():
                 if (video_idx + 1) % 100 == 0:
                     print('Finished %d videos' % (video_idx + 1))
 
+            print(dataset_name)
             for ann_type in config.ann_types:
                 precision = tp[ann_type]/ (tp[ann_type] + fp[ann_type])
                 recall = tp[ann_type]/ (tp[ann_type] + fn[ann_type])
                 f1 =  2 * precision * recall / (precision + recall)
-                print(dataset_name)
                 print('For', ann_type+':')
                 print('Precision: %.2f%%, Recall: %.2f%%, F1: %.2f%%' % (precision*100, recall*100, f1*100))
                 
