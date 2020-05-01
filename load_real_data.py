@@ -102,12 +102,6 @@ class ExternalTrainDataLoader():
             
             # Skip frames after a random start
             start_loc = np.random.randint(0, skip_frames)
-            # skip_vid_frames, skip_bbox_frames = [], []
-            # for f in range(start_loc, n_frames, skip_frames):
-            #     skip_vid_frames.append(video[f:f+1])
-            #     skip_bbox_frames.append(bbox[f:f+1])
-            # skip_vid = np.concatenate(skip_vid_frames, axis=0)
-            # skip_bbox = np.concatenate(skip_bbox_frames, axis=0)
             skip_vid = video[start_loc::skip_frames]
             skip_bbox = bbox[start_loc::skip_frames]
             
@@ -139,7 +133,6 @@ class ExternalTrainDataLoader():
         batch_size = min(batch_size, len(self.data_queue))
         batch_x, batch_bbox, batch_y = [], [], []
         for _ in range(batch_size):
-            # vid, bbox = self.data_queue.pop(0)
             vid, bbox = self.data_queue.pop(random.randrange(len(self.data_queue)))
             batch_x.append(vid)
             bbox = np.tile(np.expand_dims(bbox, axis=1), [1, 4, 1, 1, 1])
@@ -150,9 +143,9 @@ class ExternalTrainDataLoader():
             
     
     def get_next_video(self):
-        print('len(self.data_queue), self.videos_left', len(self.data_queue), self.videos_left)
-        print('self.icdar_gen.videos_left, self.yvt_gen.videos_left', self.icdar_gen.videos_left, self.yvt_gen.videos_left)
-        print('len(self.icdar_gen.data_queue), len(self.yvt_gen.data_queue):', len(self.icdar_gen.data_queue), len(self.yvt_gen.data_queue))
+        # print('len(self.data_queue), self.videos_left', len(self.data_queue), self.videos_left)
+        # print('self.icdar_gen.videos_left, self.yvt_gen.videos_left', self.icdar_gen.videos_left, self.yvt_gen.videos_left)
+        # print('len(self.icdar_gen.data_queue), len(self.yvt_gen.data_queue):', len(self.icdar_gen.data_queue), len(self.yvt_gen.data_queue))
         
         choice = random.randint(1, self.videos_left)
         self.videos_left -= 1
