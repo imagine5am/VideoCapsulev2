@@ -11,27 +11,64 @@ from threading import Thread, Condition
 class ExternalTestDataLoader():
     def __init__(self):
         print('Running ExternalTestDataLoader...')
+        
+        self.minetto_gen = Minetto_Gen()
         self.icdar_gen = ICDAR_Gen(split_type='test')
         self.yvt_gen = YVT_Gen(split_type='test')
-        self.minetto_gen = Minetto_Gen()
         
-        self.n_videos = self.videos_left = self.icdar_gen.n_videos + self.yvt_gen.n_videos + self.minetto_gen.n_videos
+        self.n_videos = self.icdar_gen.n_videos + self.yvt_gen.n_videos + self.minetto_gen.n_videos
+        self.unread_videos = self.videos_left = self.n_videos
+        
+        
+        self.data_queue = []
+        self.load_thread_condition = Condition()
+        self.load_thread = Thread(target=self.__load_and_process_data)
+        self.load_thread.start()
+        
+        print('[ExternalTestDataLoader] Waiting 60 (s) to load data')
+        time.sleep(60)
             
     
-    def get_next_video(self, get_name=False):
-        self.videos_left -= 1
-        # for data_gen in [self.icdar_gen, self.yvt_gen, self.minetto_gen]:
-        for data_gen in [self.minetto_gen, self.icdar_gen, self.yvt_gen]:
+    def __load_and_process_data(self):
+        while self.unread_videos > 0:
+            while len(self.data_queue) >= 30:
+                with self.load_thread_condition:
+                    self.load_thread_condition.wait()
+            
+            choice = random.randint(1, self.unread_videos)
+            if choice <= self.icdar_gen.videos_left:
+                data_gen = self.icdar_gen
+            elif choice <= self.icdar_gen.videos_left+self.yvt_gen.videos_left:
+                data_gen = self.yvt_gen
+            else: 
+                data_gen = self.minetto_gen
+            
             video_name, video, mask = data_gen.get_next_video()
-            mask = np.tile(np.expand_dims(mask, axis=1), [1, 4, 1, 1, 1])
-            
-            if data_gen.has_data():
-                if get_name:
-                    return video_name, video, mask
-                else:
-                    return video, mask
-            
-            
+            self.unread_videos -= 1
+            label = -1
+            self.data_queue.append((video_name, video, mask, label))
+        
+        print('[ExternalTestDataLoader] Data Loading complete...')
+
+
+    def get_next_video(self, get_name=False):
+        while len(self.data_queue) == 0:
+            print('[ExternalTestDataLoader] Waiting on data')
+            time.sleep(5)
+                    
+        video_name, video, mask, label = self.data_queue.pop(0)
+        self.videos_left -= 1
+        if self.load_thread.is_alive():
+                with self.load_thread_condition:
+                    self.load_thread_condition.notify_all()
+                    
+        mask = np.tile(np.expand_dims(mask, axis=1), [1, 4, 1, 1, 1])
+        if get_name:
+            return video_name, video, mask
+        else: 
+            return video, mask, label
+        
+          
     def has_data(self):
         return self.videos_left > 0
 
