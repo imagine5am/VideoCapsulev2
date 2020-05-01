@@ -13,7 +13,7 @@ gpu_config.gpu_options.allow_growth = True
 
 # batch size and number of epochs
 batch_size = 2
-n_epochs = 30
+n_epochs = 34
 
 data_type = 'real' # 'real', 'synth'
 
