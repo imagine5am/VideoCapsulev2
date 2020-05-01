@@ -153,12 +153,12 @@ class ExternalTrainDataLoader():
         if self.videos_left == 0:
             return self.icdar_gen.get_next_video() if self.icdar_gen.has_data() else self.yvt_gen.get_next_video()
     
-        print('choice', choice)
+        # print('choice', choice)
         if choice <= self.icdar_gen.videos_left:
-            print('icdar_gen chosen.')
+            # print('icdar_gen chosen.')
             return self.icdar_gen.get_next_video()
         else:
-            print('yvt_gen chosen.')
+            # print('yvt_gen chosen.')
             return self.yvt_gen.get_next_video()
            
             
