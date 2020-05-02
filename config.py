@@ -13,13 +13,13 @@ gpu_config.gpu_options.allow_growth = True
 
 # batch size and number of epochs
 batch_size = 2
-n_epochs = 34
+n_epochs = 100
 
 data_type = 'real' # 'real', 'synth'
 
 # whether to continue from last checkpoint or not
 continue_from_chkpt = True
-prev_epochs = 30
+prev_epochs = 34
 
 ann_types = ['para_ann', 'line_ann', 'word_ann', 'char_ann']
 
