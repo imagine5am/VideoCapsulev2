@@ -278,7 +278,7 @@ def icdar_parse_ann(file):
 
             # Find char bbox according to the length of word
             object_id = int(object.attrib['ID'])
-            transcription = object.attrib['Transcription']
+            transcription = str(object.attrib['Transcription'])
             if transcription == '##DONT#CARE##' and voc[voc['id']==object_id][['word']].empty:
                 char_bbox.append(pts)
             else:
