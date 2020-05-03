@@ -307,6 +307,7 @@ base_dirs = {'train': '/mnt/data/Rohit/ICDARVideoDataset/text_in_Video/ch3_train
 for k, base_dir in base_dirs.items():
     for video_name in [fname for fname in os.listdir(base_dir) if fname.endswith('.mp4')]:
         ann_file = base_dir+video_name[:-4]+'_GT'
+        print('Reading', ann_file)
         ann = icdar_parse_ann(ann_file)
         video_loc = base_dir+video_name
         ann['dataset'] = 'icdar'
