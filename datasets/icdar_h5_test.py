@@ -267,7 +267,6 @@ def icdar_parse_ann(file):
         frame_num = int(frame.attrib['ID']) - 1
         word_bbox = []
         char_bbox = []
-        word_list = []
 
         for object in frame.findall('./object'):
             # Find word bbox
@@ -282,14 +281,13 @@ def icdar_parse_ann(file):
             transcription = object.attrib['Transcription']
             if transcription == '##DONT#CARE##' and voc[voc['id']==object_id][['word']].empty:
                 char_bbox.append(pts)
-                word_list.append("##DONT#CARE##")
             else:
                 if transcription != '##DONT#CARE##':
                     word = transcription
                 else:
                     word = voc[voc['id']==object_id].iloc[0]['word']
+                    print(word)
                 # char_bbox.extend(createCharBB(pts, word))
-                word_list.append(word)
                 char_bbox.extend(create_char_bbox(pts, word))
         
         word_bbox = np.array(word_bbox, dtype=np.int32)
