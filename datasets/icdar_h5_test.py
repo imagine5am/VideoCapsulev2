@@ -286,7 +286,7 @@ def icdar_parse_ann(file):
                     word = transcription
                 else:
                     word = voc[voc['id']==object_id].iloc[0]['word']
-                    print(word)
+                    # print(word)
                 # char_bbox.extend(createCharBB(pts, word))
                 char_bbox.extend(create_char_bbox(pts, word))
         
