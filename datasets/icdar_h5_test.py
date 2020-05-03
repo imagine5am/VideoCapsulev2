@@ -321,7 +321,8 @@ for k, base_dir in base_dirs.items():
         mask = np.zeros((n_frames, out_h, out_w, 1), dtype=np.uint8)
         for idx in range(n_frames):
             video[idx] = resize_and_pad(video_orig[idx])
-            if idx in ann['word_ann']:
+            ann = ann['word_ann']
+            if idx in ann:
                 bbox = ann[idx]
                 if bbox.shape != 0:
                     frame_mask = create_mask((h, w), bbox)
