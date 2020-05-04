@@ -2,37 +2,24 @@ import cv2
 import h5py
 import numpy as np
 import os
-import skvideo.io  
-import pandas as pd
 import xml.etree.ElementTree as ET
 
 from PIL import Image, ImageDraw
 from skvideo.io import vwrite 
 
-out_h, out_w = 256, 480
-train_dict, test_dict = {}, {}
 
+rect_prop_list = ['x', 'y', 'w', 'h', 'text', 'vfr']
+out_h, out_w = 256, 480
+in_h, in_w = 480, 640
 
 def save_masked_video(name, video, mask):
     alpha = 0.5
     color = np.zeros((3,)) + [0.0, 0, 1.0]
     masked_vid = np.where(np.tile(mask, [1, 1, 3]) == 1, video * (1 - alpha) + alpha * color, video)
     vwrite(name+'_segmented.avi', (masked_vid * 255).astype(np.uint8))
-    
 
-def create_mask(shape, pts):
-    mask = np.zeros(shape, dtype=np.uint8)
-    mask = Image.fromarray(mask, 'L')
-    draw = ImageDraw.Draw(mask)
-    for pt in pts:
-        draw.polygon(pt.tolist(), fill=1)
-    del draw
-    mask = np.asarray(mask).copy()
-    return mask
 
-    
 def resize_and_pad(im):
-    in_h, in_w = im.shape[0], im.shape[1]
     if out_w / out_h > in_w / in_h:
         h, w = out_h, in_w * out_h // in_h
     elif out_w / out_h < in_w / in_h:
@@ -48,28 +35,15 @@ def resize_and_pad(im):
     return im
 
 
-# ICDAR
-def my_order_points(pts):
-    xSorted = pts[np.argsort(pts[:, 0]), :]
-    leftMost = xSorted[:2, :]
-    rightMost = xSorted[2:, :]
-    (tl, bl) = leftMost[np.argsort(leftMost[:, 1]), :]
-    (tr, br) = rightMost[np.argsort(rightMost[:, 1]), :]
-    return np.array([tl, tr, br, bl], dtype="int32").flatten()
-
-def order_points(pts):
-    # bottom-right, and the fourth is the bottom-left
-    rect = np.zeros((4, 2), dtype = "int32")
-    # the bottom-right point will have the largest sum
-    s = pts.sum(axis = 1)
-    rect[0] = pts[np.argmin(s)]
-    rect[2] = pts[np.argmax(s)]
-    # whereas the bottom-left will have the largest difference
-    diff = np.diff(pts, axis = 1)
-    rect[1] = pts[np.argmin(diff)]
-    rect[3] = pts[np.argmax(diff)]
-    # return the ordered coordinates
-    return rect.flatten()
+def create_mask(pts):
+    mask = np.zeros((in_h, in_w), dtype=np.uint8)
+    mask = Image.fromarray(mask, 'L')
+    draw = ImageDraw.Draw(mask)
+    for pt in pts:
+        draw.polygon(pt.tolist(), fill=1)
+    del draw
+    mask = np.asarray(mask).copy()
+    return mask
 
 
 def create_char_bbox(bbox, word):
@@ -141,7 +115,7 @@ def create_line_bbox(word_bbox):
         for c_idx in range(1, min(3, len(clusters))+1):
             cur_cluster = clusters[-c_idx]
             cluster_width = np.mean(cur_cluster[[2,4]]) - np.mean(cur_cluster[[0,6]])
-            min_width = min(word_width, cluster_width)
+            min_width = 1.2 * min(word_width, cluster_width)
             
             cluster_center_x = np.mean(cur_cluster[0::2])
             word_bbox_center_x = np.mean(word_bbox[w_idx][0::2])
@@ -259,45 +233,39 @@ def create_para_bbox(line_bbox):
     return np.rint(np.array(clusters)).astype(np.int32)
 
 
-def icdar_parse_ann(file):
+def minetto_parse_ann(file):
     '''
     Returns a dict which is something like:
+    {image_num:{rectangle_id: rectangle_properties, ...}, ...}
     '''
-    anns = {}
-    tree = ET.parse(file+'.xml')
-    voc = pd.read_csv(file+'.txt', sep=',', header=None, names=['id', 'word'])
+    tree = ET.parse(file)
     root = tree.getroot()
+    anns = {}
     anns['para_ann'] = {}
     anns['line_ann'] = {}
     anns['word_ann'] = {}
     anns['char_ann'] = {}
-    for frame in root.findall('./frame'):
-        frame_num = int(frame.attrib['ID']) - 1
+
+    for image in root.findall('./image'):
+        frame_num = int(image.find('imageName').text)
+        rectangles = {}
         word_bbox = []
         char_bbox = []
-
-        for object in frame.findall('./object'):
-            # Find word bbox
-            pts = []
-            for pt in object.findall('./Point'):
-                pts.append((int(pt.attrib['x']), int(pt.attrib['y'])))
-            pts = order_points(np.array(pts))
-            word_bbox.append(pts)
-
-            # Find char bbox according to the length of word
-            object_id = int(object.attrib['ID'])
-            transcription = str(object.attrib['Transcription'])
-            if transcription == '##DONT#CARE##' and voc[voc['id']==object_id][['word']].empty:
-                char_bbox.append(pts)
-            else:
-                if transcription != '##DONT#CARE##':
-                    word = transcription
+        for rectangle_tag in image.findall('./taggedRectangles/taggedRectangle'):
+            id = int(rectangle_tag.attrib['id'])
+            properties = {}
+            for prop_name in rect_prop_list:
+                if prop_name == 'text':
+                    properties[prop_name] = rectangle_tag.attrib[prop_name]
                 else:
-                    word = str(voc[voc['id']==object_id].iloc[0]['word'])
-                    # print(word)
-                # char_bbox.extend(createCharBB(pts, word))
-                char_bbox.extend(create_char_bbox(pts, word))
-        
+                    properties[prop_name] = int(float(rectangle_tag.attrib[prop_name]))
+            rectangles[id] = properties
+            word_pts = np.array([properties['x'], properties['y'], 
+                                 properties['x']+properties['w'], properties['y'], 
+                                 properties['x']+properties['w'], properties['y']+properties['h'], 
+                                 properties['x'], properties['y']+properties['h']], dtype=np.int32)
+            word_bbox.append(word_pts)
+            char_bbox.extend(create_char_bbox(word_pts, properties['text']))
         word_bbox = np.array(word_bbox, dtype=np.int32)
         anns['word_ann'][frame_num] = word_bbox
         anns['char_ann'][frame_num] = np.rint(np.array(char_bbox)).astype(np.int32)
@@ -309,71 +277,25 @@ def icdar_parse_ann(file):
             anns['para_ann'][frame_num] = word_bbox
     return anns
 
-base_dirs = {'train': '/mnt/data/Rohit/ICDARVideoDataset/text_in_Video/ch3_train/',
-             'test': '/mnt/data/Rohit/ICDARVideoDataset/text_in_Video/ch3_test/'
-            }
-'''
-# save to h5
-with h5py.File('realvid_ann.hdf5', 'w') as hf:
-    for k, base_dir in base_dirs.items():
-        k_grp = hf.create_group(k)
-        for video_name in [fname for fname in os.listdir(base_dir) if fname.endswith('.mp4')]:
-            print('Writing', base_dir + video_name)
-            ann_file = base_dir+video_name[:-4]+'_GT'
-            anns = icdar_parse_ann(ann_file)
-            grp = k_grp.create_group(video_name)
-            grp.attrs['loc'] = base_dir
-            grp.attrs['dataset'] = 'icdar'
-            # grp.create_dataset('video_loc', data=)
-            for ann_type in ['para_ann', 'line_ann', 'word_ann', 'char_ann']:
-                sub_grp = grp.create_group(ann_type)
-                for frame_num in anns[ann_type].keys():
-                    sub_grp.create_dataset(str(frame_num), data=anns[ann_type][frame_num], compression="gzip", compression_opts=9)
-            
-'''        
-for k, base_dir in base_dirs.items():
-    for video_name in [fname for fname in os.listdir(base_dir) if fname.endswith('.mp4')]:
-        ann_file = base_dir+video_name[:-4]+'_GT'
-        print('Reading', ann_file)
-        ann = icdar_parse_ann(ann_file)
-        video_loc = base_dir+video_name
-        ann['dataset'] = 'icdar'
-        if k == 'train':
-            train_dict[video_loc] = ann
-        else:
-            test_dict[video_loc] = ann
-        
-        video_orig = skvideo.io.vread(video_loc)
-        n_frames, h, w, ch = video_orig.shape
-        video = np.zeros((n_frames, out_h, out_w, 3), dtype=np.uint8)
-        mask = np.zeros((n_frames, out_h, out_w, 1), dtype=np.uint8)
-        ann = ann['word_ann']
-        for idx in range(n_frames):
-            video[idx] = resize_and_pad(video_orig[idx])            
-            if idx in ann:
-                bbox = ann[idx]
-                if bbox.shape != 0:
-                    frame_mask = create_mask((h, w), bbox)
-                    mask_resized = resize_and_pad(frame_mask)
-                    mask[idx] = np.expand_dims(mask_resized, axis=-1)
-        save_masked_video('./word/'+video_name[:-4], video/255., mask)
-  
+base_dir = '/mnt/data/Rohit/VideoCapsNet/data/minetto/'
+for video_dir in filter(lambda x: os.path.isdir(base_dir+x), os.listdir(base_dir)):
+    ann_file_loc = base_dir+video_dir+'/groundtruth.xml'
+    anns = minetto_parse_ann(ann_file_loc)
+    anns['dataset'] = 'minetto'
+    image_dir = base_dir+video_dir+'/PNG/'
+    n_frames = len(os.listdir(image_dir))
+    video = np.zeros((n_frames, out_h, out_w, 3), dtype=np.uint8)
+    mask = np.zeros((n_frames, out_h, out_w, 1), dtype=np.uint8)
+    ann = anns['word_ann']
+    for idx in range(n_frames):
+        frame_loc = image_dir + '%06d.png' % idx
+        frame = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
+        video[idx] = resize_and_pad(frame)
 
-'''        
-if __name__ == "__main__":
-    for video_name in [fname for fname in os.listdir(base_dirs['train']) if fname.endswith('.mp4')]:
-        video_orig = skvideo.io.vread(base_dirs['train']+video_name)
-        n_frames, h, w, ch = video_orig.shape
-        video = np.zeros((n_frames, out_h, out_w, 3), dtype=np.uint8)
-        mask = np.zeros((n_frames, out_h, out_w, 1), dtype=np.uint8)
-        for idx in range(n_frames):
-            video[idx] = resize_and_pad(video_orig[idx])
-            ann = train_dict['/home/shivam/CS_Sem2/RnD/VideoCapsulev2/temp/ext_multi_mask/icdar/text_in_Video/ch3_train/Video_2_1_2.mp4']['word_ann']
-            if idx in ann:
-                bbox = ann[idx]
-                if bbox.shape != 0:
-                    frame_mask = create_mask((h, w), bbox)
-                    mask_resized = resize_and_pad(frame_mask)
-                    mask[idx] = np.expand_dims(mask_resized, axis=-1)
-        save_masked_video(video_name[:-4], video/255., mask)
-'''        
+        if idx in ann:
+            pts = ann[idx]
+            frame_mask = create_mask(pts)
+            mask_resized = resize_and_pad(frame_mask)
+            mask[idx] = np.expand_dims(np.array(mask_resized), axis=-1)
+    save_masked_video('./word/'+video_dir, video/255., mask)
+    
