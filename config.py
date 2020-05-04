@@ -6,6 +6,7 @@ gpu_config = tf.ConfigProto()
 #gpu_config.gpu_options.visible_device_list= '1,2,0,3'
 gpu_config.gpu_options.visible_device_list= '0'
 gpu_config.gpu_options.allow_growth = True
+gpu_config.polling_inactive_delay_msecs = 10
 #gpu_config.gpu_options.per_process_gpu_memory_fraction = 1.0
 #gpu_config.gpu_options.allocator_type = 'BFC'
 #gpu_config.log_device_placement = True
@@ -13,7 +14,7 @@ gpu_config.gpu_options.allow_growth = True
 
 # batch size and number of epochs
 batch_size = 2
-n_epochs = 300
+n_epochs = 100
 
 data_type = 'real' # 'real', 'synth'
 
