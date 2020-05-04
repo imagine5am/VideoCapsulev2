@@ -1,5 +1,6 @@
 # import h5py
 import cv2
+import h5py
 import numpy as np
 import os
 import skvideo.io  
@@ -310,8 +311,25 @@ def icdar_parse_ann(file):
     return anns
 
 base_dirs = {'train': '/mnt/data/Rohit/ICDARVideoDataset/text_in_Video/ch3_train/',
-            'test': '/mnt/data/Rohit/ICDARVideoDataset/text_in_Video/ch3_test/'
+             'test': '/mnt/data/Rohit/ICDARVideoDataset/text_in_Video/ch3_test/'
             }
+# save to h5
+with h5py.File('realvid_ann.hdf5', 'w') as hf:
+    for k, base_dir in base_dirs.items():
+        k_grp = hf.create_group(k)
+        for video_name in [fname for fname in os.listdir(base_dir) if fname.endswith('.mp4')]:
+            ann_file = base_dir+video_name[:-4]+'_GT'
+            anns = icdar_parse_ann(ann_file)
+            grp = k_grp.create_group(video_name)
+            grp.attrs['loc'] = base_dir
+            grp.attrs['dataset'] = 'icdar'
+            # grp.create_dataset('video_loc', data=)
+            for ann_type in ['para_ann', 'line_ann', 'word_ann', 'char_ann']:
+                sub_grp = grp.create_group(ann_type)
+                for frame_num in anns[ann_type].keys():
+                    sub_grp.create_dataset(str(frame_num), data=anns[ann_type][frame_num], compression="gzip", compression_opts=9)
+            
+'''        
 for k, base_dir in base_dirs.items():
     for video_name in [fname for fname in os.listdir(base_dir) if fname.endswith('.mp4')]:
         ann_file = base_dir+video_name[:-4]+'_GT'
@@ -338,7 +356,7 @@ for k, base_dir in base_dirs.items():
                     mask_resized = resize_and_pad(frame_mask)
                     mask[idx] = np.expand_dims(mask_resized, axis=-1)
         save_masked_video('./word/'+video_name[:-4], video/255., mask)
-        
+'''     
 
 '''        
 if __name__ == "__main__":
