@@ -136,15 +136,21 @@ def create_line_bbox(word_bbox):
     
     clusters = [word_bbox[0]]
     for w_idx in range(1, word_bbox.shape[0]):
+        word_width = np.mean(word_bbox[w_idx][[2,4]]) - np.mean(word_bbox[w_idx][[0,6]])
         added_to_cluster = False
         for c_idx in range(1, min(3, len(clusters))+1):
             cur_cluster = clusters[-c_idx]
+            cluster_width = np.mean(cur_cluster[[2,4]]) - np.mean(cur_cluster[[0,6]])
+            min_width = 1.2 * min(word_width, cluster_width)
+            
             cluster_center_x = np.mean(cur_cluster[0::2])
             word_bbox_center_x = np.mean(word_bbox[w_idx][0::2])
             if word_bbox_center_x < cluster_center_x:
                 y_window = cur_cluster[1], cur_cluster[7]
                 word_bbox_right_y = np.mean(word_bbox[w_idx][[3,5]])
-                if y_window[0] <= word_bbox_right_y <= y_window[1]:
+                word_bbox_right_x = np.mean(word_bbox[w_idx][[2,4]])
+                cluster_left_x = np.mean(cur_cluster[[0,6]])
+                if y_window[0] <= word_bbox_right_y <= y_window[1] and abs(cluster_left_x - word_bbox_right_x) <= min_width:
                     clusters[-c_idx] = merge_words(cur_cluster, word_bbox[w_idx])
                     added_to_cluster = True
                     break
@@ -152,7 +158,9 @@ def create_line_bbox(word_bbox):
             elif word_bbox_center_x > cluster_center_x:
                 y_window = cur_cluster[3], cur_cluster[5]
                 word_bbox_left_y = np.mean(word_bbox[w_idx][[1,7]])
-                if y_window[0] <= word_bbox_left_y <= y_window[1]:
+                word_bbox_left_x = np.mean(word_bbox[w_idx][[0,6]])
+                cluster_right_x = np.mean(cur_cluster[[2,4]])
+                if y_window[0] <= word_bbox_left_y <= y_window[1] and abs(word_bbox_left_x - cluster_right_x) <= min_width:
                     clusters[-c_idx] = merge_words(cur_cluster, word_bbox[w_idx])
                     added_to_cluster = True
                     break
@@ -230,7 +238,7 @@ def create_para_bbox(line_bbox):
             dist = np.linalg.norm(np.cross(cur_cluster[[4,5]]-cur_cluster[[6,7]], cur_cluster[[6,7]]-line_bbox_top)) 
             dist = dist / np.linalg.norm(cur_cluster[[4,5]]-cur_cluster[[6,7]])
             
-            if dist <= line_bbox_height:
+            if dist <= 0.8 * line_bbox_height:
                 cluster_width = np.mean(cur_cluster[[2,4]]) - np.mean(cur_cluster[[0,6]])
                 if cluster_width > line_bbox_width:
                     wider_bbox = cur_cluster
