@@ -279,6 +279,7 @@ def minetto_parse_ann(file):
 
 base_dir = '/mnt/data/Rohit/VideoCapsNet/data/minetto/'
 for video_dir in filter(lambda x: os.path.isdir(base_dir+x), os.listdir(base_dir)):
+    print('Reading', video_dir)
     ann_file_loc = base_dir+video_dir+'/groundtruth.xml'
     anns = minetto_parse_ann(ann_file_loc)
     anns['dataset'] = 'minetto'
