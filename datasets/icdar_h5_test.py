@@ -64,6 +64,24 @@ def order_points(pts):
     # the bottom-right point will have the largest sum
     s = pts.sum(axis = 1)
     rect[0] = pts[np.argmin(s)]
+    del pts[np.argmin(s)]
+    rect[2] = pts[np.argmax(s)]
+    del pts[np.argmax(s)]
+    # whereas the bottom-left will have the largest difference
+    pts = np.array(pts)
+    xSorted = np.argsort(pts[:, 0])
+    rect[1] = pts[xSorted[1]]
+    rect[3] = pts[xSorted[0]]
+    # return the ordered coordinates
+    return rect.flatten()
+
+
+def backup_order_points(pts):
+    # bottom-right, and the fourth is the bottom-left
+    rect = np.zeros((4, 2), dtype = "int32")
+    # the bottom-right point will have the largest sum
+    s = pts.sum(axis = 1)
+    rect[0] = pts[np.argmin(s)]
     rect[2] = pts[np.argmax(s)]
     # whereas the bottom-left will have the largest difference
     diff = np.diff(pts, axis = 1)
@@ -313,11 +331,13 @@ def icdar_parse_ann(file):
 base_dirs = {'train': '/mnt/data/Rohit/ICDARVideoDataset/text_in_Video/ch3_train/',
              'test': '/mnt/data/Rohit/ICDARVideoDataset/text_in_Video/ch3_test/'
             }
+'''
 # save to h5
 with h5py.File('realvid_ann.hdf5', 'w') as hf:
     for k, base_dir in base_dirs.items():
         k_grp = hf.create_group(k)
         for video_name in [fname for fname in os.listdir(base_dir) if fname.endswith('.mp4')]:
+            print('Writing', base_dir + video_name)
             ann_file = base_dir+video_name[:-4]+'_GT'
             anns = icdar_parse_ann(ann_file)
             grp = k_grp.create_group(video_name)
@@ -356,7 +376,7 @@ for k, base_dir in base_dirs.items():
                     mask_resized = resize_and_pad(frame_mask)
                     mask[idx] = np.expand_dims(mask_resized, axis=-1)
         save_masked_video('./word/'+video_name[:-4], video/255., mask)
-'''     
+  
 
 '''        
 if __name__ == "__main__":
