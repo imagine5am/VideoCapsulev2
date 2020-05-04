@@ -64,11 +64,9 @@ def order_points(pts):
     # the bottom-right point will have the largest sum
     s = pts.sum(axis = 1)
     rect[0] = pts[np.argmin(s)]
-    del pts[np.argmin(s)]
     rect[2] = pts[np.argmax(s)]
-    del pts[np.argmax(s)]
+    pts = np.delete(pts, [np.argmin(s), np.argmax(s)], 0)
     # whereas the bottom-left will have the largest difference
-    pts = np.array(pts)
     xSorted = np.argsort(pts[:, 0])
     rect[1] = pts[xSorted[1]]
     rect[3] = pts[xSorted[0]]
