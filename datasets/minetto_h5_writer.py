@@ -278,6 +278,29 @@ def minetto_parse_ann(file):
     return anns
 
 base_dir = '/mnt/data/Rohit/VideoCapsNet/data/minetto/'
+
+# save to h5
+with h5py.File('realvid_ann.hdf5', 'a') as hf:
+    if 'test' not in hf.keys():
+        split_grp = hf.create_group('test')
+    else:
+        split_grp = hf.get('test')
+    for video_dir in filter(lambda x: os.path.isdir(base_dir+x), os.listdir(base_dir)):
+        print('Reading', base_dir+video_dir+'/')
+        video_grp = split_grp.create_group(video_dir)
+        video_grp.attrs['dataset'] = 'minetto'
+        video_grp.attrs['loc'] = base_dir+video_dir+'/PNG/'
+        video_grp.attrs['n_frames'] = len(video_grp.attrs['loc'])
+        
+        ann_file_loc = base_dir+video_dir+'/groundtruth.xml'
+        anns = minetto_parse_ann(ann_file_loc)
+        
+        for ann_type in ['para_ann', 'line_ann', 'word_ann', 'char_ann']:
+            ann_grp = video_grp.create_group(ann_type)
+            for frame_num in anns[ann_type].keys():
+                ann_grp.create_dataset(str(frame_num), data=anns[ann_type][frame_num], compression="gzip", compression_opts=9)
+
+'''
 for video_dir in filter(lambda x: os.path.isdir(base_dir+x), os.listdir(base_dir)):
     print('Reading', video_dir)
     ann_file_loc = base_dir+video_dir+'/groundtruth.xml'
@@ -299,4 +322,4 @@ for video_dir in filter(lambda x: os.path.isdir(base_dir+x), os.listdir(base_dir
             mask_resized = resize_and_pad(frame_mask)
             mask[idx] = np.expand_dims(np.array(mask_resized), axis=-1)
     save_masked_video('./word/'+video_dir, video/255., mask)
-    
+'''

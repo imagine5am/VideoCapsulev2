@@ -4,7 +4,7 @@ import tensorflow as tf
 from caps_network import Caps3d
 from get_iou import iou
 from load_synth_data import SynthTrainDataGenDet as TrainDataGen, SynthTestDataGenDet as TestDataGen
-from load_real_data import ExternalTrainDataLoader, ExternalTestDataLoader
+from load_real_data2 import ExternalTrainDataLoader, ExternalTestDataLoader
 
 
 def get_num_params():

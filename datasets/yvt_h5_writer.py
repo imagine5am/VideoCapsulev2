@@ -1,4 +1,5 @@
 import cv2
+import h5py
 import numpy as np
 import os
 import pandas as pd
@@ -268,6 +269,28 @@ def yvt_parse_ann(file):
 base_dir = '/mnt/data/Rohit/VideoCapsNet/data/YVT/'
 ann_dir = 'annotations/'
 frames_dir = 'frames/'
+with h5py.File('realvid_ann.hdf5', 'a') as hf:
+    for split_type in ['train', 'test']:
+        if split_type not in hf.keys():
+            split_grp = hf.create_group(split_type)
+        else:
+            split_grp = hf.get(split_type)
+            
+        for video_name in os.listdir(base_dir+frames_dir+split_type):
+            print('Reading', base_dir+frames_dir+split_type+'/'+video_name+'/')
+            video_grp = split_grp.create_group(video_name)
+            video_grp.attrs['dataset'] = 'yvt'
+            video_grp.attrs['loc'] = base_dir+frames_dir+split_type+'/'+video_name+'/'
+            video_grp.attrs['n_frames'] = len(os.listdir(video_grp.attrs['loc']))
+            
+            ann_file = base_dir+ann_dir+split_type+'/'+video_name+'.txt'
+            anns = yvt_parse_ann(ann_file)
+            
+            for ann_type in ['para_ann', 'line_ann', 'word_ann', 'char_ann']:
+                ann_grp = video_grp.create_group(ann_type)
+                for frame_num in anns[ann_type].keys():
+                    ann_grp.create_dataset(str(frame_num), data=anns[ann_type][frame_num], compression="gzip", compression_opts=9)
+'''
 for split_type in ['train', 'test']:
     for video_name in os.listdir(base_dir+frames_dir+split_type):
         ann_file = base_dir+ann_dir+split_type+'/'+video_name+'.txt'
@@ -290,5 +313,4 @@ for split_type in ['train', 'test']:
                     mask_resized = resize_and_pad(frame_mask)
                     mask[frame_num] = np.expand_dims(mask_resized, axis=-1)
             save_masked_video('./'+ann_type[:4]+'/'+video_name, video/255., mask)
-        
-        
+'''
