@@ -329,13 +329,13 @@ def icdar_parse_ann(file):
         
         file = file.rsplit('/', 1)[-1]
         if word_bbox.size != 0 and file not in line_para_exceptions and file not in para_exceptions:
-            print(file, 'working normally.')
+            # print(file, 'working normally.')
             anns['line_ann'][frame_num] = create_line_bbox(word_bbox)
             anns['para_ann'][frame_num] = create_para_bbox(anns['line_ann'][frame_num])
         elif word_bbox.size != 0 and file in para_exceptions:
             anns['line_ann'][frame_num] = create_line_bbox(word_bbox)
             anns['para_ann'][frame_num] = anns['line_ann'][frame_num]
-            print(file, 'in para exceptions.')
+            # print(file, 'in para exceptions.')
         else:
             anns['line_ann'][frame_num] = word_bbox
             anns['para_ann'][frame_num] = word_bbox
