@@ -7,7 +7,7 @@ import pandas as pd
 from PIL import Image, ImageDraw
 from skvideo.io import vwrite
 
-base_dir = '../../data/YVT/'
+base_dir = '/mnt/data/Rohit/VideoCapsNet/data/YVT/'
 ann_dir = 'annotations/'
 frames_dir = 'frames/'
 # in_h, in_w = 405, 720
