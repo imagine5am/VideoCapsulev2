@@ -273,7 +273,7 @@ for split_type in ['train', 'test']:
         ann_file = base_dir+ann_dir+split_type+'/'+video_name+'.txt'
         anns = yvt_parse_ann(ann_file)
         video_dir = base_dir+frames_dir+split_type+'/'+video_name
-        n_frames = os.listdir(video_dir)
+        n_frames = len(os.listdir(video_dir))
         anns['dataset'] = 'yvt'
         for ann_type in ['para_ann', 'line_ann', 'word_ann', 'char_ann']:
             ann = anns[ann_type]
