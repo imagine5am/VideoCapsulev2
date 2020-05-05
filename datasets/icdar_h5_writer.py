@@ -264,6 +264,7 @@ def icdar_parse_ann(file):
     '''
     Returns a dict which is something like:
     '''
+    print(file)
     line_para_exceptions = ['Video_4_4_2_GT',
                             'Video_5_3_2_GT',
                             'Video_6_3_2_GT',
@@ -327,11 +328,13 @@ def icdar_parse_ann(file):
         anns['word_ann'][frame_num] = word_bbox
         anns['char_ann'][frame_num] = np.rint(np.array(char_bbox)).astype(np.int32)
         if word_bbox.size != 0 and file not in line_para_exceptions and file not in para_exceptions:
+            print(file, 'working normally.')
             anns['line_ann'][frame_num] = create_line_bbox(word_bbox)
             anns['para_ann'][frame_num] = create_para_bbox(anns['line_ann'][frame_num])
         elif word_bbox.size != 0 and file in para_exceptions:
             anns['line_ann'][frame_num] = create_line_bbox(word_bbox)
             anns['para_ann'][frame_num] = anns['line_ann'][frame_num]
+            print(file, 'in para exceptions.')
         else:
             anns['line_ann'][frame_num] = word_bbox
             anns['para_ann'][frame_num] = word_bbox

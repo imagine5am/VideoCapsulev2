@@ -20,7 +20,7 @@ data_type = 'real' # 'real', 'synth'
 
 # whether to continue from last checkpoint or not
 continue_from_chkpt = True
-prev_epochs = 35
+prev_epochs = 30
 
 ann_types = ['para_ann', 'line_ann', 'word_ann', 'char_ann']
 
