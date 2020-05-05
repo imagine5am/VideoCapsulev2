@@ -27,7 +27,7 @@ def get_annotations(split_type='train'):
                 ann = {}
                 for frame_num in ann_grp.keys():
                     ann[int(frame_num)] = ann_grp.get(frame_num)[()].astype(np.int32)
-                video_anns[ann_type] = ann
+                video_anns[video][ann_type] = ann
     
     return video_anns
                 
