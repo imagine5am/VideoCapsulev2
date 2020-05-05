@@ -132,7 +132,7 @@ class ExternalTestDataLoader():
             
             if dataset == 'icdar':
                 video_orig = skvideo.io.vread(video_loc)
-                n_frames, h, w, _ = video_orig.shape[0]
+                n_frames, h, w, _ = video_orig.shape
                 in_shape = (h, w)
             elif dataset == 'minetto':
                 in_shape = (480, 640)
@@ -209,7 +209,7 @@ class ExternalTrainDataLoader():
             
             if dataset == 'icdar':
                 video_orig = skvideo.io.vread(video_loc)
-                n_frames, h, w, _ = video_orig.shape[0]
+                n_frames, h, w, _ = video_orig.shape
                 in_shape = (h, w)
             elif dataset == 'minetto':
                 in_shape = (480, 640)
