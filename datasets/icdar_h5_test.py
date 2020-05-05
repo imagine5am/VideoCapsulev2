@@ -362,20 +362,20 @@ with h5py.File('realvid_ann.hdf5', 'w') as hf:
 for k, base_dir in base_dirs.items():
     for video_name in [fname for fname in os.listdir(base_dir) if fname.endswith('.mp4')]:
         ann_file = base_dir+video_name[:-4]+'_GT'
-        ann = icdar_parse_ann(ann_file)
+        anns = icdar_parse_ann(ann_file)
         video_loc = base_dir+video_name
-        ann['dataset'] = 'icdar'
+        anns['dataset'] = 'icdar'
         if k == 'train':
-            train_dict[video_loc] = ann
+            train_dict[video_loc] = anns
         else:
-            test_dict[video_loc] = ann
+            test_dict[video_loc] = anns
         
         video_orig = skvideo.io.vread(video_loc)
         n_frames, h, w, ch = video_orig.shape
         for ann_type in ['para_ann', 'line_ann', 'word_ann', 'char_ann']:
             video = np.zeros((n_frames, out_h, out_w, 3), dtype=np.uint8)
             mask = np.zeros((n_frames, out_h, out_w, 1), dtype=np.uint8)
-            ann = ann[ann_type]
+            ann = anns[ann_type]
             for idx in range(n_frames):
                 video[idx] = resize_and_pad(video_orig[idx])            
                 if idx in ann:
