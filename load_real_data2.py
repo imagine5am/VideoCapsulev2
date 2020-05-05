@@ -70,7 +70,7 @@ def load_masked_video(anns, in_shape, n_frames):
             if pts.size != 0:
                 mask = create_mask(pts, in_shape)
                 mask_resized = resize_and_pad(mask)
-                bbox[frame_num, idx] = mask_resized.expand_dims(axis=-1)
+                bbox[frame_num, idx] = np.expand_dims(mask_resized, axis=-1)
     return bbox
 
                 
