@@ -17,6 +17,7 @@ def save_masked_video(name, video, mask):
     alpha = 0.5
     color = np.zeros((3,)) + [0.0, 0, 1.0]
     masked_vid = np.where(np.tile(mask, [1, 1, 3]) == 1, video * (1 - alpha) + alpha * color, video)
+    print('Writing', name + '_segmented.avi')
     vwrite(name+'_segmented.avi', (masked_vid * 255).astype(np.uint8))
     
 
@@ -263,6 +264,30 @@ def icdar_parse_ann(file):
     '''
     Returns a dict which is something like:
     '''
+    line_para_exceptions = ['Video_4_4_2_GT',
+                            'Video_5_3_2_GT',
+                            'Video_6_3_2_GT',
+                            'Video_16_3_2_GT',
+                            'Video_17_3_1_GT',
+                            'Video_18_3_1_GT',
+                            'Video_25_5_2_GT',
+                            'Video_30_2_3_GT',
+                            'Video_32_2_3_GT',
+                            'Video_33_2_3_GT',
+                            'Video_34_2_3_GT',
+                            'Video_35_2_3_GT',
+                            'Video_36_2_3_GT',
+                            'Video_37_2_3_GT',
+                            'Video_39_2_3_GT',
+                            'Video_46_6_4_GT']
+    para_exceptions = ['Video_9_1_1_GT',
+                       'Video_10_1_1_GT',
+                       'Video_15_4_1_GT',
+                       'Video_38_2_3_GT',
+                       'Video_40_2_3_GT',
+                       'Video_41_2_3_GT',
+                       'Video_42_2_3_GT',
+                       'Video_47_6_4_GT']
     anns = {}
     tree = ET.parse(file+'.xml')
     voc = pd.read_csv(file+'.txt', sep=',', header=None, names=['id', 'word'])
@@ -301,9 +326,12 @@ def icdar_parse_ann(file):
         word_bbox = np.array(word_bbox, dtype=np.int32)
         anns['word_ann'][frame_num] = word_bbox
         anns['char_ann'][frame_num] = np.rint(np.array(char_bbox)).astype(np.int32)
-        if word_bbox.size != 0:
+        if word_bbox.size != 0 and file not in line_para_exceptions and file not in para_exceptions:
             anns['line_ann'][frame_num] = create_line_bbox(word_bbox)
             anns['para_ann'][frame_num] = create_para_bbox(anns['line_ann'][frame_num])
+        elif word_bbox.size != 0 and file in para_exceptions:
+            anns['line_ann'][frame_num] = create_line_bbox(word_bbox)
+            anns['para_ann'][frame_num] = anns['line_ann'][frame_num]
         else:
             anns['line_ann'][frame_num] = word_bbox
             anns['para_ann'][frame_num] = word_bbox
@@ -334,7 +362,6 @@ with h5py.File('realvid_ann.hdf5', 'w') as hf:
 for k, base_dir in base_dirs.items():
     for video_name in [fname for fname in os.listdir(base_dir) if fname.endswith('.mp4')]:
         ann_file = base_dir+video_name[:-4]+'_GT'
-        print('Reading', ann_file)
         ann = icdar_parse_ann(ann_file)
         video_loc = base_dir+video_name
         ann['dataset'] = 'icdar'
@@ -345,18 +372,19 @@ for k, base_dir in base_dirs.items():
         
         video_orig = skvideo.io.vread(video_loc)
         n_frames, h, w, ch = video_orig.shape
-        video = np.zeros((n_frames, out_h, out_w, 3), dtype=np.uint8)
-        mask = np.zeros((n_frames, out_h, out_w, 1), dtype=np.uint8)
-        ann = ann['word_ann']
-        for idx in range(n_frames):
-            video[idx] = resize_and_pad(video_orig[idx])            
-            if idx in ann:
-                bbox = ann[idx]
-                if bbox.shape != 0:
-                    frame_mask = create_mask((h, w), bbox)
-                    mask_resized = resize_and_pad(frame_mask)
-                    mask[idx] = np.expand_dims(mask_resized, axis=-1)
-        save_masked_video('./word/'+video_name[:-4], video/255., mask)
+        for ann_type in ['para_ann', 'line_ann', 'word_ann', 'char_ann']:
+            video = np.zeros((n_frames, out_h, out_w, 3), dtype=np.uint8)
+            mask = np.zeros((n_frames, out_h, out_w, 1), dtype=np.uint8)
+            ann = ann[ann_type]
+            for idx in range(n_frames):
+                video[idx] = resize_and_pad(video_orig[idx])            
+                if idx in ann:
+                    bbox = ann[idx]
+                    if bbox.shape != 0:
+                        frame_mask = create_mask((h, w), bbox)
+                        mask_resized = resize_and_pad(frame_mask)
+                        mask[idx] = np.expand_dims(mask_resized, axis=-1)
+            save_masked_video('./'+ann_type[:4]+'/'+video_name[:-4], video/255., mask)
   
 
 '''        
