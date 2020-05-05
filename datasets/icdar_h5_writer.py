@@ -344,7 +344,7 @@ def icdar_parse_ann(file):
 base_dirs = {'train': '/mnt/data/Rohit/ICDARVideoDataset/text_in_Video/ch3_train/',
              'test': '/mnt/data/Rohit/ICDARVideoDataset/text_in_Video/ch3_test/'
             }
-'''
+
 # save to h5
 with h5py.File('realvid_ann.hdf5', 'a') as hf:
     for split_type, base_dir in base_dirs.items():
@@ -392,4 +392,4 @@ for k, base_dir in base_dirs.items():
                         mask_resized = resize_and_pad(frame_mask)
                         mask[idx] = np.expand_dims(mask_resized, axis=-1)
             save_masked_video('./'+ann_type[:4]+'/'+video_name[:-4], video/255., mask)
-#'''
+'''
