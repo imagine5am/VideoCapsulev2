@@ -23,8 +23,9 @@ def data_gen():
 
 def inference():    
     output_dir = './inference/outputs/'
-    
     capsnet = Caps3d()
+    real_data_flag = True if config.data_type=='real' else False
+    
     with tf.Session(graph=capsnet.graph, config=config.gpu_config) as sess:
         tf.global_variables_initializer().run()
         capsnet.load(sess, config.network_save_dir)
@@ -61,7 +62,7 @@ def inference():
                                                   capsnet.segment_layer_sig['char_ann'],
                                                   ], 
                                                  feed_dict={capsnet.x_input: x_batch,
-                                                 capsnet.is_train: False,
+                                                 capsnet.is_train: False, capsnet.is_real: real_data_flag,
                                                  capsnet.y_input: np.ones((f_skip,), np.int32)*-1})
                 
                 norm_mean = np.mean(batch_pred, axis=0)

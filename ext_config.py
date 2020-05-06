@@ -16,6 +16,8 @@ batch_size = 1
 
 ann_types = ['para_ann', 'line_ann', 'word_ann', 'char_ann']
 
+data_type = 'real'
+
 # number of classes for the network to predict
 n_classes = 12
 

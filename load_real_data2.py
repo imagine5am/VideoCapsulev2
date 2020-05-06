@@ -219,7 +219,6 @@ class ExternalTrainDataLoader:
             
             video_name = self.video_order.pop(0)
             anns = self.train_files[video_name]
-            
             dataset = anns['dataset']
             video_loc = anns['loc']
             n_frames = anns['n_frames'] if dataset!='icdar' else None
@@ -245,7 +244,6 @@ class ExternalTrainDataLoader:
                     frame_loc = video_loc+'%d.jpg' % frame_num
                     frame = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
                     frame_resized = resize_and_pad(frame)
-                
                 video[frame_num] = frame_resized
                   
             bbox = load_masked_video(anns, in_shape, n_frames)
