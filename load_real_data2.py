@@ -222,7 +222,6 @@ class ExternalTrainDataLoader():
             
             video_name = self.video_order.pop(0)
             anns = self.train_files[video_name]
-            self.videos_left -= 1
             
             dataset = anns['dataset']
             video_loc = anns['loc']
@@ -256,6 +255,7 @@ class ExternalTrainDataLoader():
             clips_list = get_clips(video, bbox, skip_frames=config.frame_skip)
             self.data_queue.extend(clips_list)
             del self.train_files[video_name]
+            self.videos_left -= 1
             
         print('[ExternalTrainDataLoader] Data Loading complete...')
         
@@ -282,6 +282,7 @@ class ExternalTrainDataLoader():
             
     def has_data(self):
         return self.data_queue != [] or self.train_files != {}
+    
     
 if __name__ == "__main__":
     data_gen = ExternalTestDataLoader()

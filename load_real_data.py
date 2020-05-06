@@ -59,8 +59,8 @@ class ExternalTestDataLoader():
         video_name, video, mask, label = self.data_queue.pop(0)
         self.videos_left -= 1
         if self.load_thread.is_alive():
-                with self.load_thread_condition:
-                    self.load_thread_condition.notify_all()
+            with self.load_thread_condition:
+                self.load_thread_condition.notify_all()
                     
         mask = np.tile(np.expand_dims(mask, axis=1), [1, 4, 1, 1, 1])
         if get_name:
@@ -127,8 +127,8 @@ class ExternalTrainDataLoader():
             time.sleep(5)
             
         if self.load_thread.is_alive():
-                with self.load_thread_condition:
-                    self.load_thread_condition.notify_all()
+            with self.load_thread_condition:
+                self.load_thread_condition.notify_all()
         
         batch_size = min(batch_size, len(self.data_queue))
         batch_x, batch_bbox, batch_y = [], [], []
