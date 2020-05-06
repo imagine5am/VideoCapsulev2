@@ -138,7 +138,7 @@ class ExternalTestDataLoader():
                     self.load_thread_condition.wait()
             
             video_name = list(self.test_files.keys())[0] 
-            anns = self.test_files.pop(video_name)
+            anns = self.test_files[video_name]
             dataset = anns['dataset']
             video_loc = anns['loc']
             n_frames = anns['n_frames'] if dataset!='icdar' else None
@@ -169,6 +169,7 @@ class ExternalTestDataLoader():
             bbox = load_masked_video(anns, in_shape, n_frames)
             label = -1
             self.data_queue.append((video, bbox, label))
+            del self.test_files[video_name]
             
         print('[ExternalTestDataLoader] Data Loading complete...')
 
@@ -188,7 +189,7 @@ class ExternalTestDataLoader():
         
           
     def has_data(self):
-        return self.data_queue != [] or self.test_files != {}
+        return self.videos_left > 0
 
 
 class ExternalTrainDataLoader():
@@ -217,7 +218,7 @@ class ExternalTrainDataLoader():
                     self.load_thread_condition.wait()
             
             video_name = self.video_order.pop(0)
-            anns = self.train_files.pop(video_name)
+            anns = self.test_files[video_name]
             self.videos_left -= 1
             
             dataset = anns['dataset']
@@ -251,6 +252,7 @@ class ExternalTrainDataLoader():
             bbox = load_masked_video(anns, in_shape, n_frames)
             clips_list = get_clips(video, bbox, skip_frames=config.frame_skip)
             self.data_queue.extend(clips_list)
+            del self.train_files[video_name]
             
         print('[ExternalTrainDataLoader] Data Loading complete...')
         
