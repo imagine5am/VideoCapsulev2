@@ -137,7 +137,7 @@ class ExternalTestDataLoader():
                 with self.load_thread_condition:
                     self.load_thread_condition.wait()
             
-            video_name = random.choice(list(self.test_files.keys())) 
+            video_name = list(self.test_files.keys())[0] 
             anns = self.test_files.pop(video_name)
             dataset = anns['dataset']
             video_loc = anns['loc']
@@ -212,7 +212,7 @@ class ExternalTrainDataLoader():
         
     def __load_and_process_data(self):
         while self.train_files:
-            while len(self.data_queue) >= data_queue_len:
+            while len(self.data_queue) >= self.data_queue_len:
                 with self.load_thread_condition:
                     self.load_thread_condition.wait()
             
