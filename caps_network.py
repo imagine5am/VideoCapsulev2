@@ -5,6 +5,7 @@ from tensorflow.python import pywrap_tensorflow
 import time
 import numpy as np
 from caps_layers import create_prim_conv3d_caps, create_dense_caps, layer_shape, create_conv3d_caps
+from tqdm import tqdm
 
 
 def create_skip_connection(in_caps_layer, n_units, kernel_size, strides=(1, 1, 1), 
@@ -297,7 +298,7 @@ class Caps3d(object):
         conf_matrix = np.zeros((config.n_classes, config.n_classes), dtype=np.int32)
         start_time = time.time()
         batch = 0
-        for i in range(data_gen.n_videos):
+        for _ in tqdm(range(data_gen.n_videos)):
             video, bbox, label = data_gen.get_next_video()
 
             # gets losses and predictionfor a single video
