@@ -40,7 +40,7 @@ def get_precision_recall():
                 f_skip = config.frame_skip
                 clips = []
                 n_frames = video.shape[0]
-                for i in range(0, video.shape[0], 8*f_skip):
+                for i in range(0, n_frames, 8*f_skip):
                     for j in range(f_skip):
                         b_vid, b_bbox = [], []
                         for k in range(8):

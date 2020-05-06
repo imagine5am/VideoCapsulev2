@@ -13,9 +13,9 @@ from datasets.icdar_gen import ICDAR_Gen
 from datasets.yvt_gen import YVT_Gen
 
 def data_gen():
-    # data_gen = Minetto_Gen()
+    data_gen = Minetto_Gen()
     # data_gen = ICDAR_Gen()
-    data_gen = YVT_Gen()
+    # data_gen = YVT_Gen()
     while data_gen.has_data():
         name, video, _ = data_gen.get_next_video()
         yield name, video

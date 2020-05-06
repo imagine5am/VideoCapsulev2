@@ -19,6 +19,7 @@ def save_masked_video(name, video, mask):
     masked_vid = np.where(np.tile(mask, [1, 1, 3]) == 1, video * (1 - alpha) + alpha * color, video)
     vwrite(name+'_segmented.avi', (masked_vid * 255).astype(np.uint8))
 
+
 def order_points(pts):
     # bottom-right, and the fourth is the bottom-left
     rect = np.zeros((4, 2), dtype = "int32")
@@ -51,6 +52,7 @@ def resize_and_pad(shape, im):
     
     im = cv2.copyMakeBorder(im, top, bottom, left, right, cv2.BORDER_CONSTANT)
     return im
+
 
 def parse_ann(file):
     '''
