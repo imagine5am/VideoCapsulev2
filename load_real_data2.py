@@ -9,6 +9,14 @@ import time
 from PIL import Image, ImageDraw
 from threading import Thread, Condition
 
+def save_masked_video(name, video, mask):
+    alpha = 0.5
+    color = np.zeros((3,)) + [0.0, 0, 1.0]
+    masked_vid = np.where(np.tile(mask, [1, 1, 3]) == 1, video * (1 - alpha) + alpha * color, video)
+    print('Writing', name + '_segmented.avi')
+    skvideo.io.vwrite(name+'_segmented.avi', (masked_vid * 255).astype(np.uint8))
+    
+
 def get_annotations(split_type='train'):
     video_anns = {}
     with h5py.File('./realvid_ann.hdf5', 'r') as hf:
@@ -176,7 +184,7 @@ class ExternalTestDataLoader():
         
           
     def has_data(self):
-        return self.data_queue != [] or self.test_files != []
+        return self.data_queue != [] or self.test_files != {}
 
 
 class ExternalTrainDataLoader():
@@ -260,4 +268,14 @@ class ExternalTrainDataLoader():
            
             
     def has_data(self):
-        return self.data_queue != [] or self.train_files != []
+        return self.data_queue != [] or self.train_files != {}
+    
+if __name__ == "__main__":
+    data_gen = ExternalTestDataLoader()
+    name = 0
+    while data_gen.has_data:
+        video, mask, _ = data_gen.get_next_video()
+        for idx, ann_type in enumerate(config.ann_types):
+            bbox = mask[:,idx,:,:,:]
+            save_masked_video(ann_type[:4]+'/'+str(name), video, bbox)
+            name += 1
