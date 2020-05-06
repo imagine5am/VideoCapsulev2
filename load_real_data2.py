@@ -144,16 +144,13 @@ class ExternalTestDataLoader():
             n_frames = anns['n_frames'] if dataset!='icdar' else None
             
             if dataset == 'icdar':
-                print('ICDAR: reading', video_loc)
                 video_orig = skvideo.io.vread(video_loc)
                 n_frames, h, w, _ = video_orig.shape
                 in_shape = (h, w)
             elif dataset == 'minetto':
                 in_shape = (480, 640)
-                print('MINETTO: reading', video_loc)
             elif dataset == 'yvt':
                 in_shape = (720, 1280)
-                print('YVT: reading', video_loc)
 
             video = np.zeros((n_frames, config.vid_h, config.vid_w, 3), dtype=np.uint8)
             for frame_num in range(n_frames):
@@ -192,7 +189,6 @@ class ExternalTestDataLoader():
         
           
     def has_data(self):
-        print(self.videos_left > 0)
         return self.videos_left > 0
 
 
@@ -288,7 +284,7 @@ class ExternalTrainDataLoader():
 if __name__ == "__main__":
     data_gen = ExternalTestDataLoader()
     name = 0
-    while data_gen.has_data:
+    while data_gen.has_data():
         video, mask, _ = data_gen.get_next_video()
         for idx, ann_type in enumerate(config.ann_types):
             bbox = mask[:,idx,:,:,:]
