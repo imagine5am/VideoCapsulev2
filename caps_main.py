@@ -64,7 +64,7 @@ def train_network(gpu_config):
             elif config.data_type == 'real':
                 data_gen = ExternalTestDataLoader()
                 
-            margin_loss, seg_loss, accuracy, _ = capsnet.eval(sess, data_gen, validation=True)
+            margin_loss, seg_loss, accuracy, _ = capsnet.eval(sess, data_gen, validation=False)
             config.write_output('Validation\tCL: %.4f. SL: %.4f. Acc: %.4f.\n' %
                                     (margin_loss, seg_loss, accuracy))
             t_loss = margin_loss + seg_loss

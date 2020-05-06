@@ -114,7 +114,7 @@ def get_clips(video, bbox, skip_frames=1, start_rand=True):
     return clips_list
     
                 
-class ExternalTestDataLoader():
+class ExternalTestDataLoader:
     def __init__(self, data_queue_len=30, dataset='all'):
         print('Running ExternalTestDataLoader...')
         self.test_files = get_annotations('test')
@@ -192,7 +192,7 @@ class ExternalTestDataLoader():
         return self.videos_left > 0
 
 
-class ExternalTrainDataLoader():
+class ExternalTrainDataLoader:
     def __init__(self, data_queue_len=100, dataset='all'):
         print('Running ExternalTrainDataLoader...')
         self.train_files = get_annotations()
