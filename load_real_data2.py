@@ -192,6 +192,7 @@ class ExternalTestDataLoader():
         
           
     def has_data(self):
+        print(self.videos_left > 0)
         return self.videos_left > 0
 
 
