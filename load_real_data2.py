@@ -17,25 +17,28 @@ def save_masked_video(name, video, mask):
     skvideo.io.vwrite(name+'_segmented.avi', (masked_vid * 255).astype(np.uint8))
     
 
-def get_annotations(split_type='train'):
+def get_annotations(split_type='train', dataset='all'):
     video_anns = {}
     with h5py.File('./realvid_ann.hdf5', 'r') as hf:
         split_grp = hf.get(split_type)
         for video in split_grp.keys():
-            video_anns[video] = {}
             video_grp = split_grp.get(video)
-            video_anns[video]['dataset'] = video_grp.attrs['dataset']
-            video_anns[video]['loc'] = video_grp.attrs['loc']
-            
-            if video_anns[video]['dataset'] in ['minetto', 'yvt']:
-                video_anns[video]['n_frames'] = int(video_grp.attrs['n_frames'])
-            
-            for ann_type in config.ann_types:
-                ann_grp = video_grp.get(ann_type)
-                ann = {}
-                for frame_num in ann_grp.keys():
-                    ann[int(frame_num)] = ann_grp.get(frame_num)[()].astype(np.int32)
-                video_anns[video][ann_type] = ann
+            if dataset != 'all' and dataset != video_grp.attrs['dataset']:
+                continue
+            else:   
+                video_anns[video] = {}
+                video_anns[video]['dataset'] = video_grp.attrs['dataset']
+                video_anns[video]['loc'] = video_grp.attrs['loc']
+
+                if video_anns[video]['dataset'] in ['minetto', 'yvt']:
+                    video_anns[video]['n_frames'] = int(video_grp.attrs['n_frames'])
+
+                for ann_type in config.ann_types:
+                    ann_grp = video_grp.get(ann_type)
+                    ann = {}
+                    for frame_num in ann_grp.keys():
+                        ann[int(frame_num)] = ann_grp.get(frame_num)[()].astype(np.int32)
+                    video_anns[video][ann_type] = ann
     
     return video_anns
                 
@@ -112,7 +115,7 @@ def get_clips(video, bbox, skip_frames=1, start_rand=True):
     
                 
 class ExternalTestDataLoader():
-    def __init__(self, data_queue_len):
+    def __init__(self, data_queue_len=30, dataset='all'):
         print('Running ExternalTestDataLoader...')
         self.test_files = get_annotations('test')
         
@@ -189,7 +192,7 @@ class ExternalTestDataLoader():
 
 
 class ExternalTrainDataLoader():
-    def __init__(self, data_queue_len=100):
+    def __init__(self, data_queue_len=100, dataset='all'):
         print('Running ExternalTrainDataLoader...')
         self.train_files = get_annotations()
         self.video_order = list(self.train_files.keys())
