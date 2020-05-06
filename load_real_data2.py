@@ -112,13 +112,14 @@ def get_clips(video, bbox, skip_frames=1, start_rand=True):
     
                 
 class ExternalTestDataLoader():
-    def __init__(self):
+    def __init__(self, data_queue_len):
         print('Running ExternalTestDataLoader...')
         self.test_files = get_annotations('test')
         
         self.videos_left = self.n_videos = len(self.test_files.keys())
         
         self.data_queue = []
+        self.data_queue_len = data_queue_len
         self.load_thread_condition = Condition()
         self.load_thread = Thread(target=self.__load_and_process_data)
         self.load_thread.start()
@@ -129,7 +130,7 @@ class ExternalTestDataLoader():
     
     def __load_and_process_data(self):
         while self.test_files:
-            while len(self.data_queue) >= 30:
+            while len(self.data_queue) >= self.data_queue_len:
                 with self.load_thread_condition:
                     self.load_thread_condition.wait()
             
@@ -188,12 +189,16 @@ class ExternalTestDataLoader():
 
 
 class ExternalTrainDataLoader():
-    def __init__(self):
+    def __init__(self, data_queue_len=100):
         print('Running ExternalTrainDataLoader...')
         self.train_files = get_annotations()
+        self.video_order = list(self.train_files.keys())
+        random.shuffle(self.video_order)
+        
         self.videos_left = self.n_videos = len(self.train_files.keys())
             
         self.data_queue = []
+        self.data_queue_len = data_queue_len
         self.load_thread_condition = Condition()
         self.load_thread = Thread(target=self.__load_and_process_data)
         self.load_thread.start()
@@ -204,11 +209,11 @@ class ExternalTrainDataLoader():
         
     def __load_and_process_data(self):
         while self.train_files:
-            while len(self.data_queue) >= 100:
+            while len(self.data_queue) >= data_queue_len:
                 with self.load_thread_condition:
                     self.load_thread_condition.wait()
             
-            video_name = random.choice(list(self.train_files.keys())) 
+            video_name = self.video_order.pop(0)
             anns = self.train_files.pop(video_name)
             self.videos_left -= 1
             
