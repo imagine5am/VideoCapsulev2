@@ -21,8 +21,8 @@ def get_precision_recall():
         tf.global_variables_initializer().run()
         capsnet.load(sess, config.network_save_dir)
 
-        data_gens = [('ICDAR', ICDAR_Gen(split_type='test', data_queue_length=5, sec_to_wait=30)),
-                     ('Minetto', Minetto_Gen(data_queue_length=2)),
+        data_gens = [('Minetto', Minetto_Gen(data_queue_length=2)),
+                     ('ICDAR', ICDAR_Gen(split_type='test', data_queue_length=5, sec_to_wait=30)),
                      ('YVT', YVT_Gen(split_type='test', data_queue_length=5))
                     ]
         for dataset_name, data_gen in data_gens:
