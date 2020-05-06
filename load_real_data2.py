@@ -286,4 +286,4 @@ if __name__ == "__main__":
         for idx, ann_type in enumerate(config.ann_types):
             bbox = mask[:,idx,:,:,:]
             save_masked_video(ann_type[:4]+'/'+str(name), video, bbox)
-            name += 1
+        name += 1
