@@ -144,13 +144,16 @@ class ExternalTestDataLoader():
             n_frames = anns['n_frames'] if dataset!='icdar' else None
             
             if dataset == 'icdar':
+                print('ICDAR: reading', video_loc)
                 video_orig = skvideo.io.vread(video_loc)
                 n_frames, h, w, _ = video_orig.shape
                 in_shape = (h, w)
             elif dataset == 'minetto':
                 in_shape = (480, 640)
+                print('MINETTO: reading', video_loc)
             elif dataset == 'yvt':
                 in_shape = (720, 1280)
+                print('YVT: reading', video_loc)
 
             video = np.zeros((n_frames, config.vid_h, config.vid_w, 3), dtype=np.uint8)
             for frame_num in range(n_frames):
@@ -164,7 +167,7 @@ class ExternalTestDataLoader():
                     frame_loc = video_loc+'%d.jpg' % frame_num
                     frame = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
                     frame_resized = resize_and_pad(frame)
-            video[frame_num] = frame_resized
+                video[frame_num] = frame_resized
                   
             bbox = load_masked_video(anns, in_shape, n_frames)
             label = -1
@@ -218,7 +221,7 @@ class ExternalTrainDataLoader():
                     self.load_thread_condition.wait()
             
             video_name = self.video_order.pop(0)
-            anns = self.test_files[video_name]
+            anns = self.train_files[video_name]
             self.videos_left -= 1
             
             dataset = anns['dataset']
