@@ -117,7 +117,7 @@ def get_clips(video, bbox, skip_frames=1, start_rand=True):
 class ExternalTestDataLoader:
     def __init__(self, data_queue_len=10, dataset='all', sec_to_wait=30):
         print('Running ExternalTestDataLoader...')
-        self.test_files = get_annotations('test')
+        self.test_files = get_annotations('test', dataset=dataset)
         
         self.videos_left = self.n_videos = len(self.test_files.keys())
         
