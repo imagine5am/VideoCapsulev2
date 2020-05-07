@@ -3,11 +3,12 @@ import tensorflow as tf
 import traceback
 import config as config
 from caps_network import Caps3d
-from datasets.icdar_gen import ICDAR_Gen
-from datasets.minetto_gen import Minetto_Gen
-from datasets.yvt_gen import YVT_Gen
-from load_synth_data import SynthTestDataGenDet as TestDataGen
-from load_real_data import ExternalTrainDataLoader, ExternalTestDataLoader
+# from datasets.icdar_gen import ICDAR_Gen
+# from datasets.minetto_gen import Minetto_Gen
+# from datasets.yvt_gen import YVT_Gen
+# from load_synth_data import SynthTestDataGenDet as TestDataGen
+# from load_real_data import ExternalTrainDataLoader, ExternalTestDataLoader
+from load_real_data2 import ExternalTestDataLoader
 from tqdm import tqdm
 
 
@@ -21,11 +22,9 @@ def get_precision_recall():
         tf.global_variables_initializer().run()
         capsnet.load(sess, config.network_save_dir)
 
-        data_gens = [('Minetto', Minetto_Gen(data_queue_length=2)),
-                     ('ICDAR', ICDAR_Gen(split_type='test', data_queue_length=5, sec_to_wait=30)),
-                     ('YVT', YVT_Gen(split_type='test', data_queue_length=5))
-                    ]
-        for dataset_name, data_gen in data_gens:
+        datasets = ['minetto', 'icdar', 'yvt']
+        for dataset_name in datasets:
+            data_gen = ExternalTestDataLoader(data_queue_len=6, dataset='all', sec_to_wait=20)
             tp, fn, fp = {}, {}, {}
             for ann_type in config.ann_types: 
                 tp[ann_type] = 0

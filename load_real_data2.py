@@ -115,7 +115,7 @@ def get_clips(video, bbox, skip_frames=1, start_rand=True):
     
                 
 class ExternalTestDataLoader:
-    def __init__(self, data_queue_len=30, dataset='all'):
+    def __init__(self, data_queue_len=10, dataset='all', sec_to_wait=30):
         print('Running ExternalTestDataLoader...')
         self.test_files = get_annotations('test')
         
@@ -127,8 +127,8 @@ class ExternalTestDataLoader:
         self.load_thread = Thread(target=self.__load_and_process_data)
         self.load_thread.start()
         
-        print('[ExternalTestDataLoader] Waiting 60 (s) to load data')
-        time.sleep(60)
+        print('[ExternalTestDataLoader] Waiting %d (s) to load data' % sec_to_wait)
+        time.sleep(sec_to_wait)
             
     
     def __load_and_process_data(self):
@@ -207,8 +207,8 @@ class ExternalTrainDataLoader:
         self.load_thread = Thread(target=self.__load_and_process_data)
         self.load_thread.start()
         
-        print('[ExternalTrainDataLoader] Waiting 60 (s) to load data')
-        time.sleep(60)
+        print('[ExternalTrainDataLoader] Waiting 30 (s) to load data')
+        time.sleep(30)
        
         
     def __load_and_process_data(self):
