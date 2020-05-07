@@ -34,7 +34,7 @@ acc_for_eval = 0.5
 n_eps_until_eval = 0
 
 # learning rate and beta1 are used in the Adam optimizer.
-learning_rate, beta1 = 0.0001, 0.5
+learning_rate, beta1 = 0.00001, 0.5
 
 # Used to prevent numerical instability (dividing by zero or log(0))
 epsilon = 1e-6

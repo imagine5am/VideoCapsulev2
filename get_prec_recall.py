@@ -111,10 +111,6 @@ def get_precision_recall():
                     tp[ann_type] += np.count_nonzero(np.logical_and(pred_segmentations==1, gt_segmentations==1))
                     fp[ann_type] += np.count_nonzero(np.logical_and(pred_segmentations==1, gt_segmentations==0))
                     fn[ann_type] += np.count_nonzero(np.logical_and(pred_segmentations==0, gt_segmentations==1))
-                    print('tp[%s]:' % ann_type, tp[ann_type])
-                    print('fp[%s]:' % ann_type, fp[ann_type])
-                    print('fn[%s]:' % ann_type, fn[ann_type])
-                    
 
                 if (video_idx + 1) % 100 == 0:
                     print('Finished %d videos' % (video_idx + 1))
