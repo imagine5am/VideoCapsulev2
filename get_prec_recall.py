@@ -24,7 +24,7 @@ def get_precision_recall():
 
         datasets = ['minetto', 'icdar', 'yvt']
         for dataset_name in datasets:
-            data_gen = ExternalTestDataLoader(data_queue_len=6, dataset='all', sec_to_wait=20)
+            data_gen = ExternalTestDataLoader(data_queue_len=6, dataset=dataset_name, sec_to_wait=20)
             tp, fn, fp = {}, {}, {}
             for ann_type in config.ann_types: 
                 tp[ann_type] = 0
