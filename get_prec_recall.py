@@ -32,9 +32,10 @@ def get_precision_recall():
                 fp[ann_type] = 0
 
             for video_idx in tqdm(range(data_gen.n_videos)):
-                _, video, bbox, = data_gen.get_next_video()
+                video, bbox, label = data_gen.get_next_video()
+                # _, video, bbox, = data_gen.get_next_video()
                 # bbox = np.tile(np.expand_dims(bbox, axis=1), [1, 4, 1, 1, 1])
-                label = -1
+                # label = -1
                 
                 f_skip = config.frame_skip
                 clips = []
