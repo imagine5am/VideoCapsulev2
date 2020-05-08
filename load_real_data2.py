@@ -111,6 +111,7 @@ def get_clips(video, bbox, skip_frames=1, start_rand=True):
         if np.any(np.sum(bbox, axis=(1, 2, 3)) > 0):
             clips_list.append((clip, bbox))
         '''
+        clips_list.append((clip, bbox))
     return clips_list
     
                 
