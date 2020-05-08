@@ -48,7 +48,7 @@ if __name__=='__main__':
     print(values['train'])
     print('Validation')
     print(values['val'])
-    plot(' Training Segmentation Loss', values['train']['SL'])
+    plot('Training Segmentation Loss', values['train']['SL'])
     plot('Training Classification Loss', values['train']['CL'])
     plot('Validation Segmentation Loss', values['val']['SL'])
     plot('Validation Classification Loss', values['val']['CL'])
