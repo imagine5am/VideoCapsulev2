@@ -204,7 +204,7 @@ class ExternalTestDataLoader:
             if dataset == 'icdar':
                 video_orig = skvideo.io.vread(video_loc)
                 n_frames, h, w, _ = video_orig.shape
-                m_shape = (h, w)
+                f_shape = m_shape = (h, w)
             elif dataset == 'minetto':
                 f_shape = m_shape = (480, 640)
             elif dataset == 'yvt':
