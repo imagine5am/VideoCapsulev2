@@ -74,15 +74,17 @@ def new_resize_and_pad(video_orig, bbox_orig):
         elif out_w / out_h < in_w / in_h:
             h, w =  in_h * out_w // in_w, out_w
 
-        vid_im = cv2.resize(video_orig[frame_num], (w, h))
-        bbox_im = cv2.resize(bbox_orig[frame_num], (w, h))
         delta_w = out_w - w
         delta_h = out_h - h
         top, bottom = delta_h//2, delta_h-(delta_h//2)
         left, right = delta_w//2, delta_w-(delta_w//2)
-
+        
+        vid_im = cv2.resize(video_orig[frame_num], (w, h))
         video[frame_num] = cv2.copyMakeBorder(vid_im, top, bottom, left, right, cv2.BORDER_CONSTANT)
-        bbox[frame_num] = cv2.copyMakeBorder(bbox_im, top, bottom, left, right, cv2.BORDER_CONSTANT)
+        
+        for idx, ann_type in enumerate(config.ann_types):
+            mask = cv2.resize(bbox_orig[frame_num][idx], (w, h))
+            bbox[frame_num][idx] = cv2.copyMakeBorder(mask, top, bottom, left, right, cv2.BORDER_CONSTANT)
     
     return video, bbox
 
@@ -118,6 +120,8 @@ def load_mask(anns, frame_num, m_shape, out_shape=None):
 def random_aug(video_orig, bbox_orig):
     zoom_options = [0.5, 1]
     zoom_choice = random.choice(zoom_options)
+    print('zoom_choice:', zoom_choice)
+    
     if zoom_choice == 0.5:
         n_frames, in_h, in_w, _ = video_orig.shape
         out_h, out_w = in_h//2, in_w//2
