@@ -73,7 +73,7 @@ def create_mask(pts, shape):
     return mask
 
 
-def load_masked_video(anns, in_shape, n_frames):
+def load_masked_video(anns, n_frames, in_shape):
     bbox = np.zeros((n_frames, len(config.ann_types), config.vid_h, config.vid_w, 1), dtype=np.uint8)
     for frame_num in range(n_frames):
         for idx, ann_type in enumerate(config.ann_types):
@@ -85,14 +85,13 @@ def load_masked_video(anns, in_shape, n_frames):
     return bbox
 
                 
-def get_clips(video, bbox, skip_frames=1, start_rand=True):
+def get_clips(video, bbox):
     clip_len = 8
             
     # Skip frames after a random start
-    if start_rand:
-        start_loc = np.random.randint(0, skip_frames)
-    else:
-        start_loc = 0
+    start_loc = random.randint(0,2)
+    skip_frames = random.randint(1, 5)
+    
     skip_vid = video[start_loc::skip_frames]
     skip_bbox = bbox[start_loc::skip_frames]
     
@@ -166,8 +165,9 @@ class ExternalTestDataLoader:
                     frame = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
                     frame_resized = resize_and_pad(frame)
                 video[frame_num] = frame_resized
-                  
-            bbox = load_masked_video(anns, in_shape, n_frames)
+
+            bbox = load_masked_video(anns, n_frames, in_shape)
+
             label = -1
             self.data_queue.append((video, bbox, label))
             del self.test_files[video_name]
@@ -246,9 +246,10 @@ class ExternalTrainDataLoader:
                     frame = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
                     frame_resized = resize_and_pad(frame)
                 video[frame_num] = frame_resized
+                
                   
-            bbox = load_masked_video(anns, in_shape, n_frames)
-            clips_list = get_clips(video, bbox, skip_frames=config.frame_skip)
+            bbox = load_masked_video(anns, n_frames, in_shape)
+            clips_list = get_clips(video, bbox)
             self.data_queue.extend(clips_list)
             del self.train_files[video_name]
             self.videos_left -= 1
