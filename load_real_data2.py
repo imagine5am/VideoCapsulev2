@@ -84,7 +84,8 @@ def new_resize_and_pad(video_orig, bbox_orig):
         
         for idx, ann_type in enumerate(config.ann_types):
             mask = cv2.resize(bbox_orig[frame_num][idx], (w, h))
-            bbox[frame_num][idx] = cv2.copyMakeBorder(mask, top, bottom, left, right, cv2.BORDER_CONSTANT)
+            mask = cv2.copyMakeBorder(mask, top, bottom, left, right, cv2.BORDER_CONSTANT)
+            bbox[frame_num][idx] = np.expand_dims(mask, axis=-1)
     
     return video, bbox
 
