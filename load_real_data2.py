@@ -107,11 +107,11 @@ def get_clips(video, bbox, skip_frames=1, start_rand=True):
             remaining_frames = clip_len - clip.shape[0]
             clip = np.append(clip, np.zeros([remaining_frames] + list(clip.shape[1:])), axis=0)
             bbox = np.append(bbox, np.zeros([remaining_frames] + list(bbox.shape[1:])), axis=0)
-        
+        '''
         if np.any(np.sum(bbox, axis=(1, 2, 3)) > 0):
             clips_list.append((clip, bbox))
-        
-        # clips_list.append((clip, bbox))
+        '''
+        clips_list.append((clip, bbox))
     return clips_list
     
                 
