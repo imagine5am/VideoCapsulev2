@@ -133,7 +133,7 @@ def random_aug(video_orig, bbox_orig):
         for frame_num in range(n_frames):
             z_video[frame_num] = cv2.resize(video_orig[frame_num], (out_w, out_h))
             
-            for idx, ann_type in enumerate(config.ann_type):
+            for idx, ann_type in enumerate(config.ann_types):
                 mask = cv2.resize(bbox_orig[frame_num][idx], (out_w, out_h))
                 z_bbox[frame_num][idx] = np.expand_dims(mask, axis=-1)
                 
