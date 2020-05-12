@@ -191,13 +191,14 @@ def random_crop(video_orig, bbox_orig):
     print('scale_choice:', scale_choice)
     
     out_h, out_w = in_h // scale_choice, in_w // scale_choice
-    x = random.randint(0, in_w - out_w)
-    y = random.randint(0, in_h - out_h)
-    video = video_orig[:, y+out_h, x+out_w,:]
-    bbox =  bbox_orig[:, :, y+out_h, x+out_w,:]
-     
-    return video, bbox
-       
+    while True:
+        x = random.randint(0, in_w - out_w)
+        y = random.randint(0, in_h - out_h)
+        video = video_orig[:, y+out_h, x+out_w,:]
+        bbox =  bbox_orig[:, :, y+out_h, x+out_w,:]
+        if np.any(np.sum(bbox, axis=(1, 2, 3)) > 0):
+            return video, bbox
+           
                 
 def get_clips(video, bbox):
     clip_len = 8
