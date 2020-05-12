@@ -60,7 +60,7 @@ def resize_and_pad(im):
     
     im = cv2.copyMakeBorder(im, top, bottom, left, right, cv2.BORDER_CONSTANT)
     return im
-
+'''
 def new_resize_and_pad(video_orig, bbox_orig):
     n_frames, in_h, in_w, _ = video_orig.shape
     out_h, out_w = config.vid_h, config.vid_w
@@ -74,11 +74,40 @@ def new_resize_and_pad(video_orig, bbox_orig):
         elif out_w / out_h < in_w / in_h:
             h, w =  in_h * out_w // in_w, out_w
 
+        vid_im = cv2.resize(video_orig[frame_num], (w, h))
+        video[frame_num] = cv2.copyMakeBorder(vid_im, top, bottom, left, right, cv2.BORDER_CONSTANT)
+
         delta_w = out_w - w
         delta_h = out_h - h
         top, bottom = delta_h//2, delta_h-(delta_h//2)
         left, right = delta_w//2, delta_w-(delta_w//2)
         
+        for idx, ann_type in enumerate(config.ann_types):
+            mask = cv2.resize(bbox_orig[frame_num][idx], (w, h))
+            mask = cv2.copyMakeBorder(mask, top, bottom, left, right, cv2.BORDER_CONSTANT)
+            bbox[frame_num][idx] = np.expand_dims(mask, axis=-1)
+    
+    return video, bbox
+'''
+
+def new_resize_and_pad(video_orig, bbox_orig):
+    n_frames, in_h, in_w, _ = video_orig.shape
+    out_h, out_w = config.vid_h, config.vid_w
+    
+    if out_w / out_h > in_w / in_h:
+        h, w = out_h, in_w * out_h // in_h
+    elif out_w / out_h < in_w / in_h:
+        h, w =  in_h * out_w // in_w, out_w
+        
+    delta_w = config.vid_w - w
+    delta_h = config.vid_h - h
+    top, bottom = delta_h//2, delta_h-(delta_h//2)
+    left, right = delta_w//2, delta_w-(delta_w//2)
+    
+    video = np.zeros((n_frames, config.vid_h, config.vid_w, 3), dtype=np.uint8)
+    bbox = np.zeros((n_frames, len(config.ann_types), config.vid_h, config.vid_w, 1), dtype=np.uint8)
+    
+    for frame_num in range(n_frames):
         vid_im = cv2.resize(video_orig[frame_num], (w, h))
         video[frame_num] = cv2.copyMakeBorder(vid_im, top, bottom, left, right, cv2.BORDER_CONSTANT)
         
@@ -88,6 +117,8 @@ def new_resize_and_pad(video_orig, bbox_orig):
             bbox[frame_num][idx] = np.expand_dims(mask, axis=-1)
     
     return video, bbox
+
+
 
 
 def create_mask(pts, shape):
@@ -117,11 +148,13 @@ def load_mask(anns, frame_num, m_shape, out_shape=None):
             multi_mask[idx] = np.expand_dims(mask, axis=-1)
     return multi_mask
 
-
+'''
 def random_aug(video_orig, bbox_orig):
     zoom_options = [0.5, 1]
     zoom_choice = random.choice(zoom_options)
     print('zoom_choice:', zoom_choice)
+    
+     video, bbox = 
     
     if zoom_choice == 0.5:
         n_frames, in_h, in_w, _ = video_orig.shape
@@ -142,7 +175,7 @@ def random_aug(video_orig, bbox_orig):
     
     video, bbox = new_resize_and_pad(z_video, z_bbox)    
     return video, bbox
-        
+'''       
                 
 def get_clips(video, bbox):
     clip_len = 8
@@ -222,18 +255,15 @@ class ExternalTestDataLoader:
                 
                 elif dataset == 'minetto':
                     frame_loc = video_loc + '%06d.png' % frame_num
-                    frame = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
-                    video_orig[frame_num] = frame    
+                    video_orig[frame_num] = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
                     bbox_orig[frame_num] = load_mask(anns, frame_num, m_shape, out_shape=None)
                 
                 elif dataset == 'yvt':
                     frame_loc = video_loc+'%d.jpg' % frame_num
-                    frame = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
-                    video_orig[frame_num] = frame
-                    
+                    video_orig[frame_num] = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
                     bbox_orig[frame_num] = load_mask(anns, frame_num, m_shape, out_shape=f_shape)
 
-            video, bbox = random_aug(video_orig, bbox_orig)
+            video, bbox = new_resize_and_pad(video_orig, bbox_orig)
 
             label = -1
             self.data_queue.append((video, bbox, label))
@@ -259,7 +289,7 @@ class ExternalTestDataLoader:
     def has_data(self):
         return self.videos_left > 0
 
-'''
+
 class ExternalTrainDataLoader:
     def __init__(self, data_queue_len=100, dataset='all'):
         print('Running ExternalTrainDataLoader...')
@@ -294,28 +324,25 @@ class ExternalTrainDataLoader:
             if dataset == 'icdar':
                 video_orig = skvideo.io.vread(video_loc)
                 n_frames, h, w, _ = video_orig.shape
-                in_shape = (h, w)
-            elif dataset == 'minetto':
-                in_shape = (480, 640)
+                f_shape = m_shape = (h, w)
             elif dataset == 'yvt':
-                in_shape = (720, 1280)
+                f_shape = (405, 720)
+                m_shape = (720, 1280)
 
-            video = np.zeros((n_frames, config.vid_h, config.vid_w, 3), dtype=np.uint8)
+            if dataset != 'icdar':
+                video_orig = np.zeros((n_frames, f_shape[0], f_shape[1], 3), dtype=np.uint8)
+            bbox_orig = np.zeros((n_frames, len(config.ann_types), f_shape[0], f_shape[1], 1), dtype=np.uint8)
+            
             for frame_num in range(n_frames):
                 if dataset == 'icdar':
-                    frame_resized = resize_and_pad(video_orig[frame_num])
-                elif dataset == 'minetto':
-                    frame_loc = video_loc + '%06d.png' % frame_num
-                    frame = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
-                    frame_resized = resize_and_pad(frame)
+                    bbox_orig[frame_num] = load_mask(anns, frame_num, m_shape, out_shape=None)
+                    
                 elif dataset == 'yvt':
                     frame_loc = video_loc+'%d.jpg' % frame_num
-                    frame = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
-                    frame_resized = resize_and_pad(frame)
-                video[frame_num] = frame_resized
-                
-                  
-            bbox = load_masked_video(anns, n_frames, in_shape)
+                    video_orig[frame_num] = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
+                    bbox_orig[frame_num] = load_mask(anns, frame_num, m_shape, out_shape=f_shape)
+
+            video, bbox = new_resize_and_pad(video_orig, bbox_orig)
             clips_list = get_clips(video, bbox)
             self.data_queue.extend(clips_list)
             del self.train_files[video_name]
@@ -346,7 +373,7 @@ class ExternalTrainDataLoader:
             
     def has_data(self):
         return self.data_queue != [] or self.train_files != {}
-'''    
+   
     
 if __name__ == "__main__":
     data_gen = ExternalTestDataLoader()
