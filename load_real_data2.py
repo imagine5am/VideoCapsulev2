@@ -186,10 +186,10 @@ def load_video_and_mask(anns):
 
 
 def random_crop(video_orig, bbox_orig):
-    scale_choice = math.sqrt(random.uniform(0.8, 1))
-    ratio_choice = random.uniform(0.8, 1.2)
+    scale = math.sqrt(random.uniform(0.8, 1))
+    ratio = random.uniform(0.8, 1.2)
     _, in_h, in_w, _ = video_orig.shape 
-    out_h, out_w = int(in_h * scale_choice), int(in_w * scale_choice * ratio_choice)
+    out_h, out_w = int(in_h * scale), int(in_w * scale * ratio)
     x = random.randint(0, in_w - out_w)
     y = random.randint(0, in_h - out_h)
     video = video_orig[:, y:y+out_h, x:x+out_w,:]
@@ -308,8 +308,9 @@ class ExternalTrainDataLoader:
             video_name = self.video_order.pop(0)
             anns = self.train_files[video_name]
             video_orig, bbox_orig = load_video_and_mask(anns)
+            video_crop, bbox_crop = random_crop(video_orig, bbox_orig)
+            video, bbox = new_resize_and_pad(video_crop, bbox_crop)
 
-            video, bbox = new_resize_and_pad(video_orig, bbox_orig)
             clips_list = get_clips(video, bbox)
             self.data_queue.extend(clips_list)
             del self.train_files[video_name]
