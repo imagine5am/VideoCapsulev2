@@ -187,10 +187,11 @@ def load_video_and_mask(anns):
 def random_crop(video_orig, bbox_orig):
     scale_options = [1, 0.9, 0.84]
     scale_choice = random.choice(scale_options)
-    _, in_h, in_w, _ = video_orig.shape
     print('scale_choice:', scale_choice)
-    
-    out_h, out_w = in_h // scale_choice, in_w // scale_choice
+    if scale_choice == 1:
+        return video_orig, bbox_orig
+    _, in_h, in_w, _ = video_orig.shape 
+    out_h, out_w = int(in_h * scale_choice), int(in_w * scale_choice)
     while True:
         x = random.randint(0, in_w - out_w)
         y = random.randint(0, in_h - out_h)
