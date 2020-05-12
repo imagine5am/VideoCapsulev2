@@ -186,10 +186,17 @@ def load_video_and_mask(anns):
 
 
 def random_crop(video_orig, bbox_orig):
+    _, in_h, in_w, _ = video_orig.shape
     scale = math.sqrt(random.uniform(0.8, 1))
-    ratio = random.uniform(0.8, 1.2)
-    _, in_h, in_w, _ = video_orig.shape 
-    out_h, out_w = int(in_h * scale), int(in_w * scale * ratio)
+    out_h, out_w = int(in_h * scale), int(in_w * scale)
+    
+    ratio = random.uniform(0.8, 1)
+    h_or_w = random.choice(['h', 'w'])
+    if h_or_w == 'h':
+        out_h *= ratio
+    else:
+        out_w *= ratio
+        
     x = random.randint(0, in_w - out_w)
     y = random.randint(0, in_h - out_h)
     video = video_orig[:, y:y+out_h, x:x+out_w,:]
