@@ -185,7 +185,7 @@ def load_video_and_mask(anns):
 
 
 def random_crop(video_orig, bbox_orig):
-    scale_options = [1, 0.9, 0.84]
+    scale_options = [1, 0.9, 0.84, 0.8]
     scale_choice = random.choice(scale_options)
     print('scale_choice:', scale_choice)
     if scale_choice == 1:
