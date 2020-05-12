@@ -183,34 +183,21 @@ def load_video_and_mask(anns):
     return video_orig, bbox_orig
 
 
-'''
-def random_aug(video_orig, bbox_orig):
-    zoom_options = [0.5, 1]
-    zoom_choice = random.choice(zoom_options)
-    print('zoom_choice:', zoom_choice)
+
+def random_crop(video_orig, bbox_orig):
+    scale_options = [1, 0.9, 0.84]
+    scale_choice = random.choice(scale_options)
+    _, in_h, in_w, _ = video_orig.shape
+    print('scale_choice:', scale_choice)
     
-     video, bbox = 
-    
-    if zoom_choice == 0.5:
-        n_frames, in_h, in_w, _ = video_orig.shape
-        out_h, out_w = in_h//2, in_w//2
-        
-        z_video = np.zeros((n_frames, out_h, out_w, 3), dtype=np.uint8)
-        z_bbox = np.zeros((n_frames, len(config.ann_types), out_h, out_w, 1), dtype=np.uint8)
-        
-        for frame_num in range(n_frames):
-            z_video[frame_num] = cv2.resize(video_orig[frame_num], (out_w, out_h))
-            
-            for idx, ann_type in enumerate(config.ann_types):
-                mask = cv2.resize(bbox_orig[frame_num][idx], (out_w, out_h))
-                z_bbox[frame_num][idx] = np.expand_dims(mask, axis=-1)
-                
-    elif zoom_choice == 1:
-        z_video, z_bbox = video_orig, bbox_orig
-    
-    video, bbox = new_resize_and_pad(z_video, z_bbox)    
+    out_h, out_w = in_h // scale_choice, in_w // scale_choice
+    x = random.randint(0, in_w - out_w)
+    y = random.randint(0, in_h - out_h)
+    video = video_orig[:, y+out_h, x+out_w,:]
+    bbox =  bbox_orig[:, :, y+out_h, x+out_w,:]
+     
     return video, bbox
-'''       
+       
                 
 def get_clips(video, bbox):
     clip_len = 8
@@ -267,8 +254,8 @@ class ExternalTestDataLoader:
             video_name = list(self.test_files.keys())[0] 
             anns = self.test_files[video_name]
             video_orig, bbox_orig = load_video_and_mask(anns)
-
-            video, bbox = new_resize_and_pad(video_orig, bbox_orig)
+            video_crop, bbox_crop = random_crop(video_orig, bbox_orig)
+            video, bbox = new_resize_and_pad(video_crop, bbox_crop)
 
             label = -1
             self.data_queue.append((video, bbox, label))
