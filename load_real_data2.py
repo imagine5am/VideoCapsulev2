@@ -143,7 +143,7 @@ def random_crop(video_orig, bbox_orig):
     scale = math.sqrt(random.uniform(0.7, 1))
     out_h, out_w = int(in_h * scale), int(in_w * scale)
     
-    ratio = random.uniform(0.7, 1)
+    ratio = random.uniform(0.8, 1)
     h_or_w = random.choice(['h', 'w'])
     if h_or_w == 'h':
         out_h = int(out_h * ratio)
