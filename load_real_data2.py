@@ -1,6 +1,7 @@
 import config
 import cv2
 import h5py
+import math
 import numpy as np
 import random
 import skvideo.io
@@ -185,13 +186,10 @@ def load_video_and_mask(anns):
 
 
 def random_crop(video_orig, bbox_orig):
-    scale_options = [1, 0.9, 0.84, 0.8]
-    scale_choice = random.choice(scale_options)
-    print('scale_choice:', scale_choice)
-    if scale_choice == 1:
-        return video_orig, bbox_orig
+    scale_choice = math.sqrt(random.uniform(0.8, 1))
+    ratio_choice = random.uniform(0.8, 1.2)
     _, in_h, in_w, _ = video_orig.shape 
-    out_h, out_w = int(in_h * scale_choice), int(in_w * scale_choice)
+    out_h, out_w = int(in_h * scale_choice), int(in_w * scale_choice * ratio_choice)
     x = random.randint(0, in_w - out_w)
     y = random.randint(0, in_h - out_h)
     video = video_orig[:, y:y+out_h, x:x+out_w,:]
