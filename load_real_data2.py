@@ -1,5 +1,6 @@
 import config
 import cv2
+import gc
 import h5py
 import math
 import numpy as np
@@ -241,6 +242,9 @@ class ExternalTestDataLoader:
             anns = self.test_files[video_name]
             video_orig, bbox_orig = load_video_and_mask(anns)
             video, bbox = resize_and_pad(video_orig, bbox_orig)
+            
+            del video_orig, bbox_orig
+            gc.collect()
 
             label = -1
             self.data_queue.append((video, bbox, label))
@@ -298,6 +302,9 @@ class ExternalTrainDataLoader:
             video_crop, bbox_crop = random_crop(video_orig, bbox_orig)
             video, bbox = resize_and_pad(video_crop, bbox_crop)
 
+            del video_orig, bbox_orig, video_crop, bbox_crop
+            gc.collect()
+            
             clips_list = get_clips(video, bbox)
             self.data_queue.extend(clips_list)
             del self.train_files[video_name]
