@@ -156,7 +156,7 @@ def random_crop(video_orig, bbox_orig):
     bbox =  bbox_orig[:, :, y:y+out_h, x:x+out_w,:]
     return video, bbox
            
-                
+'''             
 def get_clips(video, bbox):
     clip_len = 8
             
@@ -178,13 +178,41 @@ def get_clips(video, bbox):
             remaining_frames = clip_len - clip.shape[0]
             clip = np.append(clip, np.zeros([remaining_frames] + list(clip.shape[1:])), axis=0)
             bbox = np.append(bbox, np.zeros([remaining_frames] + list(bbox.shape[1:])), axis=0)
-        '''
-        if np.any(np.sum(bbox, axis=(1, 2, 3)) > 0):
-            clips_list.append((clip, bbox))
-        '''
+        
+        #if np.any(np.sum(bbox, axis=(1, 2, 3)) > 0):
+        #    clips_list.append((clip, bbox))
+        
         clips_list.append((clip, bbox))
     return clips_list
+'''
     
+def get_clips(video, bbox):
+    clip_len = 8
+            
+    # Random Start
+    start_loc = random.randint(0,2)
+    video = video[start_loc:]
+    bbox = bbox[start_loc:]
+    
+    # Process the video into 8 frame clips
+    n_frames = video.shape[0]
+    clips_list = []
+    i = 0
+    
+    while i < n_frames:
+        skip_frames = random.randint(1, 5)
+        video_clip = video[i::skip_frames][:clip_len]
+        bbox_clip = bbox[i::skip_frames][:clip_len]
+        
+        if video_clip.shape[0] != clip_len:
+            remaining_frames = clip_len - video_clip.shape[0]
+            video_clip = np.append(video_clip, np.zeros([remaining_frames] + list(video_clip.shape[1:])), axis=0)
+            bbox_clip = np.append(bbox_clip, np.zeros([remaining_frames] + list(bbox_clip.shape[1:])), axis=0)
+        
+        clips_list.append((video_clip, bbox_clip))
+        i += (clip_len-1) * skip_frames + 1
+        
+    return clips_list
                 
 class ExternalTestDataLoader:
     def __init__(self, data_queue_len=10, dataset='all', sec_to_wait=30):
@@ -212,8 +240,7 @@ class ExternalTestDataLoader:
             video_name = list(self.test_files.keys())[0] 
             anns = self.test_files[video_name]
             video_orig, bbox_orig = load_video_and_mask(anns)
-            video_crop, bbox_crop = random_crop(video_orig, bbox_orig)
-            video, bbox = resize_and_pad(video_crop, bbox_crop)
+            video, bbox = resize_and_pad(video_orig, bbox_orig)
 
             label = -1
             self.data_queue.append((video, bbox, label))
