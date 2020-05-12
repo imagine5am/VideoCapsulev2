@@ -194,8 +194,8 @@ def random_crop(video_orig, bbox_orig):
     out_h, out_w = int(in_h * scale_choice), int(in_w * scale_choice)
     x = random.randint(0, in_w - out_w)
     y = random.randint(0, in_h - out_h)
-    video = video_orig[:, y+out_h, x+out_w,:]
-    bbox =  bbox_orig[:, :, y+out_h, x+out_w,:]
+    video = video_orig[:, y:y+out_h, x:x+out_w,:]
+    bbox =  bbox_orig[:, :, y:y+out_h, x:x+out_w,:]
     return video, bbox
            
                 
