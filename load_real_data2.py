@@ -43,55 +43,8 @@ def get_annotations(split_type='train', dataset='all'):
     
     return video_anns
                 
-                
-def resize_and_pad(im):
-    in_h, in_w = im.shape[0], im.shape[1]
-    out_h, out_w = config.vid_h, config.vid_w
-    
-    if out_w / out_h > in_w / in_h:
-        h, w = out_h, in_w * out_h // in_h
-    elif out_w / out_h < in_w / in_h:
-        h, w =  in_h * out_w // in_w, out_w
 
-    im = cv2.resize(im, (w, h))
-    delta_w = out_w - w
-    delta_h = out_h - h
-    top, bottom = delta_h//2, delta_h-(delta_h//2)
-    left, right = delta_w//2, delta_w-(delta_w//2)
-    
-    im = cv2.copyMakeBorder(im, top, bottom, left, right, cv2.BORDER_CONSTANT)
-    return im
-'''
-def new_resize_and_pad(video_orig, bbox_orig):
-    n_frames, in_h, in_w, _ = video_orig.shape
-    out_h, out_w = config.vid_h, config.vid_w
-    
-    video = np.zeros((n_frames, out_h, out_w, 3), dtype=np.uint8)
-    bbox = np.zeros((n_frames, len(config.ann_types), out_h, out_w, 1), dtype=np.uint8)
-    
-    for frame_num in range(n_frames):
-        if out_w / out_h > in_w / in_h:
-            h, w = out_h, in_w * out_h // in_h
-        elif out_w / out_h < in_w / in_h:
-            h, w =  in_h * out_w // in_w, out_w
-
-        vid_im = cv2.resize(video_orig[frame_num], (w, h))
-        video[frame_num] = cv2.copyMakeBorder(vid_im, top, bottom, left, right, cv2.BORDER_CONSTANT)
-
-        delta_w = out_w - w
-        delta_h = out_h - h
-        top, bottom = delta_h//2, delta_h-(delta_h//2)
-        left, right = delta_w//2, delta_w-(delta_w//2)
-        
-        for idx, ann_type in enumerate(config.ann_types):
-            mask = cv2.resize(bbox_orig[frame_num][idx], (w, h))
-            mask = cv2.copyMakeBorder(mask, top, bottom, left, right, cv2.BORDER_CONSTANT)
-            bbox[frame_num][idx] = np.expand_dims(mask, axis=-1)
-    
-    return video, bbox
-'''
-
-def new_resize_and_pad(video_orig, bbox_orig):
+def resize_and_pad(video_orig, bbox_orig):
     n_frames, in_h, in_w, _ = video_orig.shape
     out_h, out_w = config.vid_h, config.vid_w
     
@@ -193,9 +146,9 @@ def random_crop(video_orig, bbox_orig):
     ratio = random.uniform(0.8, 1)
     h_or_w = random.choice(['h', 'w'])
     if h_or_w == 'h':
-        out_h *= ratio
+        out_h = int(out_h * ratio)
     else:
-        out_w *= ratio
+        out_w = int(out_w * ratio)
         
     x = random.randint(0, in_w - out_w)
     y = random.randint(0, in_h - out_h)
@@ -260,7 +213,7 @@ class ExternalTestDataLoader:
             anns = self.test_files[video_name]
             video_orig, bbox_orig = load_video_and_mask(anns)
             video_crop, bbox_crop = random_crop(video_orig, bbox_orig)
-            video, bbox = new_resize_and_pad(video_crop, bbox_crop)
+            video, bbox = resize_and_pad(video_crop, bbox_crop)
 
             label = -1
             self.data_queue.append((video, bbox, label))
@@ -316,7 +269,7 @@ class ExternalTrainDataLoader:
             anns = self.train_files[video_name]
             video_orig, bbox_orig = load_video_and_mask(anns)
             video_crop, bbox_crop = random_crop(video_orig, bbox_orig)
-            video, bbox = new_resize_and_pad(video_crop, bbox_crop)
+            video, bbox = resize_and_pad(video_crop, bbox_crop)
 
             clips_list = get_clips(video, bbox)
             self.data_queue.extend(clips_list)
