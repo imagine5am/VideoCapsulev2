@@ -119,8 +119,6 @@ def new_resize_and_pad(video_orig, bbox_orig):
     return video, bbox
 
 
-
-
 def create_mask(pts, shape):
     mask = np.zeros(shape, dtype=np.uint8)
     mask = Image.fromarray(mask, 'L')
@@ -147,6 +145,43 @@ def load_mask(anns, frame_num, m_shape, out_shape=None):
             
             multi_mask[idx] = np.expand_dims(mask, axis=-1)
     return multi_mask
+
+
+def load_video_and_mask(anns):
+    dataset = anns['dataset']
+    video_loc = anns['loc']
+    n_frames = anns['n_frames'] if dataset!='icdar' else None
+    
+    if dataset == 'icdar':
+        video_orig = skvideo.io.vread(video_loc)
+        n_frames, h, w, _ = video_orig.shape
+        f_shape = m_shape = (h, w)
+    elif dataset == 'minetto':
+        f_shape = m_shape = (480, 640)
+    elif dataset == 'yvt':
+        f_shape = (405, 720)
+        m_shape = (720, 1280)
+
+    if dataset != 'icdar':
+        video_orig = np.zeros((n_frames, f_shape[0], f_shape[1], 3), dtype=np.uint8)
+    bbox_orig = np.zeros((n_frames, len(config.ann_types), f_shape[0], f_shape[1], 1), dtype=np.uint8)
+    
+    for frame_num in range(n_frames):
+        if dataset == 'icdar':
+            bbox_orig[frame_num] = load_mask(anns, frame_num, m_shape, out_shape=None)
+        
+        elif dataset == 'minetto':
+            frame_loc = video_loc + '%06d.png' % frame_num
+            video_orig[frame_num] = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
+            bbox_orig[frame_num] = load_mask(anns, frame_num, m_shape, out_shape=None)
+        
+        elif dataset == 'yvt':
+            frame_loc = video_loc+'%d.jpg' % frame_num
+            video_orig[frame_num] = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
+            bbox_orig[frame_num] = load_mask(anns, frame_num, m_shape, out_shape=f_shape)
+    
+    return video_orig, bbox_orig
+
 
 '''
 def random_aug(video_orig, bbox_orig):
@@ -231,37 +266,7 @@ class ExternalTestDataLoader:
             
             video_name = list(self.test_files.keys())[0] 
             anns = self.test_files[video_name]
-            dataset = anns['dataset']
-            video_loc = anns['loc']
-            n_frames = anns['n_frames'] if dataset!='icdar' else None
-            
-            if dataset == 'icdar':
-                video_orig = skvideo.io.vread(video_loc)
-                n_frames, h, w, _ = video_orig.shape
-                f_shape = m_shape = (h, w)
-            elif dataset == 'minetto':
-                f_shape = m_shape = (480, 640)
-            elif dataset == 'yvt':
-                f_shape = (405, 720)
-                m_shape = (720, 1280)
-
-            if dataset != 'icdar':
-                video_orig = np.zeros((n_frames, f_shape[0], f_shape[1], 3), dtype=np.uint8)
-            bbox_orig = np.zeros((n_frames, len(config.ann_types), f_shape[0], f_shape[1], 1), dtype=np.uint8)
-            
-            for frame_num in range(n_frames):
-                if dataset == 'icdar':
-                    bbox_orig[frame_num] = load_mask(anns, frame_num, m_shape, out_shape=None)
-                
-                elif dataset == 'minetto':
-                    frame_loc = video_loc + '%06d.png' % frame_num
-                    video_orig[frame_num] = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
-                    bbox_orig[frame_num] = load_mask(anns, frame_num, m_shape, out_shape=None)
-                
-                elif dataset == 'yvt':
-                    frame_loc = video_loc+'%d.jpg' % frame_num
-                    video_orig[frame_num] = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
-                    bbox_orig[frame_num] = load_mask(anns, frame_num, m_shape, out_shape=f_shape)
+            video_orig, bbox_orig = load_video_and_mask(anns)
 
             video, bbox = new_resize_and_pad(video_orig, bbox_orig)
 
@@ -317,30 +322,7 @@ class ExternalTrainDataLoader:
             
             video_name = self.video_order.pop(0)
             anns = self.train_files[video_name]
-            dataset = anns['dataset']
-            video_loc = anns['loc']
-            n_frames = anns['n_frames'] if dataset!='icdar' else None
-            
-            if dataset == 'icdar':
-                video_orig = skvideo.io.vread(video_loc)
-                n_frames, h, w, _ = video_orig.shape
-                f_shape = m_shape = (h, w)
-            elif dataset == 'yvt':
-                f_shape = (405, 720)
-                m_shape = (720, 1280)
-
-            if dataset != 'icdar':
-                video_orig = np.zeros((n_frames, f_shape[0], f_shape[1], 3), dtype=np.uint8)
-            bbox_orig = np.zeros((n_frames, len(config.ann_types), f_shape[0], f_shape[1], 1), dtype=np.uint8)
-            
-            for frame_num in range(n_frames):
-                if dataset == 'icdar':
-                    bbox_orig[frame_num] = load_mask(anns, frame_num, m_shape, out_shape=None)
-                    
-                elif dataset == 'yvt':
-                    frame_loc = video_loc+'%d.jpg' % frame_num
-                    video_orig[frame_num] = cv2.cvtColor(cv2.imread(frame_loc), cv2.COLOR_BGR2RGB)
-                    bbox_orig[frame_num] = load_mask(anns, frame_num, m_shape, out_shape=f_shape)
+            video_orig, bbox_orig = load_video_and_mask(anns)
 
             video, bbox = new_resize_and_pad(video_orig, bbox_orig)
             clips_list = get_clips(video, bbox)
