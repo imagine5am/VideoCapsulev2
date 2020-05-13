@@ -93,13 +93,14 @@ def load_mask(anns, frame_num, m_shape, out_shape=None):
         multi_mask = np.zeros((len(config.ann_types), out_shape[0], out_shape[1], 1), dtype=np.uint8)
         
     for idx, ann_type in enumerate(config.ann_types):
-        pts = anns[ann_type][frame_num]
-        if pts.size != 0:
-            mask = create_mask(pts, m_shape)
-            if out_shape != None:
-                mask = cv2.resize(mask, (out_shape[1], out_shape[0]))
-            
-            multi_mask[idx] = np.expand_dims(mask, axis=-1)
+        if anns[ann_type][frame_num]:
+            pts = anns[ann_type][frame_num]
+            if pts.size != 0:
+                mask = create_mask(pts, m_shape)
+                if out_shape != None:
+                    mask = cv2.resize(mask, (out_shape[1], out_shape[0]))
+
+                multi_mask[idx] = np.expand_dims(mask, axis=-1)
     return multi_mask
 
 
