@@ -280,7 +280,7 @@ def minetto_parse_ann(file):
 base_dir = '/mnt/data/Rohit/VideoCapsNet/data/minetto/'
 
 # save to h5
-with h5py.File('realvid_ann.hdf5', 'a') as hf:
+with h5py.File('realvid13_ann.hdf5', 'a') as hf:
     if 'test' not in hf.keys():
         split_grp = hf.create_group('test')
     else:
