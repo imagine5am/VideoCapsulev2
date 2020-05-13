@@ -273,7 +273,7 @@ class ExternalTestDataLoader:
 
 
 class ExternalTrainDataLoader:
-    def __init__(self, data_queue_len=100, dataset='all'):
+    def __init__(self, data_queue_len=100, dataset='all', sec_to_wait=45):
         print('Running ExternalTrainDataLoader...')
         self.train_files = get_annotations()
         self.video_order = list(self.train_files.keys())
@@ -287,8 +287,8 @@ class ExternalTrainDataLoader:
         self.load_thread = Thread(target=self.__load_and_process_data)
         self.load_thread.start()
         
-        print('[ExternalTrainDataLoader] Waiting 30 (s) to load data')
-        time.sleep(30)
+        print('[ExternalTrainDataLoader] Waiting %d (s) to load data' % sec_to_wait)
+        time.sleep(sec_to_wait)
        
         
     def __load_and_process_data(self):
