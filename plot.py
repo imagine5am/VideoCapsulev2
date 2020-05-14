@@ -50,6 +50,10 @@ def min_max_norm(nums):
     _max = max(nums)
     dm = _max - _min
     return [(num-_min)/dm for num in nums]
+
+def l1_norm(nums):
+    _sum = sum(nums)
+    return [num/_sum for num in nums]
     
 
 if __name__=='__main__':
@@ -65,8 +69,10 @@ if __name__=='__main__':
     # plot('Accuracy', values['train']['ACC'], values['val']['ACC'])
     
     # divergence = [values['val']['SL'][idx]-values['train']['SL'][idx] for idx in range(len(values['train']['SL']))]
-    train_sl_norm = min_max_norm(values['train']['SL'])
-    val_sl_norm = min_max_norm(values['val']['SL'])
+    train_sl_norm = l1_norm(values['train']['SL'])
+    val_sl_norm = l1_norm(values['val']['SL'])
+    print('train_sl_norm:', train_sl_norm)
+    print('val_sl_norm:', val_sl_norm)
     divergence = [val1-val2 for val1, val2 in zip(val_sl_norm, train_sl_norm)]
     ma_n = 8
     ma_divergence = moving_average(divergence, ma_n)
