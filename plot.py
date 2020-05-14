@@ -54,6 +54,6 @@ if __name__=='__main__':
     # plot('Validation Classification Loss', values['val']['CL'])
     # plot('Accuracy', values['train']['ACC'], values['val']['ACC'])
     divergence = [values['val']['SL'][idx]-values['train']['SL'][idx] for idx in range(len(values['train']['SL']))]
-    ma_divergence = [sum(divergence[idx-3:idx])/3 for idx in range(3, len(divergence)+1)]
-    plot('Segmentation Loss Divergence', ma_divergence)
+    ma3_divergence = [sum(divergence[idx:idx+3])/3 for idx in range(0, len(divergence)-2)]
+    plot('Segmentation Loss Divergence (ma=3)', ma3_divergence)
     
