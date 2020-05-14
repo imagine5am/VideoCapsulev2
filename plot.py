@@ -58,6 +58,7 @@ if __name__=='__main__':
     # plot('Validation Classification Loss', values['val']['CL'])
     # plot('Accuracy', values['train']['ACC'], values['val']['ACC'])
     divergence = [values['val']['SL'][idx]-values['train']['SL'][idx] for idx in range(len(values['train']['SL']))]
-    ma_divergence = moving_average(divergence, 5)
-    plot('Segmentation Loss Divergence (ma=5)', ma_divergence)
+    ma_n = 8
+    ma_divergence = moving_average(divergence, ma_n)
+    plot('Segmentation Loss Divergence (ma=%d)' % ma_n, ma_divergence)
     
