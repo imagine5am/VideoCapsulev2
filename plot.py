@@ -41,7 +41,11 @@ def parse():
                 values['val']['ACC'].append(acc * 100)
     return values
     
+
+def moving_average(nums, n):
+    return [sum(nums[idx:idx+n])/n for idx in range(0, len(nums)-n+1)]
     
+
 if __name__=='__main__':
     values = parse()
     print('Training')
@@ -54,6 +58,6 @@ if __name__=='__main__':
     # plot('Validation Classification Loss', values['val']['CL'])
     # plot('Accuracy', values['train']['ACC'], values['val']['ACC'])
     divergence = [values['val']['SL'][idx]-values['train']['SL'][idx] for idx in range(len(values['train']['SL']))]
-    ma3_divergence = [sum(divergence[idx:idx+3])/3 for idx in range(0, len(divergence)-2)]
-    plot('Segmentation Loss Divergence (ma=3)', ma3_divergence)
+    ma_divergence = moving_average(divergence, 5)
+    plot('Segmentation Loss Divergence (ma=5)', ma_divergence)
     
