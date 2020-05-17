@@ -34,6 +34,7 @@ def inference():
         capsnet.load(sess, config.network_save_dir)
         datasets = ['minetto', 'icdar', 'yvt']
         for dataset_name in datasets:
+            print('Using dataset', dataset_name)
             data_gen = ExternalTestDataLoader(data_queue_len=6, dataset=dataset_name, sec_to_wait=20)
             for video_idx in tqdm(range(data_gen.n_videos)):
                 video, _, _ = data_gen.get_next_video()
