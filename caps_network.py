@@ -46,14 +46,16 @@ class Caps3d(object):
             self.real_data_flag = True if config.data_type=='real' else False
 
             # initializes the network
-            self.init_network()
+            save_variable_list = []
+            self.init_network(save_variable_list)
 
             # initializes the loss
             self.cur_m = config.start_m
             self.init_loss_and_opt()
 
             # initializes the saver
-            self.saver = tf.train.Saver()
+            # self.saver = tf.train.Saver()
+            self.saver = tf.train.Saver(save_variable_list)
 
     def init_weights(self):
         self.w_and_b = {
@@ -61,42 +63,50 @@ class Caps3d(object):
             'zero': tf.zeros_initializer()
         }
 
-    def init_network(self):
+    def init_network(self, save_variable_list):
         print('Building Caps3d Model')
 
         # creates the video encoder
         conv1 = tf.layers.conv3d(self.x_input, 64, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 1, 1],
                                  activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
                                  bias_initializer=self.w_and_b['zero'], name='conv1')
+        save_variable_list.append(conv1)
         
         conv2 = tf.layers.conv3d(conv1, 128, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 2, 2],
                                  activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
                                  bias_initializer=self.w_and_b['zero'], name='conv2')
+        save_variable_list.append(conv2)
         
         conv3 = tf.layers.conv3d(conv2, 64, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 1, 1],
                                  activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
                                  bias_initializer=self.w_and_b['zero'], name='conv3')
+        save_variable_list.append(conv3)
 
         conv4 = tf.layers.conv3d(conv3, 128, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 2, 2],
                                  activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
                                  bias_initializer=self.w_and_b['zero'], name='conv4')
+        save_variable_list.append(conv4)
 
         conv5 = tf.layers.conv3d(conv4, 256, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 1, 1],
                                  activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
                                  bias_initializer=self.w_and_b['zero'], name='conv5')
+        save_variable_list.append(conv5)
 
         conv6 = tf.layers.conv3d(conv5, 256, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 2, 2],
                                  activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
                                  bias_initializer=self.w_and_b['zero'], name='conv6')
+        save_variable_list.append(conv6)
 
         conv7 = tf.layers.conv3d(conv6, 512, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 1, 1],
                                  activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
                                  bias_initializer=self.w_and_b['zero'], name='conv7')
+        save_variable_list.append(conv7)
 
         conv8 = tf.layers.conv3d(conv7, 512, kernel_size=[3, 3, 3], padding='SAME', strides=[1, 1, 1],
                                  activation=tf.nn.relu, kernel_initializer=self.w_and_b['none'],
                                  bias_initializer=self.w_and_b['zero'], name='conv8')
-
+        save_variable_list.append(conv8)
+        
         if config.print_layers:
             print('Conv1:', conv1.get_shape())
             print('Conv2:', conv2.get_shape())
@@ -111,14 +121,19 @@ class Caps3d(object):
         # creates the primary capsule layer: conv caps1
         prim_caps = create_prim_conv3d_caps(conv8, 32, kernel_size=[3, 9, 9], strides=[1, 1, 1],                         
                                             padding='VALID', name='prim_caps')
+        save_variable_list.extend(prim_caps)
+        
         # with tf.device('/gpu:0'):
         # creates the secondary capsule layer: conv caps2
         sec_caps = create_conv3d_caps(prim_caps, 32, kernel_size=[3, 5, 5], strides=[1, 2, 2],
                                       padding='VALID', name='sec_caps', route_mean=True)
+        # save_variable_list.extend(sec_caps)
+        
         #with tf.device('/gpu:0'):
         # creates the final capsule layer: class caps
         pred_caps = create_dense_caps(sec_caps, config.n_classes, subset_routing=-1, route_min=0.0,
                                       name='pred_caps', coord_add=True, ch_same_w=True)
+        # save_variable_list.extend(pred_caps)
 
         if config.print_layers:
             print('Primary Caps:', layer_shape(prim_caps))
@@ -144,25 +159,29 @@ class Caps3d(object):
 
         # creates the decoder network
         recon_fc1 = tf.layers.dense(masked_caps, 4 * 10 * 24 * 1, activation=tf.nn.relu, name='recon_fc1')
+        save_variable_list.append(recon_fc1)
         recon_fc1 = tf.reshape(recon_fc1, (batch_size, 4, 10, 24, 1))
 
         deconv1 = tf.layers.conv3d_transpose(recon_fc1, 128, kernel_size=[1, 3, 3], 
                                             strides=[1, 1, 1], padding='SAME', 
                                             use_bias=False, activation=tf.nn.relu, 
                                             name='deconv1')
-
+        save_variable_list.append(deconv1)
+        
         skip_connection1 = create_skip_connection(sec_caps, 128, kernel_size=[1, 3, 3], 
                                                     strides=[1, 1, 1], padding='SAME', 
                                                     name='skip_1')
+        save_variable_list.append(skip_connection1)
 
         deconv1 = tf.concat([deconv1, skip_connection1], axis=-1)
 
         deconv2 = tf.layers.conv3d_transpose(deconv1, 128, kernel_size=[3, 6, 6], strides=[1, 2, 2],
                                              padding='VALID', use_bias=False, activation=tf.nn.relu, name='deconv2')
-
+        save_variable_list.append(deconv2)
             
         skip_connection2 = create_skip_connection(prim_caps, 128, kernel_size=[1, 3, 3], strides=[1, 1, 1],
                                                   padding='SAME', name='skip_2')
+        save_variable_list.append(skip_connection2)
 
         print('deconv1:', deconv1.get_shape())                                          
         print('deconv2:', deconv2.get_shape())
@@ -172,12 +191,15 @@ class Caps3d(object):
         deconv3 = tf.layers.conv3d_transpose(deconv2, 256, kernel_size=[3, 9, 9], strides=[1, 1, 1],
                                              padding='VALID',
                                              use_bias=False, activation=tf.nn.relu, name='deconv3')
+        save_variable_list.append(deconv3)
 
         deconv4 = tf.layers.conv3d_transpose(deconv3, 256, kernel_size=[1, 3, 3], strides=[1, 2, 2], padding='SAME',
                                              use_bias=False, activation=tf.nn.relu, name='deconv4')
+        save_variable_list.append(deconv4)
         
         deconv5 = tf.layers.conv3d_transpose(deconv4, 256, kernel_size=[1, 3, 3], strides=[1, 2, 2], padding='SAME',
                                              use_bias=False, activation=tf.nn.relu, name='deconv5')
+        save_variable_list.append(deconv5)
         
         deconv6 = tf.layers.conv3d_transpose(deconv5, 256, kernel_size=[1, 3, 3], strides=[1, 2, 2], padding='SAME',
                                              use_bias=False, activation=tf.nn.relu, name='deconv6')
@@ -405,8 +427,8 @@ class Caps3d(object):
 
     def save(self, sess, file_name, ep):
         # saves the model
-        save_path = self.saver.save(sess, file_name, global_step=ep, write_meta_graph=True)  # +25
-        # save_path = self.saver.save(sess, file_name)
+        save_path = self.saver.save(sess, file_name, global_step=ep, write_meta_graph=True)  
+        # save_path = self.saver.save(sess, config.network_save_dir + 'pretrained_capsnet_83.ckpt', global_step=ep, write_meta_graph=True)
         print("Model saved in file: %s" % save_path)
 
 
