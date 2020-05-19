@@ -442,7 +442,7 @@ class Caps3d(object):
                          tf.Variable(self.deconv4,validate_shape=False), 
                          tf.Variable(self.deconv5,validate_shape=False)]
         saver = tf.train.Saver(save_var_list)
-        save_path = saver.save(sess, file_name, global_step=ep, write_meta_graph=True)  
+        save_path = saver.save(sess, file_name, global_step=ep, write_meta_graph=False)  
         # save_path = self.saver.save(sess, config.network_save_dir + 'pretrained_capsnet_83.ckpt', global_step=ep, write_meta_graph=True)
         print("Model saved in file: %s" % save_path)
 
