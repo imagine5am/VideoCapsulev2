@@ -46,16 +46,15 @@ class Caps3d(object):
             self.real_data_flag = True if config.data_type=='real' else False
 
             # initializes the network
-            save_variable_list = []
-            self.init_network(save_variable_list)
+            self.save_variable_list = []
+            self.init_network(self.save_variable_list)
 
             # initializes the loss
             self.cur_m = config.start_m
             self.init_loss_and_opt()
 
             # initializes the saver
-            # self.saver = tf.train.Saver()
-            self.saver = tf.train.Saver(save_variable_list)
+            self.saver = tf.train.Saver()
 
     def init_weights(self):
         self.w_and_b = {
@@ -427,7 +426,9 @@ class Caps3d(object):
 
     def save(self, sess, file_name, ep):
         # saves the model
-        save_path = self.saver.save(sess, file_name, global_step=ep, write_meta_graph=True)  
+        # save_path = self.saver.save(sess, file_name, global_step=ep, write_meta_graph=True)
+        saver = tf.train.Saver(self.save_variable_list)
+        save_path = saver.save(sess, file_name, global_step=ep, write_meta_graph=True)  
         # save_path = self.saver.save(sess, config.network_save_dir + 'pretrained_capsnet_83.ckpt', global_step=ep, write_meta_graph=True)
         print("Model saved in file: %s" % save_path)
 
