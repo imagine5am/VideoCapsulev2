@@ -427,9 +427,9 @@ class Caps3d(object):
     def save(self, sess, file_name, ep):
         # saves the model
         # save_path = self.saver.save(sess, file_name, global_step=ep, write_meta_graph=True)
-        saver = tf.train.Saver(self.conv1, self.conv2, self.conv3, self.conv4, self.conv5, self.conv6,
-                               self.conv7, self.conv8, self.prim_caps, self.recon_fc1, self.deconv1, self.skip_connection1,
-                               self.deconv2, self.skip_connection2, self.deconv3, self.deconv4, self.deconv5)
+        saver = tf.train.Saver([self.conv1, self.conv2, self.conv3, self.conv4, self.conv5, self.conv6,
+                                self.conv7, self.conv8, self.prim_caps, self.recon_fc1, self.deconv1, self.skip_connection1,
+                                self.deconv2, self.skip_connection2, self.deconv3, self.deconv4, self.deconv5])
         save_path = saver.save(sess, file_name, global_step=ep, write_meta_graph=True)  
         # save_path = self.saver.save(sess, config.network_save_dir + 'pretrained_capsnet_83.ckpt', global_step=ep, write_meta_graph=True)
         print("Model saved in file: %s" % save_path)
