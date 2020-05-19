@@ -427,13 +427,19 @@ class Caps3d(object):
     def save(self, sess, file_name, ep):
         # saves the model
         # save_path = self.saver.save(sess, file_name, global_step=ep, write_meta_graph=True)
-        save_var_list = [tf.Variable(self.conv1), tf.Variable(self.conv2), tf.Variable(self.conv3), 
-                         tf.Variable(self.conv4), tf.Variable(self.conv5), tf.Variable(self.conv6),
-                         tf.Variable(self.conv7), tf.Variable(self.conv8), tf.Variable(self.prim_caps), 
-                         tf.Variable(self.recon_fc1), tf.Variable(self.deconv1),
-                         tf.Variable(self.skip_connection1), tf.Variable(self.deconv2), 
-                         tf.Variable(self.skip_connection2), tf.Variable(self.deconv3), 
-                         tf.Variable(self.deconv4), tf.Variable(self.deconv5)]
+        save_var_list = [tf.Variable(self.conv1,validate_shape=False), tf.Variable(self.conv2,validate_shape=False), 
+                         tf.Variable(self.conv3,validate_shape=False), tf.Variable(self.conv4,validate_shape=False), 
+                         tf.Variable(self.conv5,validate_shape=False), tf.Variable(self.conv6,validate_shape=False),
+                         tf.Variable(self.conv7,validate_shape=False), tf.Variable(self.conv8,validate_shape=False), 
+                         tf.Variable(self.prim_caps,validate_shape=False), 
+                         tf.Variable(self.recon_fc1,validate_shape=False), 
+                         tf.Variable(self.deconv1,validate_shape=False),
+                         tf.Variable(self.skip_connection1,validate_shape=False), 
+                         tf.Variable(self.deconv2,validate_shape=False), 
+                         tf.Variable(self.skip_connection2,validate_shape=False), 
+                         tf.Variable(self.deconv3,validate_shape=False), 
+                         tf.Variable(self.deconv4,validate_shape=False), 
+                         tf.Variable(self.deconv5,validate_shape=False)]
         saver = tf.train.Saver(save_var_list)
         save_path = saver.save(sess, file_name, global_step=ep, write_meta_graph=True)  
         # save_path = self.saver.save(sess, config.network_save_dir + 'pretrained_capsnet_83.ckpt', global_step=ep, write_meta_graph=True)
