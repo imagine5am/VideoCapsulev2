@@ -112,10 +112,11 @@ class Caps3d(object):
             prim_caps = create_prim_conv3d_caps(conv8, 32, kernel_size=[3, 9, 9], strides=[1, 1, 1],                         
                                                 padding='VALID', name='prim_caps')
 
+        with tf.device('/gpu:1'):
             # creates the secondary capsule layer: conv caps2
             sec_caps = create_conv3d_caps(prim_caps, 32, kernel_size=[3, 5, 5], strides=[1, 2, 2],
                                       padding='VALID', name='sec_caps', route_mean=True)
-        with tf.device('/gpu:1'):
+        
             # creates the final capsule layer: class caps
             pred_caps = create_dense_caps(sec_caps, config.n_classes, subset_routing=-1, route_min=0.0,
                                           name='pred_caps', coord_add=True, ch_same_w=True)
