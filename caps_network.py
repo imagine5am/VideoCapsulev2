@@ -108,8 +108,6 @@ class Caps3d(object):
             print('Conv7:', conv7.get_shape())
             print('Conv8:', conv8.get_shape())
 
-
-        with tf.device('/gpu:1'):
             # creates the primary capsule layer: conv caps1
             prim_caps = create_prim_conv3d_caps(conv8, 32, kernel_size=[3, 9, 9], strides=[1, 1, 1],                         
                                                 padding='VALID', name='prim_caps')
@@ -117,7 +115,7 @@ class Caps3d(object):
             # creates the secondary capsule layer: conv caps2
             sec_caps = create_conv3d_caps(prim_caps, 32, kernel_size=[3, 5, 5], strides=[1, 2, 2],
                                       padding='VALID', name='sec_caps', route_mean=True)
-        with tf.device('/gpu:2'):
+        with tf.device('/gpu:1'):
             # creates the final capsule layer: class caps
             pred_caps = create_dense_caps(sec_caps, config.n_classes, subset_routing=-1, route_min=0.0,
                                           name='pred_caps', coord_add=True, ch_same_w=True)
@@ -187,7 +185,7 @@ class Caps3d(object):
             deconv6 = tf.layers.conv3d_transpose(deconv5, 256, kernel_size=[1, 3, 3], strides=[1, 2, 2], padding='SAME',
                                                  use_bias=False, activation=tf.nn.relu, name='deconv6')
 
-        with tf.device('/gpu:3'):
+        with tf.device('/gpu:2'):
             self.segment_layer = {}
             self.segment_layer_sig = {}
             for ann_type in config.ann_types:
@@ -206,7 +204,7 @@ class Caps3d(object):
 
 
     def init_loss_and_opt(self):
-        with tf.device('/gpu:3'):
+        with tf.device('/gpu:2'):
             if config.data_type == 'synth':
                 y_onehot = tf.one_hot(indices=self.y_input, depth=config.n_classes)
 
