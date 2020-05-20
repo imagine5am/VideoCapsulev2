@@ -6,4 +6,5 @@ network_saves/
 temp/
 older_models/
 inference/
+*.hdf5
 
