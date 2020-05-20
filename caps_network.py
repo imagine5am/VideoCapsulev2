@@ -107,12 +107,13 @@ class Caps3d(object):
             print('Conv6:', conv6.get_shape())
             print('Conv7:', conv7.get_shape())
             print('Conv8:', conv8.get_shape())
-
+        
+        with tf.device('/gpu:1'):
             # creates the primary capsule layer: conv caps1
             prim_caps = create_prim_conv3d_caps(conv8, 32, kernel_size=[3, 9, 9], strides=[1, 1, 1],                         
                                                 padding='VALID', name='prim_caps')
 
-        with tf.device('/gpu:1'):
+        
             # creates the secondary capsule layer: conv caps2
             sec_caps = create_conv3d_caps(prim_caps, 32, kernel_size=[3, 5, 5], strides=[1, 2, 2],
                                       padding='VALID', name='sec_caps', route_mean=True)
