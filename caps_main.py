@@ -50,7 +50,7 @@ def train_network(gpu_config):
             if config.data_type == 'synth':
                 data_gen = TrainDataGen(config.wait_for_data, frame_skip=config.frame_skip)
             elif config.data_type == 'real':
-                data_gen = ExternalTrainDataLoader(dataset='icdar')
+                data_gen = ExternalTrainDataLoader()
                 
             margin_loss, seg_loss, acc = capsnet.train(sess, data_gen)
             config.write_output('Training\tCL: %.4f. SL: %.4f. Acc: %.4f.\n' % (margin_loss, seg_loss, acc))
@@ -62,7 +62,7 @@ def train_network(gpu_config):
             if config.data_type == 'synth':
                 data_gen = TestDataGen(config.wait_for_data, frame_skip=1)
             elif config.data_type == 'real':
-                data_gen = ExternalTestDataLoader(dataset='icdar')
+                data_gen = ExternalTestDataLoader()
                 
             margin_loss, seg_loss, accuracy, _ = capsnet.eval(sess, data_gen, validation=False)
             config.write_output('Validation\tCL: %.4f. SL: %.4f. Acc: %.4f.\n' %
