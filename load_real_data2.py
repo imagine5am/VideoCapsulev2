@@ -21,8 +21,9 @@ def save_masked_video(name, video, mask):
 
 def get_annotations(split_type='train', dataset='all'):
     video_anns = {}
-    with h5py.File('./realvid_ann.hdf5', 'r') as hf:
+    # with h5py.File('./realvid_ann.hdf5', 'r') as hf:
     # with h5py.File('./realvid13_ann.hdf5', 'r') as hf:
+    with h5py.File('./realvid_ann_neeti.hdf5', 'r') as hf:
         split_grp = hf.get(split_type)
         for video in split_grp.keys():
             video_grp = split_grp.get(video)

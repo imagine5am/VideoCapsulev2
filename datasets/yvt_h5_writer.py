@@ -266,10 +266,11 @@ def yvt_parse_ann(file):
             
     return anns
 
-base_dir = '/mnt/data/Rohit/VideoCapsNet/data/YVT/'
+# base_dir = '/mnt/data/Rohit/VideoCapsNet/data/YVT/'
+base_dir = '/home/ayush/VideoCapsNet/data/YVT/'
 ann_dir = 'annotations/'
 frames_dir = 'frames/'
-with h5py.File('realvid13_ann.hdf5', 'a') as hf:
+with h5py.File('realvid_ann_neeti.hdf5', 'a') as hf:
     for split_type in ['train', 'test']:
         if split_type not in hf.keys():
             split_grp = hf.create_group(split_type)

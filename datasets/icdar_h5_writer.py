@@ -345,12 +345,16 @@ base_dirs = {'train': '/mnt/data/Rohit/ICDARVideoDataset/text_in_Video/ch3_train
              'test': '/mnt/data/Rohit/ICDARVideoDataset/text_in_Video/ch3_test/'
             }
 '''
+'''
 base_dirs = {'train': '/mnt/data/Rohit/VideoCapsNet/data/ICDARVideoDataset2013/ch3_train/',
              'test': '/mnt/data/Rohit/VideoCapsNet/data/ICDARVideoDataset2013/ch3_test/'
             }
-
+'''
+base_dirs = {'train': '/home/ayush/VideoCapsNet/data/ICDARVideoDataset/text_in_Video/ch3_train/',
+             'test': '/home/ayush/VideoCapsNet/data/ICDARVideoDataset/text_in_Video/ch3_test/'
+            }
 # save to h5
-with h5py.File('realvid13_ann.hdf5', 'a') as hf:
+with h5py.File('realvid_ann_neeti.hdf5', 'a') as hf:
     for split_type, base_dir in base_dirs.items():
         if split_type not in hf.keys():
             split_grp = hf.create_group(split_type)
