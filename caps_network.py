@@ -188,7 +188,14 @@ class Caps3d(object):
         with tf.device('/gpu:2'):
             self.segment_layer = {}
             self.segment_layer_sig = {}
-            for ann_type in config.ann_types:
+            for ann_type in config.ann_types[:2]:
+                self.segment_layer[ann_type] = tf.layers.conv3d(deconv6, 1, kernel_size=[1, 3, 3], strides=[1, 1, 1],
+                                                      padding='SAME', activation=None, name='segment_layer_'+ann_type)
+                self.segment_layer_sig[ann_type] = tf.nn.sigmoid(self.segment_layer[ann_type])
+        with tf.device('/gpu:3'):
+            self.segment_layer = {}
+            self.segment_layer_sig = {}
+            for ann_type in config.ann_types[2:]:
                 self.segment_layer[ann_type] = tf.layers.conv3d(deconv6, 1, kernel_size=[1, 3, 3], strides=[1, 1, 1],
                                                       padding='SAME', activation=None, name='segment_layer_'+ann_type)
                 self.segment_layer_sig[ann_type] = tf.nn.sigmoid(self.segment_layer[ann_type])
@@ -204,7 +211,7 @@ class Caps3d(object):
 
 
     def init_loss_and_opt(self):
-        with tf.device('/gpu:2'):
+        with tf.device('/gpu:3'):
             if config.data_type == 'synth':
                 y_onehot = tf.one_hot(indices=self.y_input, depth=config.n_classes)
 
