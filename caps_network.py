@@ -412,7 +412,7 @@ class Caps3d(object):
 
     def save(self, sess, file_name, ep):
         # saves the model
-        save_path = self.saver.save(sess, file_name, global_step=ep, write_meta_graph=True)  # +25
+        save_path = self.saver.save(sess, file_name, global_step=ep)  # +25
         # save_path = self.saver.save(sess, file_name)
         print("Model saved in file: %s" % save_path)
 
