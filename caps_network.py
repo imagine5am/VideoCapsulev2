@@ -212,59 +212,59 @@ class Caps3d(object):
 
 
     def init_loss_and_opt(self):
-        with tf.device('/gpu:3'):
-            if config.data_type == 'synth':
-                y_onehot = tf.one_hot(indices=self.y_input, depth=config.n_classes)
+        if config.data_type == 'synth':
+            y_onehot = tf.one_hot(indices=self.y_input, depth=config.n_classes)
 
-                # get a_t
-                a_i = tf.expand_dims(self.digit_preds, axis=1)
-                y_onehot2 = tf.expand_dims(y_onehot, axis=2)
-                a_t = tf.matmul(a_i, y_onehot2)
+            # get a_t
+            a_i = tf.expand_dims(self.digit_preds, axis=1)
+            y_onehot2 = tf.expand_dims(y_onehot, axis=2)
+            a_t = tf.matmul(a_i, y_onehot2)
 
-                # calculate spread loss
-                spread_loss = tf.square(tf.maximum(0.0, self.m - (a_t - a_i)))
-                spread_loss = tf.matmul(spread_loss, 1. - y_onehot2)
-                self.class_loss = tf.reduce_sum(tf.reduce_sum(spread_loss, axis=[1, 2]))
-            else:
-                self.class_loss = tf.constant(0.0)
+            # calculate spread loss
+            spread_loss = tf.square(tf.maximum(0.0, self.m - (a_t - a_i)))
+            spread_loss = tf.matmul(spread_loss, 1. - y_onehot2)
+            self.class_loss = tf.reduce_sum(tf.reduce_sum(spread_loss, axis=[1, 2]))
+        else:
+            self.class_loss = tf.constant(0.0)
 
-            '''
-            # segmentation loss
-            segment = tf.contrib.layers.flatten(self.segment_layer)
-            y_bbox = tf.contrib.layers.flatten(self.y_bbox)
-            self.segmentation_loss = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels=y_bbox, logits=segment))
-            self.segmentation_loss = config.segment_coef * self.segmentation_loss
-            '''
+        '''
+        # segmentation loss
+        segment = tf.contrib.layers.flatten(self.segment_layer)
+        y_bbox = tf.contrib.layers.flatten(self.y_bbox)
+        self.segmentation_loss = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels=y_bbox, logits=segment))
+        self.segmentation_loss = config.segment_coef * self.segmentation_loss
+        '''
 
-            # segmentation loss
-            for i, ann_type in enumerate(config.ann_types):
-                segment = tf.contrib.layers.flatten(self.segment_layer[ann_type])
-                y_bbox = tf.contrib.layers.flatten(self.y_bbox[:, :, i, :, :, :])
-                if i == 0:
-                    self.segmentation_loss = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels=y_bbox, logits=segment))
-                else:     
-                    self.segmentation_loss += tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels=y_bbox, logits=segment))
+        # segmentation loss
+        for i, ann_type in enumerate(config.ann_types):
+            segment = tf.contrib.layers.flatten(self.segment_layer[ann_type])
+            y_bbox = tf.contrib.layers.flatten(self.y_bbox[:, :, i, :, :, :])
+            if i == 0:
+                self.segmentation_loss = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels=y_bbox, logits=segment))
+            else:     
+                self.segmentation_loss += tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels=y_bbox, logits=segment))
 
-            self.segmentation_loss = config.segment_coef * self.segmentation_loss
+        self.segmentation_loss = config.segment_coef * self.segmentation_loss
 
-            # accuracy of a given batch
-            if config.data_type == 'synth':
-                correct = tf.cast(tf.equal(self.predictions, self.y_input), tf.float32)
-                self.tot_correct = tf.reduce_sum(correct)
-                self.accuracy = tf.reduce_mean(correct)
-            else:
-                self.tot_correct = tf.shape(self.y_input)[0]
-                self.accuracy = tf.constant(.99)
+        # accuracy of a given batch
+        if config.data_type == 'synth':
+            correct = tf.cast(tf.equal(self.predictions, self.y_input), tf.float32)
+            self.tot_correct = tf.reduce_sum(correct)
+            self.accuracy = tf.reduce_mean(correct)
+        else:
+            self.tot_correct = tf.shape(self.y_input)[0]
+            self.accuracy = tf.constant(.99)
 
-            if config.data_type == 'synth':
-                self.total_loss = self.class_loss + self.segmentation_loss
-            else:
-                self.total_loss = self.segmentation_loss
+        if config.data_type == 'synth':
+            self.total_loss = self.class_loss + self.segmentation_loss
+        else:
+            self.total_loss = self.segmentation_loss
 
-            optimizer = tf.train.AdamOptimizer(learning_rate=config.learning_rate, beta1=config.beta1, name='Adam',
-                                               epsilon=config.epsilon)
+        optimizer = tf.train.AdamOptimizer(learning_rate=config.learning_rate, beta1=config.beta1, name='Adam',
+                                           epsilon=config.epsilon)
 
-            self.train_op = optimizer.minimize(loss=self.total_loss)
+        self.train_op = optimizer.minimize(loss=self.total_loss)
+
 
     def train(self, sess, data_gen):
         start_time = time.time()
