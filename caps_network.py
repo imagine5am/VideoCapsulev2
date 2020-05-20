@@ -192,6 +192,7 @@ class Caps3d(object):
                 self.segment_layer[ann_type] = tf.layers.conv3d(deconv6, 1, kernel_size=[1, 3, 3], strides=[1, 1, 1],
                                                       padding='SAME', activation=None, name='segment_layer_'+ann_type)
                 self.segment_layer_sig[ann_type] = tf.nn.sigmoid(self.segment_layer[ann_type])
+                
         with tf.device('/gpu:3'):
             self.segment_layer = {}
             self.segment_layer_sig = {}
@@ -207,7 +208,7 @@ class Caps3d(object):
                 print('Deconv Layer 4:', deconv4.get_shape())
                 print('Deconv Layer 5:', deconv5.get_shape())
                 print('Deconv Layer 6:', deconv6.get_shape())
-                print('Segmentation Layer:', self.segment_layer[config.ann_types[0]].get_shape())
+                print('Segmentation Layer: 4 x ', self.segment_layer[config.ann_types[2]].get_shape())
 
 
     def init_loss_and_opt(self):
