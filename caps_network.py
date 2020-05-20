@@ -234,18 +234,22 @@ class Caps3d(object):
         self.segmentation_loss = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels=y_bbox, logits=segment))
         self.segmentation_loss = config.segment_coef * self.segmentation_loss
         '''
-
-        # segmentation loss
-        for i, ann_type in enumerate(config.ann_types):
-            segment = tf.contrib.layers.flatten(self.segment_layer[ann_type])
-            y_bbox = tf.contrib.layers.flatten(self.y_bbox[:, :, i, :, :, :])
-            if i == 0:
-                self.segmentation_loss = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels=y_bbox, logits=segment))
-            else:     
+        self.segmentation_loss = tf.constant(0.0)
+        with tf.device('/gpu:2'):
+            # segmentation loss
+            for i, ann_type in enumerate(config.ann_types[:2]):
+                segment = tf.contrib.layers.flatten(self.segment_layer[ann_type])
+                y_bbox = tf.contrib.layers.flatten(self.y_bbox[:, :, i, :, :, :])
+                self.segmentation_loss += tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels=y_bbox, logits=segment))
+        
+        with tf.device('/gpu:3'):
+            # segmentation loss
+            for i, ann_type in enumerate(config.ann_types[2:]):
+                segment = tf.contrib.layers.flatten(self.segment_layer[ann_type])
+                y_bbox = tf.contrib.layers.flatten(self.y_bbox[:, :, i+2, :, :, :])
                 self.segmentation_loss += tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels=y_bbox, logits=segment))
 
         self.segmentation_loss = config.segment_coef * self.segmentation_loss
-
         # accuracy of a given batch
         if config.data_type == 'synth':
             correct = tf.cast(tf.equal(self.predictions, self.y_input), tf.float32)
