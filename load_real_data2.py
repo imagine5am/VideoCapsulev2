@@ -219,7 +219,7 @@ def get_clips(video, bbox):
     return clips_list
                 
 class ExternalTestDataLoader:
-    def __init__(self, data_queue_len=10, dataset='all', sec_to_wait=30):
+    def __init__(self, data_queue_len=15, dataset='all', sec_to_wait=45):
         print('Running ExternalTestDataLoader...')
         self.test_files = get_annotations('test', dataset=dataset)
         
@@ -275,7 +275,7 @@ class ExternalTestDataLoader:
 
 
 class ExternalTrainDataLoader:
-    def __init__(self, data_queue_len=100, dataset='all', sec_to_wait=45):
+    def __init__(self, data_queue_len=150, dataset='all', sec_to_wait=45):
         print('Running ExternalTrainDataLoader...')
         self.train_files = get_annotations()
         self.video_order = list(self.train_files.keys())
