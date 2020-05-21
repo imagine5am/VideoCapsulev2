@@ -4,7 +4,7 @@ import tensorflow as tf
 # os.environ["CUDA_VISIBLE_DEVICES"]="3"
 gpu_config = tf.ConfigProto()
 #gpu_config.gpu_options.visible_device_list= '1,2,0,3'
-gpu_config.gpu_options.visible_device_list= '0,1,2,3'
+gpu_config.gpu_options.visible_device_list= '0'
 gpu_config.gpu_options.allow_growth = True
 #gpu_config.polling_inactive_delay_msecs = 10
 #gpu_config.gpu_options.per_process_gpu_memory_fraction = 1.0
@@ -13,7 +13,7 @@ gpu_config.gpu_options.allow_growth = True
 #gpu_config.allow_soft_placement = True
 
 # batch size and number of epochs
-batch_size = 1
+batch_size = 2
 n_epochs = 100
 
 data_type = 'real' # 'real', 'synth'
